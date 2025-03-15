@@ -5,7 +5,6 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 
 export const Category = () => {
     const { data } = useQuery(GET_CATEGORY);
-
     const imageGroup = [
         data?.categoryGames.edges.slice(0, 3),
         data?.categoryGames.edges.slice(3, 6),
