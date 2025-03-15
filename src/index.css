@@ -1,0 +1,53 @@
+@import url(https://fonts.googleapis.com/css?family=Vazirmatn:100,200,300,regular,500,600,700,800,900);
+@import "tailwindcss";
+@theme{
+    --font-main: 'Vazirmatn', 'sans-serif';
+    --breakpoint-desktop: 1460px;
+}
+*,
+*::before,
+*::after {
+    @apply box-border;
+}
+::-webkit-scrollbar {
+    @apply hidden;
+  }
+
+a, a:link, a:visited  {
+    @apply no-underline;
+}
+
+a:hover  {
+    @apply no-underline;
+}
+
+ul, ul li {
+    @apply list-none;
+}
+
+img {
+    @apply align-top;
+}
+h1,h2,h3,h4,h5,h6{
+    @apply p-0 m-0;
+}
+html, body {
+    @apply h-full;
+}
+
+body{
+    @apply bg-[#1C1B29] font-main min-h-[100vh] overflow-auto;
+    -webkit-user-select: none;
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none;
+}
+#root{
+    @apply w-full;
+}
+.background__slider {
+    @apply  absolute top-0 left-0 w-full h-[860px] ;
+}
+.container{
+    @apply max-w-[1200px] max-desktop:max-w-[884px] m-auto;
+}
