@@ -1,4 +1,4 @@
-src\Service\gameServer.js
+src\Service\gameserver.js
 # Logs
 logs
 *.log
