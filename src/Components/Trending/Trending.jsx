@@ -48,13 +48,10 @@ export const Trending = ({dataGames, dataDiscounts}) => {
         for (let i = 0; i < dataDiscounts?.discounts?.edges?.length; i++) {
             const discountData = dataDiscounts?.discounts?.edges[i]?.node;
             const date = new Date().toISOString();
-
             if (discountData?.startDate && discountData?.endDate && discountData?.startDate <= date && date <= discountData?.endDate) {
-                console.log('Дата подходит');
                 setDiscountsPrice(discount(groupGamesIntoSlides(dataGames?.games?.edges)[slide]));
                 return true;
             } else {
-                console.log('Дата не подходит');
                 setDiscountsPrice(null);
                 return false;
             }
