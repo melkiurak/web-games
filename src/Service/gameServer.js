@@ -1,11 +1,11 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 
 const client = new ApolloClient({
-    uri: 'https://parseapi.back4app.com/graphql', 
+    uri: import.meta.env.VITE_GRAPHQL_URI, 
     cache: new InMemoryCache(),
     headers: {
-      "X-Parse-Application-Id": 'W00fMNVAVSA81A93tAeB3tmOu9zHfoFPK0PbTZpE',
-      "X-Parse-REST-API-Key": 'MBDP7Y3nqVGJIdYdFWEqjVIGTGbdaj5WhwKxZIeD', 
+      "X-Parse-Application-Id": import.meta.env.VITE_APP_ID,
+      "X-Parse-REST-API-Key": import.meta.env.VITE_API_KEY, 
     }
 });
 export default client ;
