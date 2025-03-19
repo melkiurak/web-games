@@ -5,6 +5,7 @@ import { Header } from './Components/Header/Header'
 import { Hero } from './Components/Hero/Hero'
 import { GET_DISCOUNTS, GET_GAMES } from './Service/gamedata';
 import { Trending } from './Components/Trending/Trending';
+import { MonthlyGames } from './Components/MonthlyGames/MonthlyGames';
 
 function App() {
   const { data: dataGames, loading: loadingGames, error: errorGames } = useQuery(GET_GAMES, {fetchPolicy: 'cache-first',});
@@ -25,6 +26,7 @@ function App() {
       <main className='flex flex-col gap-[100px] max-desktop:gap-[80px] max-lg:gap-[60px]'>
         <Category dataGames={dataGames}/>
         <Trending dataGames={dataGames} dataDiscounts={dataDiscounts}/>
+        <MonthlyGames dataGames={dataGames}/>
       </main>
     </div>
   )
