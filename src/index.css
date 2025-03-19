@@ -3,6 +3,7 @@
 @theme{
     --font-main: 'Vazirmatn', 'sans-serif';
     --breakpoint-desktop: 1460px;
+    --shadow-categorys: 0 1px 12px 0 rgba(255, 87, 51, 0.13);
 }
 *,
 *::before,
@@ -50,4 +51,7 @@ body{
 }
 .container{
     @apply max-w-[1200px] max-desktop:max-w-[884px] m-auto;
+}
+h2{
+    @apply text-white text-2xl max-lg:text-xl font-bold max-lg:font-semibold;
 }

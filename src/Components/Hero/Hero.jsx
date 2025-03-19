@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import date from '../../assets/Hero/date.png'
 import matacritic from '../../assets/Hero/metacritic.png';
-import { useQuery } from "@apollo/client";
-import { GET_GAMES } from "../../Service/gamedata";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 
-export const Hero = () => {
-    const { data } = useQuery(GET_GAMES,{fetchPolicy: 'cache-first',});
+export const Hero = ({dataGames}) => {
     const [slide, setSlide] = useState(0);
 
+    const background = dataGames?.games?.edges?.filter(edge => edge?.node?.BackgroundTop?.url);
     const buutonNext = () => {
-        if(slide < data?.games.edges.length - 1){
+        if(slide < background.length - 1){
             setSlide(slide + 1);
         }
     };
@@ -19,15 +17,16 @@ export const Hero = () => {
             setSlide(slide - 1);
         }
     };
+
     return (
         <>
-            {data?.games.edges.map((edge, index) => 
+            {background.map((edge, index) => 
                 index === slide && (
-                <div key={edge.node.objectId} className={`w-full h-[894px] max-desktop:h-[696px] max-md:h-[486px] bg-no-repeat bg-auto max-desktop:bg-cover bg-top ${index === 0 ? 'max-md:bg-[80%_center]' : 'max-md:bg-center'} items-center relative after:content-[''] after:absolute after:w-full after:h-full  after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_73.5%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_50%)] max-md:after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_95%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_25%)]`} style={{backgroundImage: `url('${edge.node.BackgroundTop.url}')`, display: index === slide ? 'flex' : 'none', opacity: index === slide ? 1 : 0, visibility: index === slide ? 'visible' : 'hidden', transition: 'opacity 0.5s ease, visibility 0s 0.5s'}}>
+                <div key={edge.node.objectId} className={`w-full h-[894px] max-desktop:h-[696px] max-md:h-[486px] bg-no-repeat bg-auto max-desktop:bg-cover bg-top ${index === 0 ? 'max-md:bg-[80%_center]' : 'max-md:bg-center'} items-center relative after:content-[''] after:absolute after:w-full after:h-full  after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_73.5%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_50%)] max-md:after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_95%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_25%)] ${index === slide ? 'flex' : 'hidden'} `} style={{backgroundImage: `url('${edge.node.BackgroundTop.url}')`}}>
                     <div className="flex gap-9 max-desktop:gap-5 w-full h-[654px] max-desktop:h-[500px] max-lg:h-full items-end max-lg:items-center z-10 relative max-lg:flex-col max-lg:justify-end container"> 
                         <div className="max-w-[333px] max-desktop:max-w-[323px] w-full flex flex-col max-lg:items-center gap-8 max-lg:gap-0 max-md:mb-24px">
                             <div className="text-white max-lg:max-w-[382px] max-lg:text-center max-lg:px-[10px] max-lg:items-center">
-                                <h2 className="font-extrabold text-[40px] max-desktop:text-[32px] pb-2">{edge.node.name}</h2>
+                                <h1 className="font-extrabold text-[40px] max-desktop:text-[32px] pb-2">{edge.node.name}</h1>
                                 <p className="max-desktop:text-sm max-lg:hidden">{edge.node.description}</p>
                             </div>
                             <div className="flex flex-col gap-7 max-lg:gap-4 max-lg:w-full max-lg:p-2 max-lg:py-4">
@@ -61,9 +60,9 @@ export const Hero = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-2 text-[#979797] w-full max-lg:hidden">
-                                            {edge.node.platform.map((platform, index) => (
-                                                <button className="px-1 w-full rounded-[10px] border border-solid border-[#979797]" key={index}>{platform.value}</button>
-                                            ))}
+                                    {edge.node.platform.map((platform, index) => (
+                                        <button className="px-1 w-full rounded-[10px] border border-solid border-[#979797]" key={index}>{platform.value}</button>
+                                    ))}
                                 </div>
                                 <div className="w-full flex justify-between gap-3">
                                     <button className="font-medium text-lg rounded-[30px] py-2 max-w-[43.24%] max-desktop:max-w-[50%] w-full text-white bg-[#FF5733]">Buy Now</button>
@@ -71,7 +70,7 @@ export const Hero = () => {
                                 </div>
                             </div>
                             <div  className="hidden max-w-[161px] w-full h-[10px] max-lg:flex max-lg:justify-between max-lg:items-center">
-                                {data?.games.edges.map((_, index) => 
+                                {background.map((_, index) => 
                                     <div key={index} className={`w-[25px] h-1/2 bg-[#8C301C] rounded-[2px] ${slide === index ? 'w-[45px] bg-[#FF5733] h-full': ''}`}></div>
                                 )}
                             </div>
@@ -83,11 +82,11 @@ export const Hero = () => {
                                 </div>
                                 <div className="flex gap-[10px] max-lg:w-full justify-between max-lg:px-6">
                                     <button className="rounded-[8px] p-[16.5px] max-lg:p-3 border border-solid border-[#979797]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buutonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
-                                    <button className="rounded-[8px] p-[16.5px] max-lg:p-3 border border-solid border-[#979797]" style={{border: slide < data?.games?.edges.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797', cursor: slide < data?.games.edges.length - 1 ? 'pointer' : 'auto'}} onClick={buutonNext}><GrLinkNext style={{color: slide < data?.games.edges.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
+                                    <button className={`rounded-[8px] p-[16.5px] max-lg:p-3 border border-solid border-[#979797] ${slide < background.length - 1 ? 'cursor-pointer' : 'cursor-auto'} `} style={{border: slide < background.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buutonNext}><GrLinkNext style={{color: slide < background.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
                                 </div>
                             </div>
                             <div className="flex justify-between items-end max-desktop:gap-2 max-lg:hidden">
-                                {data?.games.edges.map((edge, index) => (
+                                {background.map((edge, index) => (
                                     <div key={edge.node.objectId} className={`h-[220px] max-desktop:h-[164px] ${slide === index ? 'h-[240px] max-desktop:h-[179px]' : ''}`} style={{border: slide === index ? '1px solid #FF5733' : 'none', borderRadius: 4,position: 'relative'}}>
                                         <img src={edge.node.BannerImg.url}  alt="Game Banner" className="h-full max-desktop:object-cover" />
                                         {slide === index && (

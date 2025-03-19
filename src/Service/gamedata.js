@@ -14,6 +14,9 @@ const GET_GAMES = gql `
           metacriticScoreMax
           price
           genre
+          category{
+            name
+          }
           platform {
             ... on Element{
               value
@@ -24,7 +27,9 @@ const GET_GAMES = gql `
           }
           BannerImg {
             url
-          }          
+          }
+          discount
+          gameOfTheMonthDate
         }
       }
     }
@@ -47,4 +52,22 @@ const GET_CATEGORY = gql `
     }
   }
 `
-export { GET_GAMES, GET_CATEGORY}
+
+const GET_DISCOUNTS = gql `
+    query{
+      discounts{
+        count 
+        edges{
+          node{
+            name
+            discountValue
+            discountType
+            startDate
+            endDate
+          }
+        }
+      }
+    }
+`
+
+export { GET_GAMES, GET_CATEGORY, GET_DISCOUNTS}
