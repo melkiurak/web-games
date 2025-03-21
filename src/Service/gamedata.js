@@ -43,9 +43,6 @@ const GET_GAMES = gql `
             img3{
               url
             }
-            img4{
-              url
-            }
           }
         }
       }

@@ -7,6 +7,9 @@ import { FiCpu } from "react-icons/fi";
 
 export const MonthlyGames = ({dataGames}) => {
     const [gamesMonthly, setGamesMonthly] = useState([]);
+    const [gameShowcase, setGameShowcase] = useState(null);
+    const [activeTrailerUrl, setActiveTrailerUrl] = useState(null);
+
     const nowDate = new Date().toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number) 
     
     const monthlyGames = dataGames?.games?.edges.filter((edge) => {
@@ -16,6 +19,15 @@ export const MonthlyGames = ({dataGames}) => {
         }
         return false;
     });
+
+    const selectedImage = (imgUrl) => {
+        setGameShowcase(imgUrl);
+        setActiveTrailerUrl('');
+    };
+    const selectedTrailler = (traillerUrl) => {
+        setActiveTrailerUrl(traillerUrl);
+        setGameShowcase('')
+    };
     useEffect(() => {
         if (monthlyGames.length > 0) {
             setGamesMonthly(monthlyGames);
@@ -87,14 +99,22 @@ export const MonthlyGames = ({dataGames}) => {
                                     <button>Prev</button>
                                 </div>
                            </div>
-                           <div className="w-full h-[290px] rounded-lg">
-                                <iframe className="w-full h-full rounded-lg" src={`https://www.youtube.com/embed/${edge.node.Trailler}`} title={edge.node.name} allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-presentation" ></iframe>
+                           <div className="w-full h-[290px]">
+                                {gameShowcase && (
+                                    <div className="w-full h-full rounded-lg bg-no-repeat bg-center bg-cover" style={{ backgroundImage: `url(${gameShowcase})` }}></div>
+                                    ) 
+                                }
+                                {activeTrailerUrl && (
+                                    <iframe className="w-full h-full rounded-lg" src={`https://www.youtube.com/embed/${activeTrailerUrl}`} title={edge.node.name} allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-presentation" ></iframe>
+                                    ) 
+                                }
                            </div>
                            <div className="w-full h-[84px] flex justify-between items-center">
-                            {Object.values(edge.node.TraillerImg).map((img, index) => (img.url ? (
-                                    <img key={index} src={img.url} alt={`фото-${index}`} className="w-[129px] h-[60px]" />
-                                ) : null
-                            ))} 
+                                <img className="w-[129px] h-[60px]"  src={`https://img.youtube.com/vi/${edge?.node?.Trailler}/maxresdefault.jpg`} onClick={() => selectedTrailler(edge?.node?.Trailler)} alt="" />
+                                {Object.values(edge.node.TraillerImg).map((img, index) => (img.url ? (
+                                        <img key={index} src={img.url} alt={`фото-${index}`} className="w-[129px] h-[60px]" onClick={() => selectedImage(img.url)} />
+                                    ) : null
+                                ))} 
                            </div>
                         </div>
                     </div>
