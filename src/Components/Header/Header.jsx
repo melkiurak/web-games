@@ -28,10 +28,10 @@ export const  Header = () => {
                     </ul>
                 </nav>
                 <div className='flex max-lg:flex-[1] flex-none max-w-[208px] w-full justify-between h-[40px] gap-4 max-lg:mr-5 max-md:hidden'>
-                    <button className='whitespace-nowrap rounded-[16px] text-[16px] font-medium bg-[#E64E2E] text-white cursor-pointer '> 
+                    <button className='opaqueButton'> 
                         <span className='px-[24px] py-[7.5px]'>Sign Up</span>
                     </button>
-                    <button className='whitespace-nowrap rounded-[16px] text-[16px] font-medium border-2 border-[#E64E2E] text-[#E64E2E] cursor-pointer'> 
+                    <button className='transparentButton'> 
                         <span className='px-[24px] py-[7.5px]'>Login</span> 
                     </button>
                 </div>
