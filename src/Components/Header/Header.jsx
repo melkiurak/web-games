@@ -5,7 +5,7 @@ import  prime from '../../assets/Header/Prime.png';
 import search from '../../assets/Header/search.png'
 export const  Header = () => {
     return (
-        <header className='absolute w-full bg-transparent backdrop-blur-xs z-[1000] h-[90px] max-desktop:h-[83px] max-md:h-[64px] flex items-center justify-center max-lg:px-3'>
+        <header className='absolute w-full bg-transparent backdrop-blur-xs z-[10] h-[90px] max-desktop:h-[83px] max-md:h-[64px] flex items-center justify-center max-lg:px-3'>
             <div className='flex items-center justify-between w-full container h-full max-lg:pl-[10px]'> 
                 <div className='max-lg:flex-[1] max-md:h-10'>
                     <div className='flex items-center gap-[3.5px] flex-none pr-5'>

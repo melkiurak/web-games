@@ -4,14 +4,16 @@ import metacritic from '../../assets/main/metacritic.png'
 import { RiRam2Line } from "react-icons/ri";
 import { BsGpuCard } from "react-icons/bs";
 import { FiCpu } from "react-icons/fi";
+import { IoCloseSharp } from "react-icons/io5";
 
 export const MonthlyGames = ({dataGames}) => {
     const [gamesMonthly, setGamesMonthly] = useState([]);
-    const [gameShowcase, setGameShowcase] = useState(null);
-    const [activeTrailerUrl, setActiveTrailerUrl] = useState(null);
-
+    const [activeContent, setActiveContent] = useState(() => {
+        const trailer = dataGames?.games?.edges.find(edge => edge?.node?.Trailler)?.node?.Trailler || null;
+        return trailer ? {type: 'trailer', url: trailer} : {type: 'image', url: null }
+    });
+    const [fullScrean, setFullScrean] = useState(false);
     const nowDate = new Date().toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number) 
-    
     const monthlyGames = dataGames?.games?.edges.filter((edge) => {
         if (edge.node.gameOfTheMonthDate) {
           const gameDate = new Date(edge.node.gameOfTheMonthDate).toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number);
@@ -20,14 +22,17 @@ export const MonthlyGames = ({dataGames}) => {
         return false;
     });
 
-    const selectedImage = (imgUrl) => {
-        setGameShowcase(imgUrl);
-        setActiveTrailerUrl('');
+    const handelFullScrean = () => {
+        setFullScrean(true);
     };
-    const selectedTrailler = (traillerUrl) => {
-        setActiveTrailerUrl(traillerUrl);
-        setGameShowcase('')
+    const handelCloseFullScrean = () => {
+        setFullScrean(false);
     };
+
+    const handelContetnChange = (type, url) => {
+        setActiveContent({type, url});
+    };
+ 
     useEffect(() => {
         if (monthlyGames.length > 0) {
             setGamesMonthly(monthlyGames);
@@ -37,6 +42,17 @@ export const MonthlyGames = ({dataGames}) => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataGames])
+    useEffect(() => {
+        if (fullScrean === true) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [fullScrean]);
+
     return <div className="h-[856px]">
         <div className="h-full flex flex-col items-center gap-8 container">
             <h2>Game Of The Month</h2>
@@ -99,23 +115,23 @@ export const MonthlyGames = ({dataGames}) => {
                                     <button>Prev</button>
                                 </div>
                            </div>
-                           <div className="w-full h-[290px]">
-                                {gameShowcase && (
-                                    <div className="w-full h-full rounded-lg bg-no-repeat bg-center bg-cover" style={{ backgroundImage: `url(${gameShowcase})` }}></div>
-                                    ) 
-                                }
-                                {activeTrailerUrl && (
-                                    <iframe className="w-full h-full rounded-lg" src={`https://www.youtube.com/embed/${activeTrailerUrl}`} title={edge.node.name} allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-presentation" ></iframe>
-                                    ) 
-                                }
+                           <div className="w-full h-[290px] relative">
+                           {activeContent.type === 'trailer' ? (
+                                    <iframe className="w-full h-full rounded-lg" src={`https://www.youtube.com/embed/${activeContent.url}`} title={edge.node.name} allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-presentation" ></iframe>
+                                ) : (
+                                    <button className="w-full h-full rounded-lg bg-no-repeat bg-center bg-cover after:content-[''] after:absolute after:w-full after:top-0 after:left-0  after:h-full  after:bg-black/20 after:rounded-lg" style={{ backgroundImage: `url(${activeContent.url})`}} onClick={handelFullScrean}></button>
+                                )}
                            </div>
-                           <div className="w-full h-[84px] flex justify-between items-center">
-                                <img className="w-[129px] h-[60px]"  src={`https://img.youtube.com/vi/${edge?.node?.Trailler}/maxresdefault.jpg`} onClick={() => selectedTrailler(edge?.node?.Trailler)} alt="" />
-                                {Object.values(edge.node.TraillerImg).map((img, index) => (img.url ? (
-                                        <img key={index} src={img.url} alt={`фото-${index}`} className="w-[129px] h-[60px]" onClick={() => selectedImage(img.url)} />
-                                    ) : null
-                                ))} 
-                           </div>
+                            <div className={`top-0 left-0 w-full h-full bg-op bg-black/50 flex justify-center items-center z-20 ${fullScrean ? "fixed" : "hidden"}`} onClick={handelCloseFullScrean}>
+                                <img src={activeContent.url} alt="" className="max-w-full max-h-full object-contain cursor-pointer"  />
+                                <button className="absolute top-5 right-9 text-white text-3xl cursor-pointer" onClick={handelCloseFullScrean}><IoCloseSharp/></button>
+                            </div>
+                            <div className="w-full h-[84px] flex justify-between items-center relative">
+                                <button onClick={() => {handelContetnChange('trailer', edge?.node?.Trailler)}} className={`p-0 border-none bg-cover bg-center bg-no-repeat ${activeContent.url === edge?.node?.Trailler ? 'w-[157px] h-full' : 'w-[129px] h-[60px]'} relative after:content-[''] after:cursor-pointer after:absolute after:w-full after:top-0 after:left-0  after:h-full  after:bg-black/40 after:rounded-lg`} style={{backgroundImage: `url(https://i.ytimg.com/vi/${edge?.node?.Trailler}/maxresdefault.jpg)`}}></button>
+                                {Object.values(edge.node.TraillerImg).map((img, ) => (img.url ? (
+                                        <button key={img.id || img.url} onClick={() => {handelContetnChange('image', img.url)}} className={`p-0 border-none bg-cover bg-center bg-no-repeat ${activeContent.url === img.url ? 'w-[157px] h-full' : 'w-[129px] h-[60px]'} relative after:content-[''] after:cursor-pointer after:absolute after:w-full after:top-0 after:left-0  after:h-full  after:bg-black/40 after:rounded-lg`}  style={{backgroundImage: `url(${img.url})`}}></button>
+                                ) : null))}
+                            </div>
                         </div>
                     </div>
                     <div className="flex h-[297px] gap-9">

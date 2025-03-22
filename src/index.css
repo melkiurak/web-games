@@ -10,10 +10,6 @@
 *::after {
     @apply box-border;
 }
-::-webkit-scrollbar {
-    @apply hidden;
-  }
-
 a, a:link, a:visited  {
     @apply no-underline;
 }
