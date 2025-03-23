@@ -3,6 +3,7 @@
 @theme{
     --font-main: 'Vazirmatn', 'sans-serif';
     --breakpoint-desktop: 1460px;
+    --breakpoint-phone: 425px;
     --shadow-categorys: 0 1px 12px 0 rgba(255, 87, 51, 0.13);
 }
 *,

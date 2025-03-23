@@ -63,7 +63,7 @@ export const Category = ({dataGames}) => {
                         <MdOutlineKeyboardArrowRight className="text-[#FF5733] text-3xl"/>
                     </div>
                 </div>
-                <div className="flex gap-6 max-desktop:gap-5 w-full justify-between max-lg:whitespace-nowrap max-md::whitespace-nowrap max-lg:overflow-x-auto scrollbar-none">
+                <div className="flex gap-6 max-desktop:gap-5 w-full justify-between max-lg:whitespace-nowrap max-md:whitespace-nowrap max-lg:overflow-x-auto scrollbar-none">
                     {splilCategorys(data?.categoryGames.edges).length > 0 && (
                         <>
                             {splilCategorys(data?.categoryGames.edges)[slide]?.map((group, groupIndex) => (
