@@ -3,7 +3,7 @@
 @theme{
     --font-main: 'Vazirmatn', 'sans-serif';
     --breakpoint-desktop: 1460px;
-    --breakpoint-phone: 425px;
+    --breakpoint-phone: 430px;
     --shadow-categorys: 0 1px 12px 0 rgba(255, 87, 51, 0.13);
 }
 *,
@@ -56,8 +56,8 @@ h3{
     @apply text-white text-xl font-semibold;
 }
 .transparentButton {
-    @apply whitespace-nowrap rounded-[16px] text-[16px] font-medium border-2 border-[#E64E2E] text-[#E64E2E] cursor-pointer;
+    @apply whitespace-nowrap text-[16px] font-medium border-2 border-[#E64E2E] text-[#E64E2E] cursor-pointer;
 }
 .opaqueButton{
-   @apply whitespace-nowrap rounded-[16px] text-[16px] font-medium bg-[#E64E2E] text-white cursor-pointer;
+   @apply whitespace-nowrap text-[16px] font-medium bg-[#E64E2E] text-white cursor-pointer;
 }

@@ -2,52 +2,56 @@ import { gql} from '@apollo/client';
 
 const GET_GAMES = gql `
   query {
-    games {
-      count
-      edges {
-        node {
+  games {
+    count
+    edges {
+      node {
+        name
+        objectId
+        description
+        date
+        metacriticScore
+        metacriticScoreMax
+        price
+        genre {
+          ...on Element {
+            value
+          }
+        }
+        category {
           name
-          objectId
-          description
-          date
-          metacriticScore
-          metacriticScoreMax
-          price
-          genre
-          category{
-            name
+        }
+        platform {
+          ...on Element {
+            value
           }
-          platform {
-            ... on Element{
-              value
-            }
-          }
-          BackgroundTop {
+        }
+        BackgroundTop {
+          url
+        }
+        BannerImg {
+          url
+        }
+        discount
+        gameOfTheMonthDate
+        MinimumSystemRequirments
+        RecommendedSystemRequirments
+        Trailler
+        TraillerImg {
+          img1 {
             url
           }
-          BannerImg {
+          img2 {
             url
           }
-          discount
-          gameOfTheMonthDate
-          MinimumSystemRequirments
-          RecommendedSystemRequirments
-          Trailler
-          TraillerImg{
-            img1{
-              url
-            }
-            img2{
-              url
-            }
-            img3{
-              url
-            }
+          img3 {
+            url
           }
         }
       }
     }
   }
+}
 `
 const GET_CATEGORY = gql `
   query{

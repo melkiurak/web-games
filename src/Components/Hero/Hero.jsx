@@ -56,7 +56,7 @@ export const Hero = ({dataGames}) => {
                                     </div>
                                     <div className="w-1/2 flex flex-col text-center">
                                         <span className="text-white text-xl font-semibold">Genre:</span>
-                                        <p className="text-[#979797]">{edge.node.genre}</p>
+                                        <span className="text-[#979797]">{edge.node.genre[0]?.value}</span>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 text-[#979797] w-full max-lg:hidden">
@@ -64,9 +64,9 @@ export const Hero = ({dataGames}) => {
                                         <button className="px-1 w-full rounded-[10px] border border-solid border-[#979797]" key={index}>{platform.value}</button>
                                     ))}
                                 </div>
-                                <div className="w-full flex justify-between gap-3">
-                                    <button className="font-medium text-lg rounded-[30px] py-2 max-w-[43.24%] max-desktop:max-w-[50%] w-full text-white bg-[#FF5733]">Buy Now</button>
-                                    <button className="font-medium text-lg rounded-[30px] py-2 max-w-[53.15%] max-desktop:max-w-[50%] w-full border border-solid border-[#FF5733] text-[#FF5733]">Game review</button>
+                                <div className="w-full flex justify-between gap-3 h-[44px]">
+                                    <button className="opaqueButton rounded-[20px] w-[144px] max-desktop:w-[155px] max-lg:w-[185px] h-full">Buy Now</button>
+                                    <button className="transparentButton rounded-[20px] w-[177px]  max-desktop:w-[155px] max-lg:w-[185px] h-full">Game review</button>
                                 </div>
                             </div>
                             <div  className="hidden max-w-[161px] w-full h-[10px] max-lg:flex max-lg:justify-between max-lg:items-center">
