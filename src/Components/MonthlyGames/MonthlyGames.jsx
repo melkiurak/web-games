@@ -23,9 +23,9 @@ export const MonthlyGames = ({dataGames}) => {
     const [cpuValue, setCpuValue] = useState('');
     
     
-    const isValidRamInput = /^\d+\s?(GB|MB)\s*RAM$/i;;   
+    const isValidRamInput = /^\d+\s*(GB|MB)?$/i;   
     const isValidGPUInput = /^(NVIDIA|AMD)\s?(GeForce|Radeon)?\s?\w+\s?\d+$/i;
-    const isValidCPUInput = /^(Intel\s(Core)\s?[i]?\d{1,2}|AMD\s(Ryzen)\s?\d{1,2})$/i;
+    const isValidCPUInput = /^(Intel\sCore\s[iI]\d{1,2}-\d{4}|AMD\sRyzen\s\d{1,2}-\d{4})$/i;
 
     const handelChangeValueRam = (e) => {
         setRamValue(e.target.value);
@@ -37,15 +37,50 @@ export const MonthlyGames = ({dataGames}) => {
         setCpuValue(e.target.value);
     };
 
-
-    const handelCheckPc = () => {
-        const RamMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.Memory)?.node?.MinimumSystemRequirments.Memory || null;
-        if(String(RamMin) <= String(ramValue)) {
-            console.log('Ваша RAM подходит')
-        } else {
-            console.log('Ваша RAM не подходит')
+    const extractNumberInput = (input) => input.match(/\d+/)?.[0] * 1 || ''; 
+    const checkPcRam = () => {
+        const ramMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.Memory)?.node?.MinimumSystemRequirments?.Memory || null;
+        const ramRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.Memory)?.node?.RecommendedSystemRequirments?.Memory || null;
+        if(extractNumberInput(ramValue) < extractNumberInput(ramMin)){
+            return "Недостаточно оперативной памяти для минимальных требований";
+        } else if (extractNumberInput(ramValue) >= extractNumberInput(ramMin) && extractNumberInput(ramValue) <= extractNumberInput(ramRecommended)){
+            return "Оперативная память соответствует минимальным требованиям";
+        } else if(extractNumberInput(ramValue) >= extractNumberInput(ramRecommended)){
+            return "Оперативная память соответствует рекомендованным требованиям";
         }
+        return null;
+    }    
+    const checkPcCpu = () => {
+        const cpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.CPU)?.node?.MinimumSystemRequirments?.CPU || null;
+        const cpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.CPU)?.node?.RecommendedSystemRequirments?.CPU || null;
+
+        const cpuTypeMin = cpuMin?.split(' ')[2]?.split('-')[0];
+        const cpuTypeRecommended = cpuRecommended?.split(' ')[2]?.split('-')[0];
+        const cpuTypeInput = cpuValue.split(' ')[2]?.split('-')[0];
+
+        const cpuModelMin = parseInt(cpuMin?.split('-')[1], 10);  
+        const cpuModelRecommended = parseInt(cpuRecommended?.split('-')[1], 10);  
+        const cpuModelInput = parseInt(cpuValue.split('-')[1], 10); 
+        
+        if (cpuTypeInput < cpuTypeMin || (cpuTypeInput === cpuTypeMin && cpuModelInput < cpuModelMin)) {
+            return "Недостаточно процессора для минимальных требований";
+        } else if (cpuTypeInput <= cpuTypeRecommended || (cpuTypeInput === cpuTypeRecommended && cpuModelInput >= cpuModelRecommended)) {
+            return "Процессор соответствует минимальным требованиям";
+        }else if (cpuTypeInput > cpuTypeRecommended || (cpuTypeInput === cpuTypeRecommended && cpuModelInput >= cpuModelRecommended)) {
+            return "Процессор соответствует рекомендованным требованиям";
+        } 
     }
+    const checkPcGpu = () => {
+        const gpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.GPU)?.node?.MinimumSystemRequirments?.GPU || null;
+        const gpuModel = gpuMin?.match(/\d+/)?.[0];            
+        const gpuModelInput = RegExp(/\d+/).exec(gpuValue)?.[0];    
+
+        return gpuModel <= gpuModelInput;
+    }
+    const handelCheckPc = () => {
+        console.log(checkPcRam())
+        console.log(checkPcCpu())
+    };
 
     const nowDate = new Date().toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number) 
     const monthlyGames = dataGames?.games?.edges.filter((edge) => {
@@ -265,7 +300,7 @@ export const MonthlyGames = ({dataGames}) => {
                                                 </div>
                                             )}
                                             {!isValidCPUInput.test(cpuValue) && cpuValue.trim() !== '' && (
-                                                <p className="text-red-500 text-xs mt-2">Некорректный формат. Пример: Intel Core i7 или AMD Ryzen 5</p>
+                                                <p className="text-red-500 text-xs mt-2">Некорректный формат. Пример: Intel Core i7-9700 или AMD Ryzen 5-3600</p>
                                             )}
                                         </div>
                                     </div>
