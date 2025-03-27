@@ -25,7 +25,7 @@ export const MonthlyGames = ({dataGames}) => {
     
     const isValidRamInput = /^\d+\s*(GB|MB)?$/i;   
     const isValidGPUInput = /^(NVIDIA|AMD)\s?(GeForce|Radeon)?\s?\w+\s?\d+$/i;
-    const isValidCPUInput = /^(Intel\sCore\s[iI]\d{1,2}-\d{4}|AMD\sRyzen\s\d{1,2}-\d{4})$/i;
+    const isValidCPUInput = /^(Intel\sCore\s[iI]\d{1,2}-\d{3,4}|AMD\sRyzen\s\d{1,2}-\d{3,4})$/i;
 
     const handelChangeValueRam = (e) => {
         setRamValue(e.target.value);
@@ -51,31 +51,64 @@ export const MonthlyGames = ({dataGames}) => {
         return null;
     }    
     const checkPcCpu = () => {
-        const cpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.CPU)?.node?.MinimumSystemRequirments?.CPU || null;
-        const cpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.CPU)?.node?.RecommendedSystemRequirments?.CPU || null;
+        const cpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.CPU)?.node?.MinimumSystemRequirments?.CPU || '';
+        const cpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.CPU)?.node?.RecommendedSystemRequirments?.CPU || '';
 
-        const cpuTypeMin = cpuMin?.split(' ')[2]?.split('-')[0];
-        const cpuTypeRecommended = cpuRecommended?.split(' ')[2]?.split('-')[0];
         const cpuTypeInput = cpuValue.split(' ')[2]?.split('-')[0];
-
-        const cpuModelMin = parseInt(cpuMin?.split('-')[1], 10);  
-        const cpuModelRecommended = parseInt(cpuRecommended?.split('-')[1], 10);  
         const cpuModelInput = parseInt(cpuValue.split('-')[1], 10); 
         
-        if (cpuTypeInput < cpuTypeMin || (cpuTypeInput === cpuTypeMin && cpuModelInput < cpuModelMin)) {
-            return "Недостаточно процессора для минимальных требований";
-        } else if (cpuTypeInput <= cpuTypeRecommended || (cpuTypeInput === cpuTypeRecommended && cpuModelInput >= cpuModelRecommended)) {
-            return "Процессор соответствует минимальным требованиям";
-        }else if (cpuTypeInput > cpuTypeRecommended || (cpuTypeInput === cpuTypeRecommended && cpuModelInput >= cpuModelRecommended)) {
-            return "Процессор соответствует рекомендованным требованиям";
-        } 
+        if (cpuValue?.split(' ')[0] === 'Intel') {
+            const cpuTypeMinIntel = cpuMin[0]?.split(' ')[2]?.split('-')[0];
+            const cpuTypeRecommendedIntel = cpuRecommended[0]?.split(' ')[2]?.split('-')[0];
+            
+            const cpuModelMinIntel = parseInt(cpuMin[0]?.split('-')[1], 10);  
+            const cpuModelRecommendedIntel = parseInt(cpuRecommended[0]?.split('-')[1], 10);  
+            if (cpuTypeInput < cpuTypeMinIntel && cpuModelInput < cpuModelMinIntel ) {
+                return "Недостаточно процессора Intel для минимальных требований";
+            } 
+            else if ((cpuTypeInput >= cpuTypeMinIntel || cpuModelInput >= cpuModelMinIntel) && (cpuTypeInput < cpuTypeRecommendedIntel || cpuModelInput < cpuModelRecommendedIntel)) {
+                return "Процессор Intel соответствует минимальным требованиям";
+            } 
+            else if (cpuTypeInput >= cpuTypeRecommendedIntel || cpuModelInput >= cpuModelRecommendedIntel) {
+                return "Процессор Intel соответствует рекомендованным требованиям";
+            } 
+        } else if(cpuValue?.split(' ')[0] === 'Amd'){
+            const cpuTypeMinAmd = cpuMin[1]?.split(' ')[2]?.split('-')[0];
+            const cpuTypeRecommendedAmd = cpuRecommended[1]?.split(' ')[2]?.split('-')[0];
+    
+            const cpuModelMinAmd = parseInt(cpuMin[1]?.split(' ')[3], 10);  
+            const cpuModelRecommendedAmd = parseInt(cpuRecommended[1]?.split(' ')[3], 10);  
+            if (cpuTypeInput < cpuTypeMinAmd || cpuModelInput < cpuModelMinAmd) {
+                return "Недостаточно процессора Amd для минимальных требований";
+            } 
+            else if ((cpuTypeInput >= cpuTypeMinAmd && cpuModelInput >= cpuModelMinAmd) && 
+                     (cpuTypeInput < cpuTypeRecommendedAmd || cpuModelInput < cpuModelRecommendedAmd)) {
+                return "Процессор Amd соответствует минимальным требованиям";
+            } 
+            else if (cpuTypeInput >= cpuTypeRecommendedAmd && cpuModelInput >= cpuModelRecommendedAmd) {
+                return "Процессор Amd соответствует рекомендованным требованиям";
+            }
+        }else {
+            return 'Это не процессор Intel и Amd';
+        }
     }
     const checkPcGpu = () => {
         const gpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.GPU)?.node?.MinimumSystemRequirments?.GPU || null;
-        const gpuModel = gpuMin?.match(/\d+/)?.[0];            
-        const gpuModelInput = RegExp(/\d+/).exec(gpuValue)?.[0];    
+        const gpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.GPU)?.node?.RecommendedSystemRequirments?.GPU || null;
 
-        return gpuModel <= gpuModelInput;
+        const gpuModelMin =  parseInt(gpuMin.match(/\d+/)?.[0], 10);           
+        const gpuModelRecommended =  parseInt(gpuRecommended.match(/\d+/)?.[0], 10);       
+        const gpuModelInput = RegExp(/\d+/).exec(gpuValue)?.[0];
+
+
+        if(gpuModelInput < gpuModelMin){
+            return 'Видеокарта не подходит для минмальных требований'
+        } else if(gpuModelInput >= gpuModelMin && gpuModelInput < gpuModelRecommended){
+            return 'Видеокарта подходит для миниманльных требований'
+        } else if(gpuModelInput >= gpuModelRecommended){
+            return 'Видеокарта подходит для рекомендуемых настроек'
+        }
+        return null;
     }
     const handelCheckPc = () => {
         console.log(checkPcRam())
@@ -209,7 +242,7 @@ export const MonthlyGames = ({dataGames}) => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-9 max-md:gap-6 max-md:flex-col">
+                    <div className="flex gap-9 justify-between w-full max-md:gap-6 max-md:flex-col">
                         <div className="h-full flex-1">
                             <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Minimum</span> System Requirments</h3>
                             <div className="flex flex-col gap-2 mt-3">
@@ -217,13 +250,13 @@ export const MonthlyGames = ({dataGames}) => {
                                     <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.OS}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.CPU}</span></h3>
+                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.CPU.join(' / ')}</span></h3>
                                 </div>
                                 <div className="flex items-center ">
                                     <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.Memory}</span></h3>
                                 </div>
                                 <div className="flex items-center ">
-                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.GPU}</span></h3>
+                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.GPU.join(' / ')}</span></h3>
                                 </div>
                                 <div className="flex items-center">
                                     <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.DirectX}</span></h3>
@@ -240,13 +273,13 @@ export const MonthlyGames = ({dataGames}) => {
                                     <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.OS}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2" >{edge.node.RecommendedSystemRequirments.CPU}</span></h3>
+                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2" >{edge.node.RecommendedSystemRequirments.CPU.join(' / ')}</span></h3>
                                 </div>
                                 <div className="flex items-center">
                                     <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.Memory}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.GPU}</span></h3>
+                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.GPU.join(' / ')}</span></h3>
                                 </div>
                                 <div className="flex items-center">
                                     <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.DirectX}</span></h3>
