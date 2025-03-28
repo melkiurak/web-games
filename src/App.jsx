@@ -6,12 +6,14 @@ import { Hero } from './Components/Hero/Hero'
 import { GET_DISCOUNTS, GET_GAMES } from './Service/gamedata';
 import { Trending } from './Components/Trending/Trending';
 import { MonthlyGames } from './Components/MonthlyGames/MonthlyGames';
+import { useState } from 'react';
 
 function App() {
   const { data: dataGames, loading: loadingGames, error: errorGames } = useQuery(GET_GAMES, {fetchPolicy: 'cache-first',});
   const { data: dataDiscounts, loading: loadingDiscounts, error: errorDiscounts } = useQuery(GET_DISCOUNTS, {
     fetchPolicy: 'cache-first',
   });
+  const [slide, setSlide] = useState(0);
   if (loadingGames || loadingDiscounts) {
     return <p>Загрузка...</p>;
   }
@@ -22,11 +24,11 @@ function App() {
   return (
     <div className='max-w-[1440px] max-desktop:max-w-[1080px] w-full h-full m-auto relative overflow-hidden'>
       <Header/>
-      <Hero dataGames={dataGames}/>
+      <Hero dataGames={dataGames} slide={slide} setSlide={setSlide}/>
       <main className='flex flex-col gap-[100px] max-desktop:gap-[80px] max-lg:gap-[60px]'>
-        <Category dataGames={dataGames}/>
-        <Trending dataGames={dataGames} dataDiscounts={dataDiscounts}/>
-        <MonthlyGames dataGames={dataGames}/>
+        <Category dataGames={dataGames} slide={slide} setSlide={setSlide}/>
+        <Trending dataGames={dataGames} dataDiscounts={dataDiscounts} slide={slide} setSlide={setSlide}/>
+        <MonthlyGames dataGames={dataGames} slide={slide} setSlide={setSlide}/>
       </main>
     </div>
   )

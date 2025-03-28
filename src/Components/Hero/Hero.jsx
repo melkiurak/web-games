@@ -5,7 +5,6 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 
 export const Hero = ({dataGames}) => {
     const [slide, setSlide] = useState(0);
-
     const background = dataGames?.games?.edges?.filter(edge => edge?.node?.BackgroundTop?.url);
     const buutonNext = () => {
         if(slide < background.length - 1){

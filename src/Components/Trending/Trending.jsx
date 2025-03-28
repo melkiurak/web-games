@@ -4,8 +4,8 @@ import { BsArrowRight } from "react-icons/bs";
 import metacritic from '../../assets/main/metacritic.png'
 import { useCallback, useEffect, useState } from "react";
 export const Trending = ({dataGames, dataDiscounts}) => {
-    const [slide, setSlide] = useState(0);
     const [discountsPrice, setDiscountsPrice] = useState(null);
+    const [slide, setSlide] = useState(0);
 
     const groupGamesIntoSlides = (games = []) => {
         const gameSlideGroups = [];

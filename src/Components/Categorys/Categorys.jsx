@@ -5,8 +5,8 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
 export const Category = ({dataGames}) => {
-    const { data} = useQuery(GET_CATEGORY);
     const [slide, setSlide] = useState(0);
+    const { data} = useQuery(GET_CATEGORY);
     const splilCategorys = (data = []) => {
         const chunkedCategories = [];
         for(let i = 0; i < data.length; i +=6) {

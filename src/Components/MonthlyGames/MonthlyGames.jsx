@@ -9,10 +9,11 @@ import { IoCloseSharp } from "react-icons/io5";
 export const MonthlyGames = ({dataGames}) => {
     const [gamesMonthly, setGamesMonthly] = useState([]);
     const [activeContent, setActiveContent] = useState(() => {
-        const trailer = dataGames?.games?.edges.find(edge => edge?.node?.Trailler)?.node?.Trailler || null;
+        const trailer = dataGames?.games?.edges.filter(edge => edge?.node?.Trailler).map(edge => edge.node.Trailler) || null;;
         return trailer ? {type: 'trailer', url: trailer} : {type: 'image', url: null }
     });
     const [fullScrean, setFullScrean] = useState(false);
+    const [slide, setSlide] = useState(0);
 
     const [ramInputActive, setRamInputActive] = useState(true);
     const [gpuInputActive, setGpuInputActive] = useState(true);
@@ -22,19 +23,24 @@ export const MonthlyGames = ({dataGames}) => {
     const [gpuValue, setGpuValue] = useState('');
     const [cpuValue, setCpuValue] = useState('');
     
+    const [isFormValid, setIsFormValid] = useState(false);
+
     
     const isValidRamInput = /^\d+\s*(GB|MB)?$/i;   
-    const isValidGPUInput = /^(NVIDIA|AMD)\s?(GeForce|Radeon)?\s?\w+\s?\d+$/i;
+    const isValidGPUInput = /^(NVIDIA|AMD|Intel)\s?(GeForce|Radeon|Arc)?\s?\w*\s?\d+$/i;
     const isValidCPUInput = /^(Intel\sCore\s[iI]\d{1,2}-\d{3,4}|AMD\sRyzen\s\d{1,2}-\d{3,4})$/i;
 
     const handelChangeValueRam = (e) => {
         setRamValue(e.target.value);
+        setIsFormValid(false);
     }
     const handelChangeValueGPU = (e) => {
         setGpuValue(e.target.value);
+        setIsFormValid(false);
     };
     const handelChangeValueCPU = (e) => {
         setCpuValue(e.target.value);
+        setIsFormValid(false);
     };
 
     const extractNumberInput = (input) => input.match(/\d+/)?.[0] * 1 || ''; 
@@ -57,7 +63,7 @@ export const MonthlyGames = ({dataGames}) => {
         const cpuTypeInput = cpuValue.split(' ')[2]?.split('-')[0];
         const cpuModelInput = parseInt(cpuValue.split('-')[1], 10); 
         
-        if (cpuValue?.split(' ')[0] === 'Intel') {
+        if (cpuValue?.split(' ')[0]?.toLowerCase()  === 'intel') {
             const cpuTypeMinIntel = cpuMin[0]?.split(' ')[2]?.split('-')[0];
             const cpuTypeRecommendedIntel = cpuRecommended[0]?.split(' ')[2]?.split('-')[0];
             
@@ -72,7 +78,7 @@ export const MonthlyGames = ({dataGames}) => {
             else if (cpuTypeInput >= cpuTypeRecommendedIntel || cpuModelInput >= cpuModelRecommendedIntel) {
                 return "Процессор Intel соответствует рекомендованным требованиям";
             } 
-        } else if(cpuValue?.split(' ')[0] === 'Amd'){
+        } else if(cpuValue?.split(' ')[0]?.toLowerCase()  === 'amd'){
             const cpuTypeMinAmd = cpuMin[1]?.split(' ')[2]?.split('-')[0];
             const cpuTypeRecommendedAmd = cpuRecommended[1]?.split(' ')[2]?.split('-')[0];
     
@@ -96,23 +102,54 @@ export const MonthlyGames = ({dataGames}) => {
         const gpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.GPU)?.node?.MinimumSystemRequirments?.GPU || null;
         const gpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.GPU)?.node?.RecommendedSystemRequirments?.GPU || null;
 
-        const gpuModelMin =  parseInt(gpuMin.match(/\d+/)?.[0], 10);           
-        const gpuModelRecommended =  parseInt(gpuRecommended.match(/\d+/)?.[0], 10);       
         const gpuModelInput = RegExp(/\d+/).exec(gpuValue)?.[0];
 
-
-        if(gpuModelInput < gpuModelMin){
-            return 'Видеокарта не подходит для минмальных требований'
-        } else if(gpuModelInput >= gpuModelMin && gpuModelInput < gpuModelRecommended){
-            return 'Видеокарта подходит для миниманльных требований'
-        } else if(gpuModelInput >= gpuModelRecommended){
-            return 'Видеокарта подходит для рекомендуемых настроек'
+    if(gpuValue?.split(' ')[0]?.toLowerCase() === 'nvidia') {
+            const gpuModelMinNvidia =  parseInt(gpuMin[0].match(/\d+/)?.[0], 10);
+            const gpuModelRecommendedNvidia =  parseInt(gpuRecommended[0].match(/\d+/)?.[0], 10);
+            if(gpuModelInput < gpuModelMinNvidia){
+                return 'Видеокарта Nvidia не подходит для минимальных';
+            } else if (gpuModelInput >= gpuModelMinNvidia && gpuModelInput < gpuModelRecommendedNvidia ){
+                return 'Видеокарта Nvidia подходит под минимальные требования';
+            } else if (gpuModelInput >= gpuModelRecommendedNvidia) {
+                return 'Видеокарта Nvidia подходит для рекомендуеммых требований'
+            }
+        } else if (gpuValue?.split(' ')[0]?.toLowerCase()  === 'amd'){
+            const gpuModelMinAmd =  parseInt(gpuMin[1].match(/\d+/)?.[0], 10);
+            const gpuModelRecommendedAmd =  parseInt(gpuRecommended[1].match(/\d+/)?.[0], 10);
+            if(gpuModelInput < gpuModelMinAmd){
+                return 'Видеокарта Amd не подходит для минимальных';
+            } else if (gpuModelInput >= gpuModelMinAmd && gpuModelInput < gpuModelRecommendedAmd ){
+                return 'Видеокарта Amd подходит под минимальные требования';
+            } else if (gpuModelInput >= gpuModelRecommendedAmd) {
+                return 'Видеокарта Amd подходит для рекомендуеммых требований'
+            }
         }
-        return null;
+        else if (gpuValue?.split(' ')[0]?.toLowerCase()  === 'intel'){
+            const gpuModelRecommendedIntel=  parseInt(gpuRecommended[2].match(/\d+/)?.[0], 10);
+            if(gpuModelInput < gpuModelRecommendedIntel){
+                return 'Видеокарта Intel не подходит для рекомендованых';
+            } else if (gpuModelInput >= gpuModelRecommendedIntel) {
+                return 'Видеокарта Intel подходит для рекомендуеммых требований'
+            }
+        }
+         else{
+            return 'Это не Nvidia, Amd и Intel'
+        }
     }
     const handelCheckPc = () => {
-        console.log(checkPcRam())
-        console.log(checkPcCpu())
+        const isRamValid = isValidRamInput.test(ramValue) && ramValue.trim() !== '';
+        const isGpuValid = isValidGPUInput.test(gpuValue) && gpuValue.trim() !== '';
+        const isCpuValid = isValidCPUInput.test(cpuValue) && cpuValue.trim() !== '';
+        
+        setIsFormValid(!(isRamValid && isGpuValid && isCpuValid));
+        if(isRamValid && isGpuValid && isCpuValid) {
+            console.log(`Ваша память ${ramValue}`, checkPcRam())
+            console.log(`Ваша процессор ${cpuValue}`, checkPcCpu())
+            console.log(`Ваша видеокарта${gpuValue}`, checkPcGpu())
+        } else {
+            console.log('Данные не ввёл')
+        }
     };
 
     const nowDate = new Date().toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number) 
@@ -134,7 +171,16 @@ export const MonthlyGames = ({dataGames}) => {
     const handelContetnChange = (type, url) => {
         setActiveContent({type, url});
     };
- 
+    const buutonNext = () => {
+        if(slide < gamesMonthly.length - 1){ 
+            setSlide(slide + 1);
+        }
+    };
+    const buutonPrev = () => {
+        if(slide > 0){
+            setSlide(slide - 1);
+        }
+    };
     useEffect(() => { 
         if (monthlyGames.length > 0) {
             setGamesMonthly(monthlyGames);
@@ -154,11 +200,11 @@ export const MonthlyGames = ({dataGames}) => {
             document.body.style.overflow = 'auto';
         };
     }, [fullScrean]);
-
     return <div className="max-lg:px-6">
         <div className="h-full flex flex-col gap-8  container">
             <h2 className="text-center">Game Of The Month</h2>
-            {gamesMonthly.map((edge) => (
+            {gamesMonthly.map((edge, index) =>
+            index === slide && (
                 <div key={edge} className="flex flex-col items-center gap-8 max-lg:gap-6"> 
                     <div className=" w-full flex max-lg:flex-col max-desktop:items-center justify-between max-lg:gap-6">
                         <div className="w-[582px] max-desktop:w-[430px] max-lg:w-[400px] max-md:w-[382px] max-phone:!w-full flex flex-col justify-between h-full gap-4">
@@ -219,24 +265,26 @@ export const MonthlyGames = ({dataGames}) => {
                            <div className="flex justify-between w-full">
                                 <h3>Trailer & Gallery</h3>
                                 <div>
-                                    <button>Next</button>
-                                    <button>Prev</button>
+                                    <button onClick={buutonNext}>Next</button>
+                                    <button onClick={buutonPrev}>Prev</button>
                                 </div>
                            </div>
                            <div className="w-full h-[290px] max-desktop:h-[285px] relative">
                            {activeContent.type === 'trailer' ? (
-                                    <iframe className="w-full h-full rounded-lg" src={`https://www.youtube.com/embed/${activeContent.url}`} title={edge.node.name} allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-presentation" ></iframe>
+                                <iframe className="w-full h-full rounded-lg" src={`https://www.youtube.com/embed/${edge?.node?.Trailler}`} title={edge.node.name} allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-presentation"></iframe>
+                                ) : activeContent.type === 'image' ? (
+                                    <button className="w-full h-full rounded-lg bg-no-repeat bg-center bg-cover after:content-[''] after:absolute after:w-full after:top-0 after:left-0 after:h-full after:bg-black/20 after:rounded-lg" style={{ backgroundImage: `url(${activeContent.url})` }} onClick={handelFullScrean}></button>
                                 ) : (
-                                    <button className="w-full h-full rounded-lg bg-no-repeat bg-center bg-cover after:content-[''] after:absolute after:w-full after:top-0 after:left-0  after:h-full  after:bg-black/20 after:rounded-lg" style={{ backgroundImage: `url(${activeContent.url})`}} onClick={handelFullScrean}></button>
+                                    <p>Нема трейлера</p>
                                 )}
                            </div>
                             <div className={`top-0 left-0 w-full h-full bg-op bg-black/50 flex justify-center items-center z-20 ${fullScrean ? "fixed" : "hidden"}`} onClick={handelCloseFullScrean}>
                                 <img src={activeContent.url} alt="" className="max-w-full max-h-full object-contain cursor-pointer"  />
                                 <button className="absolute top-5 right-9 text-white text-3xl cursor-pointer" onClick={handelCloseFullScrean}><IoCloseSharp/></button>
                             </div>
-                            <div className="w-full h-[84px] flex items-center gap-3 relative whitespace-nowrap overflow-x-auto">
+                            <div className="w-full h-[84px] flex items-center justify-between gap-3 relative whitespace-nowrap overflow-x-auto">
                                 <button onClick={() => {handelContetnChange('trailer', edge?.node?.Trailler)}} className={`flex-shrink-0 border-none bg-cover bg-center bg-no-repeat rounded-sm ${activeContent.url === edge?.node?.Trailler ? 'w-[157px]  h-full' : 'w-[129px] max-desktop:w-[83px] max-lg:w-[67px] h-[60px]'} relative after:content-[''] after:cursor-pointer after:absolute after:w-full after:top-0 after:left-0  after:h-full  after:bg-black/40`} style={{backgroundImage: `url(https://i.ytimg.com/vi/${edge?.node?.Trailler}/maxresdefault.jpg)`}}></button>
-                                {Object.values(edge.node.TraillerImg).map((img) => (img.url ? (
+                                {edge.node.TraillerImg && Object.values(edge.node.TraillerImg).map((img) => (img.url ? (
                                         <button key={img.id || img.url} onClick={() => {handelContetnChange('image', img.url)}} className={`flex-shrink-0 border-none bg-cover bg-center bg-no-repeat rounded-sm ${activeContent.url === img.url ? 'w-[157px]  h-full' : 'w-[129px] max-desktop:w-[83px] max-lg:w-[67px] h-[60px]'} relative after:content-[''] after:cursor-pointer after:absolute after:w-full after:top-0 after:left-0  after:h-full  after:bg-black/40`}  style={{backgroundImage: `url(${img.url})`}}></button>
                                 ) : null))}
                             </div>
@@ -247,22 +295,22 @@ export const MonthlyGames = ({dataGames}) => {
                             <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Minimum</span> System Requirments</h3>
                             <div className="flex flex-col gap-2 mt-3">
                                 <div className="flex items-center">
-                                    <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.OS}</span></h3>
+                                    <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.OS || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.CPU.join(' / ')}</span></h3>
+                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.CPU.join(' / ') || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center ">
-                                    <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.Memory}</span></h3>
+                                    <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.Memory || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center ">
-                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.GPU.join(' / ')}</span></h3>
+                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.GPU.join(' / ') || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.DirectX}</span></h3>
+                                    <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.DirectX || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>Storage:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments.Storage}</span></h3>
+                                    <h3>Storage:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.Storage || 'Не указано'}</span></h3>
                                 </div>
                             </div>
                         </div>
@@ -270,22 +318,22 @@ export const MonthlyGames = ({dataGames}) => {
                             <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Recommended</span> System Requirments</h3>
                             <div className="flex flex-col gap-2 mt-3">
                                 <div className="flex items-center">
-                                    <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.OS}</span></h3>
+                                    <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.OS || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2" >{edge.node.RecommendedSystemRequirments.CPU.join(' / ')}</span></h3>
+                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2" >{edge.node.RecommendedSystemRequirments?.CPU.join(' / ') || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.Memory}</span></h3>
+                                    <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.Memory || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.GPU.join(' / ')}</span></h3>
+                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.GPU.join(' / ') || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.DirectX}</span></h3>
+                                    <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.DirectX || 'Не указано'}</span></h3>
                                 </div>
                                 <div className="flex items-center">
-                                    <h3>Storage:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments.Storage}</span></h3>
+                                    <h3>Storage:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.Storage || 'Не указано'}</span></h3>
                                 </div>
                             </div>
                         </div>
@@ -339,7 +387,10 @@ export const MonthlyGames = ({dataGames}) => {
                                     </div>
                                 </div>
                                 <div className="w-full flex flex-col gap-2">
-                                    <button className="w-full opaqueButton rounded-2xl h-[40px]" onClick={() => handelCheckPc()}>Can I Run It?</button>
+                                    <button className="w-full opaqueButton rounded-2xl h-[40px]" onClick={() => handelCheckPc()} disabled={isFormValid}>Can I Run It?</button>
+                                    {isFormValid &&  (
+                                        <span className="text-red-500 text-xs mt-2">Введите пажалуйста все данные</span>
+                                    )}
                                     <button className="w-full transparentButton rounded-2xl h-[40px]">Test My PC Automaticly</button>
                                 </div>
                             </div>
