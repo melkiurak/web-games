@@ -45,8 +45,10 @@ export const MonthlyGames = ({dataGames}) => {
 
     const extractNumberInput = (input) => input.match(/\d+/)?.[0] * 1 || ''; 
     const checkPcRam = () => {
-        const ramMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.Memory)?.node?.MinimumSystemRequirments?.Memory || null;
-        const ramRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.Memory)?.node?.RecommendedSystemRequirments?.Memory || null;
+        const currentGame = gamesMonthly[slide]?.node;
+        const ramMin = currentGame?.MinimumSystemRequirments?.Memory || '';
+        const ramRecommended = currentGame?.RecommendedSystemRequirments?.Memory || '';
+        
         if(extractNumberInput(ramValue) < extractNumberInput(ramMin)){
             return "Недостаточно оперативной памяти для минимальных требований";
         } else if (extractNumberInput(ramValue) >= extractNumberInput(ramMin) && extractNumberInput(ramValue) <= extractNumberInput(ramRecommended)){
@@ -57,8 +59,10 @@ export const MonthlyGames = ({dataGames}) => {
         return null;
     }    
     const checkPcCpu = () => {
-        const cpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.CPU)?.node?.MinimumSystemRequirments?.CPU || '';
-        const cpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.CPU)?.node?.RecommendedSystemRequirments?.CPU || '';
+        const currentGame = gamesMonthly[slide]?.node;
+        const cpuMin = currentGame?.MinimumSystemRequirments?.CPU || [];
+        const cpuRecommended = currentGame?.RecommendedSystemRequirments?.CPU || [];
+
 
         const cpuTypeInput = cpuValue.split(' ')[2]?.split('-')[0];
         const cpuModelInput = parseInt(cpuValue.split('-')[1], 10); 
@@ -99,8 +103,9 @@ export const MonthlyGames = ({dataGames}) => {
         }
     }
     const checkPcGpu = () => {
-        const gpuMin = dataGames?.games?.edges.find(edge => edge?.node?.MinimumSystemRequirments?.GPU)?.node?.MinimumSystemRequirments?.GPU || null;
-        const gpuRecommended = dataGames?.games?.edges.find(edge => edge?.node?.RecommendedSystemRequirments?.GPU)?.node?.RecommendedSystemRequirments?.GPU || null;
+        const currentGame = gamesMonthly[slide]?.node;
+        const gpuMin = currentGame?.MinimumSystemRequirments?.GPU || [];
+        const gpuRecommended = currentGame?.RecommendedSystemRequirments?.GPU || [];
 
         const gpuModelInput = RegExp(/\d+/).exec(gpuValue)?.[0];
 
