@@ -80,8 +80,8 @@ export const Hero = ({dataGames}) => {
                                     <p>The Most <span className="text-[#FF5733]">Popular</span> Games</p>
                                 </div>
                                 <div className="flex gap-[10px] max-lg:w-full justify-between max-lg:px-6">
-                                    <button className="rounded-[8px] p-[16.5px] max-lg:p-3 border border-solid border-[#979797]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buutonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
-                                    <button className={`rounded-[8px] p-[16.5px] max-lg:p-3 border border-solid border-[#979797] ${slide < background.length - 1 ? 'cursor-pointer' : 'cursor-auto'} `} style={{border: slide < background.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buutonNext}><GrLinkNext style={{color: slide < background.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
+                                    <button className="buttonSwitch p-[16.5px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buutonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
+                                    <button className={`buttonSwitch p-[16.5px]  ${slide < background.length - 1 ? 'cursor-pointer' : 'cursor-auto'} `} style={{border: slide < background.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buutonNext}><GrLinkNext style={{color: slide < background.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
                                 </div>
                             </div>
                             <div className="flex justify-between items-end max-desktop:gap-2 max-lg:hidden">
