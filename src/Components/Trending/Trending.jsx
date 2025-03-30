@@ -73,8 +73,8 @@ export const Trending = ({dataGames, dataDiscounts}) => {
                     </div>
                     <div className="flex flex-col gap-2 max-lg:hidden ">
                         <div className="flex gap-2">
-                        <button className="rounded-[8px] px-3 py-[6px] max-lg:p-3 border border-solid border-[#979797]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
-                            <button className={`rounded-[8px] px-3 py-[6px] max-lg:p-3 border border-solid border-[#979797] ${slide < groupGamesIntoSlides(dataGames?.games?.edges).length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < groupGamesIntoSlides(dataGames?.games.edges).length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < dataGames?.games.edges.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
+                            <button className="buttonSwitch px-3 py-[6px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
+                            <button className={`buttonSwitch px-3 py-[6px]  ${slide < groupGamesIntoSlides(dataGames?.games?.edges).length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < groupGamesIntoSlides(dataGames?.games.edges).length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < dataGames?.games.edges.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
                         </div>
                         <div className=" max-w-[96px] w-full h-[12px] flex justify-between items-center">
                             {groupGamesIntoSlides(dataGames?.games?.edges).map((_, index) => 

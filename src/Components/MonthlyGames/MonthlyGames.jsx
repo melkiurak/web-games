@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import metacritic from '../../assets/main/metacritic.png'
-import { RiRam2Line } from "react-icons/ri";
-import { BsGpuCard } from "react-icons/bs";
-import { FiCpu } from "react-icons/fi";
 import { IoCloseSharp } from "react-icons/io5";
+import { SystemRequirements } from "./SystemRequirements/SystemRequirements";
+import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 
 export const MonthlyGames = ({dataGames}) => {
     const [gamesMonthly, setGamesMonthly] = useState([]);
@@ -15,6 +14,7 @@ export const MonthlyGames = ({dataGames}) => {
     const [fullScrean, setFullScrean] = useState(false);
     const [slide, setSlide] = useState(0);
 
+<<<<<<< HEAD
     const [ramInputActive, setRamInputActive] = useState(true);
     const [gpuInputActive, setGpuInputActive] = useState(true);
     const [cpuInputActive, setCpuInputActive] = useState(true);
@@ -179,6 +179,8 @@ export const MonthlyGames = ({dataGames}) => {
         }
     };
 
+=======
+>>>>>>> GamesMonthly
     const nowDate = new Date().toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number) 
     const monthlyGames = dataGames?.games?.edges.filter((edge) => {
         if (edge.node.gameOfTheMonthDate) {
@@ -291,9 +293,17 @@ export const MonthlyGames = ({dataGames}) => {
                         <div className="w-[582px] max-desktop:w-[430px] max-lg:w-[400px] max-md:w-[382px] max-phone:!w-full flex flex-col justify-between whitespace-nowrap gap-4"> 
                            <div className="flex justify-between w-full">
                                 <h3>Trailer & Gallery</h3>
-                                <div>
-                                    <button onClick={buutonNext}>Next</button>
-                                    <button onClick={buutonPrev}>Prev</button>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex gap-2">
+                                        <button className="buttonSwitch py-1.5 px-3" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buutonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
+                                        <button className={`buttonSwitch py-1.5 px-3  ${slide < gamesMonthly.length - 1 ? 'cursor-pointer' : 'cursor-auto'} `} style={{border: slide < gamesMonthly.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buutonNext}><GrLinkNext style={{color: slide < gamesMonthly.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
+                                    </div>
+                                    <div className="h-[12px] flex justify-between items-center gap-[13px]">
+                                        {gamesMonthly.map((_, index) =>
+                                            <div key={index} className={`w-[7px] h-[7px] bg-[#452154] rounded-3xl ${slide === index ? 'w-[28px] bg-[#FF5733] h-full' : ''}`}></div>
+                                            )
+                                        }
+                                    </div>
                                 </div>
                            </div>
                            <div className="w-full h-[290px] max-desktop:h-[285px] relative">
@@ -317,112 +327,7 @@ export const MonthlyGames = ({dataGames}) => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-9 justify-between w-full max-md:gap-6 max-md:flex-col">
-                        <div className="h-full flex-1">
-                            <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Minimum</span> System Requirments</h3>
-                            <div className="flex flex-col gap-2 mt-3">
-                                <div className="flex items-center">
-                                    <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.OS || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.CPU.join(' / ') || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center ">
-                                    <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.Memory || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center ">
-                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.GPU.join(' / ') || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.DirectX || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>Storage:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.MinimumSystemRequirments?.Storage || 'Не указано'}</span></h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="h-full flex-1">
-                            <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Recommended</span> System Requirments</h3>
-                            <div className="flex flex-col gap-2 mt-3">
-                                <div className="flex items-center">
-                                    <h3>OS:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.OS || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>CPU:<span className="text-[#B9B9B9] text-base pl-2" >{edge.node.RecommendedSystemRequirments?.CPU.join(' / ') || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>Memory:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.Memory || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>GPU:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.GPU.join(' / ') || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>DirectX:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.DirectX || 'Не указано'}</span></h3>
-                                </div>
-                                <div className="flex items-center">
-                                    <h3>Storage:<span className="text-[#B9B9B9] text-base pl-2">{edge.node.RecommendedSystemRequirments?.Storage || 'Не указано'}</span></h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="h-full bg-[#181724] rounded-xl flex-1">
-                            <div className="py-2 px-4 h-full flex flex-col gap-2">
-                                <div className="flex flex-col gap-6">
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-xs text-white font-medium">RAM</label>
-                                        <div className="relative  w-full">
-                                            <input type="text" className="border border-[#D9D9D9] border-solid rounded-sm px-2 text-[#FFFFFF] text-[10px] h-[32px] w-full bg-transparent" onChange={handelChangeValueRam} value={ramValue} onFocus={() => setRamInputActive(false)} onBlur={(e) => !e.target.value.trim() && setRamInputActive(true)}/>
-                                            {ramInputActive && ramValue.trim() === '' && (
-                                                <div className="absolute top-1 left-2 flex items-center gap-2 pointer-events-none">
-                                                    <RiRam2Line className="text-white w-6 h-6"/>
-                                                    <span className="text-[#FFFFFF] text-[10px]">Enter Your RAM Storage</span>
-                                                </div>
-                                            )}
-                                            {!isValidRamInput.test(ramValue) && ramValue.trim() !== '' && (
-                                                <p className="text-red-500 text-xs mt-2">Некорректный формат. Пример: 16 GB RAM или 512 MB RAM</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col gap-1 relative">
-                                        <label className="text-xs text-white font-medium">GPU</label>
-                                        <div className="relative  w-full">
-                                            <input type="text" className="border border-[#D9D9D9] border-solid rounded-sm px-2 text-[#FFFFFF] text-[10px] h-[32px] w-full bg-transparent" onChange={handelChangeValueGPU} value={gpuValue} onFocus={() => setGpuInputActive(false)} onBlur={(e) => !e.target.value.trim() && setGpuInputActive(true)}/>
-                                            {gpuInputActive && gpuValue.trim('') === '' && (
-                                                <div className="absolute top-1 left-2 flex items-center gap-2 pointer-events-none">
-                                                    <BsGpuCard className="text-white w-6 h-6"/>
-                                                    <span className="text-[#FFFFFF] text-[10px]">Enter Your GPU State</span>
-                                                </div>
-                                            )}
-                                            {!isValidGPUInput.test(gpuValue) && gpuValue.trim() !== '' && (
-                                                <p className="text-red-500 text-xs mt-2">Некорректный формат. Пример: NVIDIA GeForce RTX 3080 или AMD Radeon RX 6800</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col gap-1 relative">
-                                        <label className="text-xs text-white font-medium">CPU</label>
-                                        <div className="relative w-full">
-                                            <input type="text"  className="border border-[#D9D9D9] border-solid rounded-sm px-2 text-[#FFFFFF] text-[10px] h-[32px] w-full bg-transparent" onChange={handelChangeValueCPU} value={cpuValue} onFocus={() => setCpuInputActive(false)} onBlur={(e) => !e.target.value.trim() && setCpuInputActive(true)}/>
-                                            {cpuInputActive && cpuValue.trim('') === '' && (
-                                                <div className="absolute top-1 left-2 flex items-center gap-2 pointer-events-none">
-                                                    <FiCpu className="text-white w-6 h-6"/>
-                                                    <span className="text-[#FFFFFF] text-[10px]">Enter Your CPU Details</span>
-                                                </div>
-                                            )}
-                                            {!isValidCPUInput.test(cpuValue) && cpuValue.trim() !== '' && (
-                                                <p className="text-red-500 text-xs mt-2">Некорректный формат. Пример: Intel Core i7-9700 или AMD Ryzen 5-3600</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-full flex flex-col gap-2">
-                                    <button className="w-full opaqueButton rounded-2xl h-[40px]" onClick={() => handelCheckPc()} disabled={isFormValid}>Can I Run It?</button>
-                                    {isFormValid &&  (
-                                        <span className="text-red-500 text-xs mt-2">Введите пажалуйста все данные</span>
-                                    )}
-                                    <button className="w-full transparentButton rounded-2xl h-[40px]">Test My PC Automaticly</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <SystemRequirements edge={edge} gamesMonthly={gamesMonthly} slide={slide}/>
                 </div>
             ))}
         </div>

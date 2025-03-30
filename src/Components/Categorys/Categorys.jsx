@@ -48,8 +48,8 @@ export const Category = ({dataGames}) => {
                     <div className=" h-full flex flex-col gap-2 max-lg:hidden">
                         {data?.categoryGames.edges && (
                             <div className="flex gap-2">
-                                <button className="rounded-[8px] p-[7px] max-lg:p-3 border border-solid border-[#979797]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
-                                <button className={`rounded-[8px] p-[7px] max-lg:p-3 border border-solid border-[#979797] ${slide < splilCategorys(data?.categoryGames.edges).length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < splilCategorys(data?.categoryGames.edges).length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < data?.categoryGames.edges.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
+                                <button className="buttonSwitch p-[7px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
+                                <button className={`buttonSwitch p-[7px] ${slide < splilCategorys(data?.categoryGames.edges).length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < splilCategorys(data?.categoryGames.edges).length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < data?.categoryGames.edges.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
                             </div>
                         )}
                         <div className=" max-w-[72px] w-full h-[12px] flex justify-between items-center">
