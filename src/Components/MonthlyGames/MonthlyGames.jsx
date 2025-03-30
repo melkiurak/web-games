@@ -28,7 +28,7 @@ export const MonthlyGames = ({dataGames}) => {
     
     const isValidRamInput = /^\d+\s*(GB|MB)?$/i;   
     const isValidGPUInput = /^(NVIDIA|AMD|Intel)\s?(GeForce|Radeon|Arc)?\s?\w*\s?\d+$/i;
-    const isValidCPUInput = /^(Intel\sCore\s[iI]\d{1,2}-\d{3,4}|AMD\sRyzen\s\d{1,2}-\d{3,4})$/i;
+    const isValidCPUInput = /^(Intel\sCore\s[iI]\d{1,2}-\d{3,4}|AMD\sRyzen\s\d{1,2}\s\d{3,4})$/i;
 
     const handelChangeValueRam = (e) => {
         setRamValue(e.target.value);
@@ -48,7 +48,11 @@ export const MonthlyGames = ({dataGames}) => {
         const currentGame = gamesMonthly[slide]?.node;
         const ramMin = currentGame?.MinimumSystemRequirments?.Memory || '';
         const ramRecommended = currentGame?.RecommendedSystemRequirments?.Memory || '';
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> GamesMonthly
         if(extractNumberInput(ramValue) < extractNumberInput(ramMin)){
             return "Недостаточно оперативной памяти для минимальных требований";
         } else if (extractNumberInput(ramValue) >= extractNumberInput(ramMin) && extractNumberInput(ramValue) <= extractNumberInput(ramRecommended)){
@@ -62,41 +66,59 @@ export const MonthlyGames = ({dataGames}) => {
         const currentGame = gamesMonthly[slide]?.node;
         const cpuMin = currentGame?.MinimumSystemRequirments?.CPU || [];
         const cpuRecommended = currentGame?.RecommendedSystemRequirments?.CPU || [];
+<<<<<<< HEAD
 
+=======
+>>>>>>> GamesMonthly
 
-        const cpuTypeInput = cpuValue.split(' ')[2]?.split('-')[0];
         const cpuModelInput = parseInt(cpuValue.split('-')[1], 10); 
         
         if (cpuValue?.split(' ')[0]?.toLowerCase()  === 'intel') {
-            const cpuTypeMinIntel = cpuMin[0]?.split(' ')[2]?.split('-')[0];
-            const cpuTypeRecommendedIntel = cpuRecommended[0]?.split(' ')[2]?.split('-')[0];
+            const cpuMinIntel  = cpuMin.find(cpu => cpu.toLowerCase().includes('intel'));
+            const cpuRecommendedIntel  = cpuRecommended.find(cpu => cpu.toLowerCase().includes('intel'));
             
-            const cpuModelMinIntel = parseInt(cpuMin[0]?.split('-')[1], 10);  
-            const cpuModelRecommendedIntel = parseInt(cpuRecommended[0]?.split('-')[1], 10);  
-            if (cpuTypeInput < cpuTypeMinIntel && cpuModelInput < cpuModelMinIntel ) {
+
+            if (!cpuMinIntel || !cpuRecommendedIntel) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            
+            const cpuTypeInputIntel = parseInt(cpuValue.split(' ')[2]?.replace(/\D/g, ''), 10);
+            const cpuTypeMinIntel = parseInt(cpuMinIntel.split(' ')[2]?.replace(/\D/g, ''), 10);
+            const cpuTypeRecommendedIntel = parseInt(cpuRecommendedIntel.split(' ')[2]?.replace(/\D/g, ''), 10);
+            const cpuModelRecommendedIntel = parseInt(cpuRecommendedIntel.split('-')[1], 10);
+
+            if (cpuTypeInputIntel < cpuTypeMinIntel) {
                 return "Недостаточно процессора Intel для минимальных требований";
             } 
-            else if ((cpuTypeInput >= cpuTypeMinIntel || cpuModelInput >= cpuModelMinIntel) && (cpuTypeInput < cpuTypeRecommendedIntel || cpuModelInput < cpuModelRecommendedIntel)) {
+            else if ((cpuTypeInputIntel < cpuTypeRecommendedIntel && cpuModelInput < cpuModelRecommendedIntel)) {
                 return "Процессор Intel соответствует минимальным требованиям";
-            } 
-            else if (cpuTypeInput >= cpuTypeRecommendedIntel || cpuModelInput >= cpuModelRecommendedIntel) {
+            }
+            else {
                 return "Процессор Intel соответствует рекомендованным требованиям";
             } 
-        } else if(cpuValue?.split(' ')[0]?.toLowerCase()  === 'amd'){
-            const cpuTypeMinAmd = cpuMin[1]?.split(' ')[2]?.split('-')[0];
-            const cpuTypeRecommendedAmd = cpuRecommended[1]?.split(' ')[2]?.split('-')[0];
-    
-            const cpuModelMinAmd = parseInt(cpuMin[1]?.split(' ')[3], 10);  
-            const cpuModelRecommendedAmd = parseInt(cpuRecommended[1]?.split(' ')[3], 10);  
-            if (cpuTypeInput < cpuTypeMinAmd || cpuModelInput < cpuModelMinAmd) {
-                return "Недостаточно процессора Amd для минимальных требований";
+        } else if(cpuValue?.split(' ')[0]?.toLowerCase() === 'amd'){
+            const cpuMinAmd = cpuMin.find(cpu => cpu.toLowerCase().includes('amd'));
+            const cpuRecommendedAmd = cpuRecommended.find(cpu => cpu.toLowerCase().includes('amd'));
+        
+            if (!cpuMinAmd || !cpuRecommendedAmd) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+        
+            const cpuTypeInputAmd = parseInt(cpuValue.split(' ')[2], 10);
+            const cpuTypeMinAmd = parseInt(cpuMinAmd.split(' ')[2], 10);
+            const cpuTypeRecommendedAmd = parseInt(cpuRecommendedAmd.split(' ')[2], 10);
+
+        
+            const cpuModelInput = parseInt(cpuValue.split(' ')[1], 10);
+            const cpuModelMinAmd = parseInt(cpuMinAmd.split(' ')[1], 10);  
+            const cpuModelRecommendedAmd = parseInt(cpuRecommendedAmd.split(' ')[1], 10);
+        
+            if (cpuTypeInputAmd < cpuTypeMinAmd || (cpuTypeInputAmd === cpuTypeMinAmd && cpuModelInput < cpuModelMinAmd)) {
+                return "Недостаточно процессора AMD для минимальных требований";
             } 
-            else if ((cpuTypeInput >= cpuTypeMinAmd && cpuModelInput >= cpuModelMinAmd) && 
-                     (cpuTypeInput < cpuTypeRecommendedAmd || cpuModelInput < cpuModelRecommendedAmd)) {
-                return "Процессор Amd соответствует минимальным требованиям";
+            // Если процессор соответствует минимальным, но не рекомендованным требованиям
+            else if (cpuTypeInputAmd < cpuTypeRecommendedAmd || (cpuTypeInputAmd === cpuTypeRecommendedAmd && cpuModelInput < cpuModelRecommendedAmd)) {
+                return "Процессор AMD соответствует минимальным требованиям";
             } 
-            else if (cpuTypeInput >= cpuTypeRecommendedAmd && cpuModelInput >= cpuModelRecommendedAmd) {
-                return "Процессор Amd соответствует рекомендованным требованиям";
+            // Если процессор соответствует рекомендованным требованиям
+            else {
+                return "Процессор AMD соответствует рекомендованным требованиям";
             }
         }else {
             return 'Это не процессор Intel и Amd';
