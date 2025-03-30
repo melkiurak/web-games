@@ -2,7 +2,8 @@ import { RiRam2Line } from "react-icons/ri";
 import { BsGpuCard } from "react-icons/bs";
 import { FiCpu } from "react-icons/fi";
 import { useState } from "react";
-export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
+
+export const SystemRequirements = ({gamesMonthly, slide, edge, setModalCheckPc, onPcCheckResults}) => {
     const [ramInputActive, setRamInputActive] = useState(true);
     const [gpuInputActive, setGpuInputActive] = useState(true);
     const [cpuInputActive, setCpuInputActive] = useState(true);
@@ -36,11 +37,11 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
         const ramRecommended = currentGame?.RecommendedSystemRequirments?.Memory || '';
 
         if(extractNumberInput(ramValue) < extractNumberInput(ramMin)){
-            return "Недостаточно оперативной памяти для минимальных требований";
+            return `Вашей оперативной памяти (${ramValue}) недостаточно для минимальных требований (${ramMin})`;
         } else if (extractNumberInput(ramValue) >= extractNumberInput(ramMin) && extractNumberInput(ramValue) <= extractNumberInput(ramRecommended)){
-            return "Оперативная память соответствует минимальным требованиям";
+            return `Ваша оперативная память (${ramValue}) соответствует минимальным требованиям (${ramMin})`;
         } else if(extractNumberInput(ramValue) >= extractNumberInput(ramRecommended)){
-            return "Оперативная память соответствует рекомендованным требованиям";
+            return `Ваша оперативная память (${ramValue}) соответствует рекомендованным требованиям (${ramRecommended})`;
         }
         return null;
     }    
@@ -64,13 +65,13 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
             const cpuModelRecommendedIntel = parseInt(cpuRecommendedIntel.split('-')[1], 10);
 
             if (cpuTypeInputIntel < cpuTypeMinIntel) {
-                return "Недостаточно процессора Intel для минимальных требований";
+                return `Вашего процессора Intel недостаточно для минимальных требований (мин. ${cpuMinIntel})`;
             } 
             else if ((cpuTypeInputIntel < cpuTypeRecommendedIntel && cpuModelInput < cpuModelRecommendedIntel)) {
-                return "Процессор Intel соответствует минимальным требованиям";
+                return `Ваш процессор Intel (${cpuTypeInputIntel}) соответствует минимальным требованиям (мин. ${cpuMinIntel})`;
             }
             else {
-                return "Процессор Intel соответствует рекомендованным требованиям";
+                return `Ваш процессор Intel (${cpuTypeInputIntel}) соответствует рекомендованным требованиям (реком. ${cpuRecommendedIntel})`;
             } 
         } else if(cpuValue?.split(' ')[0]?.toLowerCase() === 'amd'){
             const cpuMinAmd = cpuMin.find(cpu => cpu.toLowerCase().includes('amd'));
@@ -88,13 +89,13 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
             const cpuModelRecommendedAmd = parseInt(cpuRecommendedAmd.split(' ')[1], 10);
         
             if (cpuTypeInputAmd < cpuTypeMinAmd || (cpuTypeInputAmd === cpuTypeMinAmd && cpuModelInput < cpuModelMinAmd)) {
-                return "Недостаточно процессора AMD для минимальных требований";
+                return `Вашего процессора AMD недостаточно для минимальных требований (тип мин. ${cpuTypeMinAmd}, модель мин. ${cpuModelMinAmd})`;
             } 
             else if (cpuTypeInputAmd < cpuTypeRecommendedAmd || (cpuTypeInputAmd === cpuTypeRecommendedAmd && cpuModelInput < cpuModelRecommendedAmd)) {
-                return "Процессор AMD соответствует минимальным требованиям";
+                return `Ваш процессор AMD (тип ${cpuTypeInputAmd}, модель ${cpuModelInput}) соответствует минимальным требованиям (тип мин. ${cpuTypeMinAmd}, модель мин. ${cpuModelMinAmd})`;
             } 
             else {
-                return "Процессор AMD соответствует рекомендованным требованиям";
+                return `Ваш процессор AMD (тип ${cpuTypeInputAmd}, модель ${cpuModelInput}) соответствует рекомендованным требованиям (тип реком. ${cpuTypeRecommendedAmd}, модель реком. ${cpuModelRecommendedAmd})`;
             }
         }else {
             return 'Это не процессор Intel и Amd';
@@ -116,29 +117,29 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
             const gpuModelMinNvidia =  parseInt(gpuMinNvidia.match(/\d+/)?.[0], 10);
             const gpuModelRecommendedNvidia =  parseInt(gpuRecommendedNvidia.match(/\d+/)?.[0], 10);
             if (gpuModelInput >= 2000 && gpuModelInput < 3000) {
-                return 'Видеокарта Nvidia подходит выше рекомендуеммых';
+                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) выше рекомендованных требований (реком. ${gpuRecommendedNvidia})`;
             } else if(gpuModelInput < gpuModelMinNvidia){
-                return 'Видеокарта Nvidia не подходит для минимальных';
+                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) не подходит для минимальных требований (мин. ${gpuMinNvidia})`;
             } else if (gpuModelInput >= gpuModelMinNvidia && gpuModelInput < gpuModelRecommendedNvidia ){
-                return 'Видеокарта Nvidia подходит под минимальные требования';
+                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) соответствует минимальным требованиям (мин. ${gpuMinNvidia})`;
             } else if (gpuModelInput >= gpuModelRecommendedNvidia) {
-                return 'Видеокарта Nvidia подходит для рекомендуеммых требований';
+                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) соответствует рекомендованным требованиям (реком. ${gpuRecommendedNvidia})`;
             }
         } else if (gpuValue?.split(' ')[0]?.toLowerCase()  === 'amd'){
-                const gpuMinAmd =  gpuMin.find(gpu => gpu.toLowerCase().includes('amd'));
-                const gpuRecommendedAmd =  gpuRecommended.find(gpu => gpu.toLowerCase().includes('amd'));
+            const gpuMinAmd =  gpuMin.find(gpu => gpu.toLowerCase().includes('amd'));
+            const gpuRecommendedAmd =  gpuRecommended.find(gpu => gpu.toLowerCase().includes('amd'));
     
-                if (!gpuMinAmd || !gpuRecommendedAmd) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            if (!gpuMinAmd || !gpuRecommendedAmd) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
 
-                const gpuModelMinAmd =  parseInt(gpuMinAmd.match(/\d+/)?.[0], 10);
-                const gpuModelRecommendedAmd =  parseInt(gpuRecommendedAmd.match(/\d+/)?.[0], 10);
-                if(gpuModelInput < gpuModelMinAmd){
-                    return 'Видеокарта Amd не подходит для минимальных';
-                } else if (gpuModelInput >= gpuModelMinAmd && gpuModelInput < gpuModelRecommendedAmd ){
-                    return 'Видеокарта Amd подходит под минимальные требования';
-                } else if (gpuModelInput >= gpuModelRecommendedAmd) {
-                    return 'Видеокарта Amd подходит для рекомендуеммых требований'
-                }
+            const gpuModelMinAmd =  parseInt(gpuMinAmd.match(/\d+/)?.[0], 10);
+            const gpuModelRecommendedAmd =  parseInt(gpuRecommendedAmd.match(/\d+/)?.[0], 10);
+            if(gpuModelInput < gpuModelMinAmd){
+                return `Ваша видеокарта AMD (модель ${gpuModelInput}) не подходит для минимальных требований (мин. ${gpuMinAmd})`;
+            } else if (gpuModelInput >= gpuModelMinAmd && gpuModelInput < gpuModelRecommendedAmd ){
+                return `Ваша видеокарта AMD (модель ${gpuModelInput}) соответствует минимальным требованиям (мин. ${gpuMinAmd})`;
+            } else if (gpuModelInput >= gpuModelRecommendedAmd) {
+                return `Ваша видеокарта AMD (модель ${gpuModelInput}) соответствует рекомендованным требованиям (реком. ${gpuRecommendedAmd})`;
+            }
         }
         else if (gpuValue?.split(' ')[0]?.toLowerCase()  === 'intel'){
             const gpuRecommendedIntel =  gpuRecommended.find(gpu => gpu.toLowerCase().includes('intel'));
@@ -147,9 +148,9 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
 
             const gpuModelRecommendedIntel=  parseInt(gpuRecommendedIntel.match(/\d+/)?.[0], 10);
             if(gpuModelInput < gpuModelRecommendedIntel){
-                return 'Видеокарта Intel не подходит для рекомендованых';
+                return `Ваша видеокарта Intel (модель ${gpuModelInput}) не подходит для рекомендованных требований (реком. ${gpuRecommendedIntel})`;
             } else if (gpuModelInput >= gpuModelRecommendedIntel) {
-                return 'Видеокарта Intel подходит для рекомендуеммых требований'
+                return `Ваша видеокарта Intel (модель ${gpuModelInput}) соответствует рекомендованным требованиям (реком. ${gpuRecommendedIntel})`;
             }
             }
          else{
@@ -163,15 +164,18 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
         
         setIsFormValid(!(isRamValid && isGpuValid && isCpuValid));
         if(isRamValid && isGpuValid && isCpuValid) {
-            console.log(`Ваша память ${ramValue}`, checkPcRam())
-            console.log(`Ваша процессор ${cpuValue}`, checkPcCpu())
-            console.log(`Ваша видеокарта${gpuValue}`, checkPcGpu())
+            setModalCheckPc(true);
+            onPcCheckResults({
+                ram: checkPcRam(),
+                gpu: checkPcGpu(),
+                cpu: checkPcCpu(),
+            });
         } else {
-            console.log('Данные не ввёл')
+            return null;
         }
     };
-    return <div className="flex gap-9 justify-between w-full max-md:gap-6 max-md:flex-col">
-        <div className="h-full flex-1">
+    return <div className="flex gap-9 justify-between max-md:w-[382px] max-phone:!w-full max-md:items-center w-full max-md:gap-6 max-md:flex-col">
+        <div className="h-full flex-1 w-full">
             <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Minimum</span> System Requirments</h3>
             <div className="flex flex-col gap-2 mt-3">
                 <div className="flex items-center">
@@ -194,7 +198,7 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
                 </div>
             </div>
         </div>
-        <div className="h-full flex-1">
+        <div className="h-full flex-1 w-full">
             <h3 className="max-desktop:!text-base"><span className="text-[#FF5733]">Recommended</span> System Requirments</h3>
             <div className="flex flex-col gap-2 mt-3">
                 <div className="flex items-center">
@@ -217,7 +221,7 @@ export const SystemRequirements = ({gamesMonthly, slide, edge}) => {
                 </div>
             </div>
         </div>
-        <div className="h-full bg-[#181724] rounded-xl flex-1">
+        <div className="h-full bg-[#181724] rounded-xl flex-1 w-full" >
             <div className="py-2 px-4 h-full flex flex-col gap-2">
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-1">

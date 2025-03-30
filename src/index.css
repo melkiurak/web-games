@@ -34,7 +34,7 @@ html, body {
 }
 
 body{
-    @apply bg-[#1C1B29] font-main min-h-[100vh] overflow-auto;
+    @apply bg-[#1C1B29] font-main min-h-[100vh];
     -webkit-user-select: none;
     -moz-user-select: none; 
     -ms-user-select: none; 
