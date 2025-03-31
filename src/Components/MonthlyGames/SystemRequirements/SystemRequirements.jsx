@@ -37,68 +37,69 @@ export const SystemRequirements = ({gamesMonthly, slide, edge, setModalCheckPc, 
         const ramRecommended = currentGame?.RecommendedSystemRequirments?.Memory || '';
 
         if(extractNumberInput(ramValue) < extractNumberInput(ramMin)){
-            return `Вашей оперативной памяти (${ramValue}) недостаточно для минимальных требований (${ramMin})`;
+            return { status: "bad", message: `Вашей оперативной памяти (${ramValue})` };
         } else if (extractNumberInput(ramValue) >= extractNumberInput(ramMin) && extractNumberInput(ramValue) <= extractNumberInput(ramRecommended)){
-            return `Ваша оперативная память (${ramValue}) соответствует минимальным требованиям (${ramMin})`;
+            return { status: "minimum", message: `Ваша оперативная память (${ramValue})` };
         } else if(extractNumberInput(ramValue) >= extractNumberInput(ramRecommended)){
-            return `Ваша оперативная память (${ramValue}) соответствует рекомендованным требованиям (${ramRecommended})`;
+            return { status: "recommended", message: `Ваша оперативная память (${ramValue})` };
         }
-        return null;
+        return { status: "unknown", message: "Не удалось определить соответствие оперативной памяти." };
     }    
     const checkPcCpu = () => {
         const currentGame = gamesMonthly[slide]?.node;
         const cpuMin = currentGame?.MinimumSystemRequirments?.CPU || [];
         const cpuRecommended = currentGame?.RecommendedSystemRequirments?.CPU || [];
 
-        const cpuModelInput = parseInt(cpuValue.split('-')[1], 10); 
+        const cpuModelInput = parseInt(cpuValue.split(' ')[2]?.split('-')[1], 10); 
         
         if (cpuValue?.split(' ')[0]?.toLowerCase()  === 'intel') {
             const cpuMinIntel  = cpuMin.find(cpu => cpu.toLowerCase().includes('intel'));
             const cpuRecommendedIntel  = cpuRecommended.find(cpu => cpu.toLowerCase().includes('intel'));
             
 
-            if (!cpuMinIntel || !cpuRecommendedIntel) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            if (!cpuMinIntel || !cpuRecommendedIntel) return { status: "unknown", message: "Данные о минимальных или рекомендованных требованиях отсутствуют" };
             
             const cpuTypeInputIntel = parseInt(cpuValue.split(' ')[2]?.replace(/\D/g, ''), 10);
             const cpuTypeMinIntel = parseInt(cpuMinIntel.split(' ')[2]?.replace(/\D/g, ''), 10);
+            
             const cpuTypeRecommendedIntel = parseInt(cpuRecommendedIntel.split(' ')[2]?.replace(/\D/g, ''), 10);
             const cpuModelRecommendedIntel = parseInt(cpuRecommendedIntel.split('-')[1], 10);
-
+            
             if (cpuTypeInputIntel < cpuTypeMinIntel) {
-                return `Вашего процессора Intel недостаточно для минимальных требований (мин. ${cpuMinIntel})`;
+                return { status: "bad", message: `Вашего процессора Intel (${cpuValue})` };
             } 
-            else if ((cpuTypeInputIntel < cpuTypeRecommendedIntel && cpuModelInput < cpuModelRecommendedIntel)) {
-                return `Ваш процессор Intel (${cpuTypeInputIntel}) соответствует минимальным требованиям (мин. ${cpuMinIntel})`;
+            else if (cpuTypeInputIntel >= cpuTypeMinIntel && (cpuModelInput < cpuModelRecommendedIntel || cpuTypeInputIntel < cpuTypeRecommendedIntel)) {
+                return { status: "minimum", message: `Ваш процессор Intel (${cpuValue})`};
             }
             else {
-                return `Ваш процессор Intel (${cpuTypeInputIntel}) соответствует рекомендованным требованиям (реком. ${cpuRecommendedIntel})`;
+                return { status: "recommended", message: `Ваш процессор Intel (${cpuValue})`};
             } 
         } else if(cpuValue?.split(' ')[0]?.toLowerCase() === 'amd'){
             const cpuMinAmd = cpuMin.find(cpu => cpu.toLowerCase().includes('amd'));
             const cpuRecommendedAmd = cpuRecommended.find(cpu => cpu.toLowerCase().includes('amd'));
         
-            if (!cpuMinAmd || !cpuRecommendedAmd) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            if (!cpuMinAmd || !cpuRecommendedAmd)  return { status: "unknown", message: "Данные о минимальных или рекомендованных требованиях отсутствуют" };
         
             const cpuTypeInputAmd = parseInt(cpuValue.split(' ')[2], 10);
             const cpuTypeMinAmd = parseInt(cpuMinAmd.split(' ')[2], 10);
             const cpuTypeRecommendedAmd = parseInt(cpuRecommendedAmd.split(' ')[2], 10);
 
         
-            const cpuModelInput = parseInt(cpuValue.split(' ')[1], 10);
-            const cpuModelMinAmd = parseInt(cpuMinAmd.split(' ')[1], 10);  
-            const cpuModelRecommendedAmd = parseInt(cpuRecommendedAmd.split(' ')[1], 10);
+            const cpuModelInput = parseInt(cpuValue.split(' ')[3], 10);
+            const cpuModelMinAmd = parseInt(cpuMinAmd.split(' ')[3], 10);  
+            const cpuModelRecommendedAmd = parseInt(cpuRecommendedAmd.split(' ')[3], 10);
         
             if (cpuTypeInputAmd < cpuTypeMinAmd || (cpuTypeInputAmd === cpuTypeMinAmd && cpuModelInput < cpuModelMinAmd)) {
-                return `Вашего процессора AMD недостаточно для минимальных требований (тип мин. ${cpuTypeMinAmd}, модель мин. ${cpuModelMinAmd})`;
+                return { status: "bad", message: `Вашего процессора AMD (${cpuValue})`};
             } 
             else if (cpuTypeInputAmd < cpuTypeRecommendedAmd || (cpuTypeInputAmd === cpuTypeRecommendedAmd && cpuModelInput < cpuModelRecommendedAmd)) {
-                return `Ваш процессор AMD (тип ${cpuTypeInputAmd}, модель ${cpuModelInput}) соответствует минимальным требованиям (тип мин. ${cpuTypeMinAmd}, модель мин. ${cpuModelMinAmd})`;
+                return { status: "minimum", message: `Ваш процессор AMD (${cpuValue})`};
             } 
             else {
-                return `Ваш процессор AMD (тип ${cpuTypeInputAmd}, модель ${cpuModelInput}) соответствует рекомендованным требованиям (тип реком. ${cpuTypeRecommendedAmd}, модель реком. ${cpuModelRecommendedAmd})`;
+                return { status: "recommended", message: `Ваш процессор AMD (${cpuValue}) `};
             }
-        }else {
-            return 'Это не процессор Intel и Amd';
+        } else {
+            return { status: "unknown", message: "Не удалось определить процессор" };
         }
     }
     const checkPcGpu = () => {
@@ -112,49 +113,49 @@ export const SystemRequirements = ({gamesMonthly, slide, edge, setModalCheckPc, 
             const gpuMinNvidia =  gpuMin.find(gpu => gpu.toLowerCase().includes('nvidia'));
             const gpuRecommendedNvidia =  gpuRecommended.find(gpu => gpu.toLowerCase().includes('nvidia'));
 
-            if (!gpuMinNvidia || !gpuRecommendedNvidia) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            if (!gpuMinNvidia || !gpuRecommendedNvidia)  return { status: "unknown", message: "Данные о минимальных или рекомендованных требованиях отсутствуют" };
 
             const gpuModelMinNvidia =  parseInt(gpuMinNvidia.match(/\d+/)?.[0], 10);
             const gpuModelRecommendedNvidia =  parseInt(gpuRecommendedNvidia.match(/\d+/)?.[0], 10);
             if (gpuModelInput >= 2000 && gpuModelInput < 3000) {
-                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) выше рекомендованных требований (реком. ${gpuRecommendedNvidia})`;
+                return { status: "aboveRecommended", message: `Ваша видеокарта Nvidia ${gpuValue}) `};                
             } else if(gpuModelInput < gpuModelMinNvidia){
-                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) не подходит для минимальных требований (мин. ${gpuMinNvidia})`;
+                return { status: "bad", message: `Ваша видеокарта Nvidia (модель ${gpuValue})`};
             } else if (gpuModelInput >= gpuModelMinNvidia && gpuModelInput < gpuModelRecommendedNvidia ){
-                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) соответствует минимальным требованиям (мин. ${gpuMinNvidia})`;
+                return { status: "minimum", message: `Ваша видеокарта Nvidia (модель ${gpuValue})` };
             } else if (gpuModelInput >= gpuModelRecommendedNvidia) {
-                return `Ваша видеокарта Nvidia (модель ${gpuModelInput}) соответствует рекомендованным требованиям (реком. ${gpuRecommendedNvidia})`;
+                return { status: "recommended", message: `Ваша видеокарта Nvidia (модель ${gpuValue})`};
             }
         } else if (gpuValue?.split(' ')[0]?.toLowerCase()  === 'amd'){
             const gpuMinAmd =  gpuMin.find(gpu => gpu.toLowerCase().includes('amd'));
             const gpuRecommendedAmd =  gpuRecommended.find(gpu => gpu.toLowerCase().includes('amd'));
     
-            if (!gpuMinAmd || !gpuRecommendedAmd) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            if (!gpuMinAmd || !gpuRecommendedAmd)  return { status: "unknown", message: "Данные о минимальных или рекомендованных требованиях отсутствуют" };
 
             const gpuModelMinAmd =  parseInt(gpuMinAmd.match(/\d+/)?.[0], 10);
             const gpuModelRecommendedAmd =  parseInt(gpuRecommendedAmd.match(/\d+/)?.[0], 10);
             if(gpuModelInput < gpuModelMinAmd){
-                return `Ваша видеокарта AMD (модель ${gpuModelInput}) не подходит для минимальных требований (мин. ${gpuMinAmd})`;
+                return { status: "bad", message: `Ваша видеокарта AMD (модель ${gpuValue})`};
             } else if (gpuModelInput >= gpuModelMinAmd && gpuModelInput < gpuModelRecommendedAmd ){
-                return `Ваша видеокарта AMD (модель ${gpuModelInput}) соответствует минимальным требованиям (мин. ${gpuMinAmd})`;
+                return { status: "bad", message: `Ваша видеокарта AMD (модель ${gpuValue})`};
             } else if (gpuModelInput >= gpuModelRecommendedAmd) {
-                return `Ваша видеокарта AMD (модель ${gpuModelInput}) соответствует рекомендованным требованиям (реком. ${gpuRecommendedAmd})`;
+                return { status: "recommended", message: `Ваша видеокарта AMD (модель ${gpuValue})`};
             }
         }
         else if (gpuValue?.split(' ')[0]?.toLowerCase()  === 'intel'){
             const gpuRecommendedIntel =  gpuRecommended.find(gpu => gpu.toLowerCase().includes('intel'));
     
-            if (!gpuRecommendedIntel) return "Данные о минимальных или рекомендованных требованиях отсутствуют";
+            if (!gpuRecommendedIntel)  return { status: "unknown", message: "Данные о минимальных или рекомендованных требованиях отсутствуют" };
 
             const gpuModelRecommendedIntel=  parseInt(gpuRecommendedIntel.match(/\d+/)?.[0], 10);
             if(gpuModelInput < gpuModelRecommendedIntel){
-                return `Ваша видеокарта Intel (модель ${gpuModelInput}) не подходит для рекомендованных требований (реком. ${gpuRecommendedIntel})`;
+                return { status: "Norecommended", message:  `Ваша видеокарта Intel (модель ${gpuValue})`};
             } else if (gpuModelInput >= gpuModelRecommendedIntel) {
-                return `Ваша видеокарта Intel (модель ${gpuModelInput}) соответствует рекомендованным требованиям (реком. ${gpuRecommendedIntel})`;
+                return { status: "recommended", message: `Ваша видеокарта Intel (модель ${gpuValue})`};
             }
             }
          else{
-            return 'Это не Nvidia, Amd и Intel'
+            return { status: "unknown", message: "Не удалось определить видеокарту" };
         }
     }
     const handelCheckPc = () => {
@@ -169,6 +170,11 @@ export const SystemRequirements = ({gamesMonthly, slide, edge, setModalCheckPc, 
                 ram: checkPcRam(),
                 gpu: checkPcGpu(),
                 cpu: checkPcCpu(),
+                status: {
+                    ram: checkPcRam().status,
+                    gpu: checkPcGpu().status,
+                    cpu: checkPcCpu().status,
+                }
             });
         } else {
             return null;

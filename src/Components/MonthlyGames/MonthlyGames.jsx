@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import metacritic from '../../assets/main/metacritic.png'
-import { IoCloseSharp } from "react-icons/io5";
+import { IoCloseSharp, IoClose, IoRocket, IoWarning } from "react-icons/io5";
 import { SystemRequirements } from "./SystemRequirements/SystemRequirements";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 
@@ -18,6 +18,11 @@ export const MonthlyGames = ({dataGames}) => {
         ram: '',
         cpu: '',
         gpu: '',
+        status: {
+            ram: null,
+            cpu: null,
+            gpu: null,
+        }
     });
 
     const nowDate = new Date().toLocaleDateString("en-US", {year: 'numeric',month: 'numeric',}).split('/').map(Number) 
@@ -74,7 +79,6 @@ export const MonthlyGames = ({dataGames}) => {
             document.body.style.overflow = '';
         };
     }, [fullScrean, modalCheckPc]);
-
     return <div className="max-lg:px-6">
         <div className="h-full flex flex-col gap-8  container">
             <h2 className="text-center">Game Of The Month</h2>
@@ -174,15 +178,83 @@ export const MonthlyGames = ({dataGames}) => {
                         </div>
                     </div>
                     <SystemRequirements edge={edge} gamesMonthly={gamesMonthly} slide={slide} setModalCheckPc={setModalCheckPc} onPcCheckResults={handlePcCheckResults}/>
-                    <div className={`top-0 left-0 w-full h-full bg-op bg-black/50 flex justify-center items-center z-20 max-desktop:p-8 ${modalCheckPc ? "fixed" : "hidden"}`} onClick={handelCloseModalCheckPc}>
-                        <div className="bg-[#181724] p-8 max-md:p-5 flex flex-col gap-3 rounded-2xl">
-                            <h2 className="text-center">Результаты тестов</h2>
-                            <h3 className="max-md:!text-lg">Ваша оперативаная память: <span className="text-lg max-lg:text-base max-md:text-sm !text-[#D3D3D3]">{dataPcResult.ram}</span></h3>
-                            <h3 className="max-md:!text-lg">Ваша видеокарта: <span className="text-lg max-lg:text-base max-md:text-sm !text-[#D3D3D3]">{dataPcResult.gpu}</span></h3>
-                            <h3 className="max-md:!text-lg">Ваш процессор: <span  className="text-lg max-lg:text-base max-md:text-sm !text-[#D3D3D3]">{dataPcResult.cpu}</span></h3>
+                    {modalCheckPc && (
+                        <div className={`top-0 left-0 w-full h-full bg-op bg-black/50 flex justify-center items-center z-20 max-desktop:p-8 ${modalCheckPc ? "fixed" : "hidden"}`} onClick={handelCloseModalCheckPc}>
+                            <div className="bg-[#181724] p-8 max-md:p-5 flex flex-col gap-3 rounded-2xl" onClick={(e) => e.stopPropagation()}>
+                                <h2 className="text-center">Результаты тестов ваше пк по игре: {edge.node.name}</h2>
+                                <h3 className="max-md:!text-lg">Ваша оперативная память: <span className="text-lg max-lg:text-base max-md:text-sm !text-[#D3D3D3]">{dataPcResult.ram.message}</span></h3>
+                                <h3 className="max-md:!text-lg">Ваша видеокарта: <span className="text-lg max-lg:text-base max-md:text-sm !text-[#D3D3D3]">{dataPcResult.gpu.message}</span></h3>
+                                <h3 className="max-md:!text-lg">Ваш процессор: <span className="text-lg max-lg:text-base max-md:text-sm !text-[#D3D3D3]">{dataPcResult.cpu.message}</span></h3>
+                                {(dataPcResult.status.ram === 'bad' || dataPcResult.status.gpu === 'bad' || dataPcResult.status.cpu === 'bad') && (
+                                    <div className="flex flex-col gap-4">
+                                        {dataPcResult.status.ram === 'bad' && (
+                                            <div className="flex items-center gap-1  text-red-500" >
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Вашей оперативной памяти недостаточно</span> 
+                                                <IoClose className="text-xl"/>
+                                            </div>
+                                        )}
+                                        {dataPcResult.status.gpu === 'bad' && (
+                                            <div className="flex items-center gap-1 text-red-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваша видеокарта не соответствует минимальным требованиям</span> 
+                                                <IoClose className="text-xl"/>
+                                            </div>
+                                        )}
+                                        {dataPcResult.status.cpu === 'bad' && (
+                                            <div className="flex items-center gap-1 text-red-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваш процессор не соответствует минимальным требованиям</span> 
+                                                <IoClose className="text-xl"/>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {(dataPcResult.status.ram === 'minimum' || dataPcResult.status.gpu === 'minimum' || dataPcResult.status.cpu === 'minimum') && (
+                                    <div className="flex flex-col gap-2">
+                                        {dataPcResult.status.ram === 'minimum' && (
+                                            <div className="flex items-center gap-1 text-orange-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваша оперативная память подходит для минимальных настроек</span>
+                                                <IoWarning className="text-xl"/>
+                                            </div>
+                                        )}
+                                        {dataPcResult.status.gpu === 'minimum' && (
+                                            <div className="flex items-center gap-1 text-orange-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]" >Ваша видеокарта подходит для минимальных настроек</span>
+                                                <IoWarning className="text-xl"/>
+                                            </div>
+                                        )}
+                                        {dataPcResult.status.cpu === 'minimum' && (
+                                            <div className="flex items-center gap-1 text-orange-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваш процессор подходит для минимальных настроек</span>
+                                                <IoWarning className="text-xl"/>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {(dataPcResult.status.ram === 'recommended' || (dataPcResult.status.gpu === 'recommended' || dataPcResult.status.gpu === 'aboveRecommended') || dataPcResult.status.cpu === 'recommended') && (
+                                    <div className="flex flex-col gap-2">
+                                        {dataPcResult.status.ram === 'recommended' && (
+                                            <div className="flex items-center gap-1 text-green-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваша оперативная память подходит для рекомендуемых настроек</span> 
+                                                <IoRocket className="text-xl"/>
+                                            </div>
+                                        )}
+                                        {(dataPcResult.status.gpu === 'recommended' || dataPcResult.status.gpu === 'aboveRecommended') && (
+                                            <div className="flex items-center gap-1 text-green-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваша видеокарта подходит для рекомендуемых настроек</span> 
+                                                <IoRocket className="text-xl"/>
+                                            </div>
+                                        )}
+                                        {dataPcResult.status.cpu === 'recommended' && (
+                                            <div className="flex items-center gap-1 text-green-500">
+                                                <span className="max-md:text-xs max-phone:w-[200px]">Ваш процессор подходит для рекомендуемых настроек</span> 
+                                                <IoRocket className="text-xl"/>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <button className="absolute top-5 right-9 text-white text-3xl cursor-pointer" onClick={handelCloseModalCheckPc}><IoCloseSharp/></button>
                         </div>
-                        <button className="absolute top-5 right-9 text-white text-3xl cursor-pointer" onClick={handelCloseModalCheckPc}><IoCloseSharp/></button>
-                    </div>
+                    )}
                 </div>
             ))}
         </div>
