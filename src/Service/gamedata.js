@@ -48,6 +48,7 @@ const GET_GAMES = gql `
             url
           }
         }
+        Reviews
       }
     }
   }
