@@ -3,21 +3,21 @@ import './App.css'
 import { Category } from './Components/Categorys/Categorys'
 import { Header } from './Components/Header/Header'
 import { Hero } from './Components/Hero/Hero'
-import { GET_DISCOUNTS, GET_GAMES } from './Service/gamedata';
+import { GET_DISCOUNTS, GET_GAMES, GET_UPCOMING_GAMES } from './Service/gamedata';
 import { Trending } from './Components/Trending/Trending';
 import { MonthlyGames } from './Components/MonthlyGames/MonthlyGames';
 import { Reviews } from './Components/Reviews/Reviews';
+import { Upcoming } from './Components/Upcoming/Upcoming';
 
 function App() {
   const { data: dataGames, loading: loadingGames, error: errorGames } = useQuery(GET_GAMES, {fetchPolicy: 'cache-first',});
-  const { data: dataDiscounts, loading: loadingDiscounts, error: errorDiscounts } = useQuery(GET_DISCOUNTS, {
-    fetchPolicy: 'cache-first',
-  });
-  if (loadingGames || loadingDiscounts) {
+  const { data: dataDiscounts, loading: loadingDiscounts, error: errorDiscounts } = useQuery(GET_DISCOUNTS, {fetchPolicy: 'cache-first',});
+  const { data: dataUpcomingGames, loading: loadingUpcomingGames, error: errorUpcomingGames } = useQuery(GET_UPCOMING_GAMES, {fetchPolicy: 'cache-first',});
+  if (loadingGames || loadingDiscounts || loadingUpcomingGames ) {
     return <p>Загрузка...</p>;
   }
   
-  if (errorGames || errorDiscounts) {
+  if (errorGames || errorDiscounts || errorUpcomingGames) {
     return <p>Ошибка</p>;
   }
   return (
@@ -29,6 +29,7 @@ function App() {
         <Trending dataGames={dataGames} dataDiscounts={dataDiscounts}/>
         <MonthlyGames dataGames={dataGames}/>
         <Reviews dataGames={dataGames}/>
+        <Upcoming dataUpcomingGames={dataUpcomingGames}/>
       </main>
     </div>
   )

@@ -89,5 +89,22 @@ const GET_DISCOUNTS = gql `
       }
     }
 `
+const GET_UPCOMING_GAMES = gql`
+  query {
+    upcomingGames {
+      count
+      edges {
+        node {
+          name
+          bannerGame{
+            url
+          }
+          date
+        }
+      }
+    }
+  }
 
-export { GET_GAMES, GET_CATEGORY, GET_DISCOUNTS}
+`
+
+export { GET_GAMES, GET_CATEGORY, GET_DISCOUNTS, GET_UPCOMING_GAMES}
