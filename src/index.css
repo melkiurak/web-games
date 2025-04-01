@@ -59,7 +59,7 @@ h3{
     @apply whitespace-nowrap text-[16px] font-medium border-2 border-[#E64E2E] text-[#E64E2E] cursor-pointer;
 }
 .opaqueButton{
-   @apply whitespace-nowrap text-[16px] font-medium bg-[#E64E2E] text-white cursor-pointer;
+   @apply whitespace-nowrap bg-[#E64E2E] text-white cursor-pointer;
 }
 .buttonSwitch{
     @apply rounded-[8px] max-lg:p-3 border border-solid border-[#979797];

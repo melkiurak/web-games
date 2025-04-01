@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { MdOutlineCalendarMonth } from "react-icons/md";
 import metacritic from '../../assets/main/metacritic.png'
+import { MdOutlineCalendarMonth } from "react-icons/md";
 import { IoCloseSharp, IoClose, IoRocket, IoWarning } from "react-icons/io5";
 import { SystemRequirements } from "./SystemRequirements/SystemRequirements";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
