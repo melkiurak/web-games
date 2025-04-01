@@ -8,7 +8,8 @@ import metacritic from '../../assets/main/metacritic.png'
 
 export const Reviews = ({dataGames}) => {
     const [slide, setSlide] = useState(0);
-    const gamesReviews = dataGames?.games?.edges.filter(edge=> edge?.node?.Reviews && Object.keys(edge.node.Reviews).length > 0);
+    const gamesReviews = dataGames?.games?.edges.filter(edge=> edge?.node?.Reviews);
+    console.log(gamesReviews)
     const groupGamesReviewsSlides = (games = []) => {
         const gamesSlideGroups = [];
         for(let i = 0; i < games.length; i +=4){
@@ -93,11 +94,11 @@ export const Reviews = ({dataGames}) => {
                                     </div>
                                     <div className="flex flex-col items-center gap-1">
                                         <FaRegComment className="text-white text-xl"/>
-                                        <span className="text-white text-sm font-normal">3<span className="text-[#979797] text-xs font-light pl-1">Comments</span></span>
+                                        <span className="text-white text-sm font-normal">{Object.keys(edge.node.Comments).length}<span className="text-[#979797] text-xs font-light pl-1">Comments</span></span>
                                     </div>
                                     <div className="flex flex-col items-center gap-1">
                                         <RiStarSLine className="text-white text-xl"/>
-                                        <span className="text-white text-sm font-normal">8.7<span className="text-[#979797] text-xs font-light pl-1">/10</span></span>
+                                        <span className="text-white text-sm font-normal">{edge.node.metacriticScore / 10}<span className="text-[#979797] text-xs font-light pl-1">/10</span></span>
                                     </div>
                                 </div>
                                 <button className="opaqueButton w-full py-[7px] rounded-xl text-sm font-light">Full Review</button>
