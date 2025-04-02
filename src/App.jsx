@@ -8,6 +8,7 @@ import { Trending } from './Components/Trending/Trending';
 import { MonthlyGames } from './Components/MonthlyGames/MonthlyGames';
 import { Reviews } from './Components/Reviews/Reviews';
 import { Upcoming } from './Components/Upcoming/Upcoming';
+import { GameFilter } from './Components/GameFilter/GameFilter';
 
 function App() {
   const { data: dataGames, loading: loadingGames, error: errorGames } = useQuery(GET_GAMES, {fetchPolicy: 'cache-first',});
@@ -30,6 +31,7 @@ function App() {
         <MonthlyGames dataGames={dataGames}/>
         <Reviews dataGames={dataGames}/>
         <Upcoming dataUpcomingGames={dataUpcomingGames}/>
+        <GameFilter dataGames={dataGames}/>
       </main>
     </div>
   )
