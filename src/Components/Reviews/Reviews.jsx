@@ -53,7 +53,7 @@ export const Reviews = ({dataGames}) => {
             <div className="grid max-md:flex grid-cols-2 max-desktop:grid-cols-1 gap-6 max-desktop:gap-3 max-md:whitespace-nowrap max-md:overflow-x-auto">  
                 {groupGamesReviewsSlides(gamesReviews)[slide]?.map((edge) => (
                     <div key={edge.node.objectId} className="border-[#7D3C98] border rounded-lg">
-                        <div className="flex gap-3 p-2 h-[210px] max-md:h-full max-desktop:h-[180px] max-md:flex-col max-md:w-[294px]">
+                        <div className="flex gap-3 p-2 h-[210px] max-md:h-full max-desktop:h-[180px] max-md:flex-col max-md:w-[294px]  max-phone:!w-full">
                             <div className="w-[140px] max-md:w-full h-full max-md:h-[194px] bg-center max-md:bg-[center_top_-3rem] max-phone:!bg-center bg-cover bg-no-repeat rounded-lg" style={{backgroundImage: `url('${edge.node.BannerImg.url}')`}}></div>
                             <div className="flex-1 w-[306px] max-md:w-full h-full flex flex-col gap-2">
                                 <div className="flex items-center font-medium text-base border-b-1 border-white">
@@ -70,8 +70,8 @@ export const Reviews = ({dataGames}) => {
                                         <span key={index} className="bg-[#181724] rounded-4xl px-4 py-1 text-[10px] text-white font-light">{genre.value}</span>    
                                     ))}
                                 </div>
-                                <div className="flex justify-between max-md:justify-around">
-                                    <div className="flex items-center">
+                                <div className="flex justify-between max-md:justify-around max-phone:justify-between">
+                                    <div className="flex items-center max-phone:pr-8">
                                         <img src={metacritic} alt="" />
                                         <span className="text-[#FFCC00] text-base font-medium pl-2">{edge.node.metacriticScore}</span>  
                                         <span className="text-[#979797] text-sm">/{edge.node.metacriticScoreMax}</span>
