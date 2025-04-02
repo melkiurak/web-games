@@ -7,12 +7,19 @@ import { HiOutlineArrowLongRight } from "react-icons/hi2";
 export const Upcoming = ({dataUpcomingGames}) => {
     const [slide, setSlide] = useState(0);
     const upcomingData = dataUpcomingGames.upcomingGames.edges.map(edge => edge?.node);
+    const groupUpcomingGames = (upcomingGames = []) => {
+        const upcomingSlideGroup = [];
+        for(let i = 0; i < upcomingGames.length; i+=5){
+            const upcomingSlideItems = upcomingGames.slice(i, i + 5);
+            upcomingSlideGroup.push(upcomingSlideItems);
+        }
+        return upcomingSlideGroup;
+    }
     const buttonNext = () => {
-        if (slide < upcomingData.length - 1) {
+        if (slide < groupUpcomingGames(upcomingData).length - 1) {
             setSlide(slide + 1);
         }
     }
-
     const buttonPrev = () => {
         if (slide > 0) {
             setSlide(slide - 1);
@@ -46,14 +53,14 @@ export const Upcoming = ({dataUpcomingGames}) => {
                         <button className={`buttonSwitch py-1.5 px-3  ${slide < upcomingData.length - 1 ? 'cursor-pointer' : 'cursor-auto'} `} style={{border: slide < upcomingData.length  - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext}><GrLinkNext style={{color: slide < upcomingData.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
                     </div>
                     <div className=" w-full h-[12px] flex gap-4 items-center">
-                        {dataUpcomingGames.upcomingGames.edges.map((_, index) => 
+                        {groupUpcomingGames(dataUpcomingGames.upcomingGames.edges).map((_, index) => 
                             <div key={index} className={`w-[17px] h-[7px] bg-[#452154] rounded-3xl ${slide === index ? 'w-[28px] bg-[#FF5733] h-full' : ''}`}></div>
                         )}
                     </div>
                 </div>
             </div>
             <div className="flex justify-between max-lg:gap-4 max-lg:whitespace-nowrap max-lg:overflow-x-auto">
-                {dataUpcomingGames.upcomingGames.edges.map((edge, index) => (
+                {groupUpcomingGames(dataUpcomingGames.upcomingGames.edges)[slide]?.map((edge, index) => (
                     <div key={edge.node.name} className="border-[#7D3C98] border rounded-2xl">
                         <div className="p-[10px] max-desktop:p-2 w-[227.2px] max-desktop:w-[167.2px] flex flex-col gap-2">
                             <div className="bg-center bg-cover bg-no-repeat w-full h-[286px] max-desktop:h-[172px] max-lg:h-[181px] rounded-2xl" style={{backgroundImage: `url('${edge.node.bannerGame.url}')`}}></div>

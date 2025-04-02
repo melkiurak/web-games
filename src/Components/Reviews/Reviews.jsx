@@ -9,7 +9,6 @@ import metacritic from '../../assets/main/metacritic.png'
 export const Reviews = ({dataGames}) => {
     const [slide, setSlide] = useState(0);
     const gamesReviews = dataGames?.games?.edges.filter(edge=> edge?.node?.Reviews);
-    console.log(gamesReviews)
     const groupGamesReviewsSlides = (games = []) => {
         const gamesSlideGroups = [];
         for(let i = 0; i < games.length; i +=4){
