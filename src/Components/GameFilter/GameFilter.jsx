@@ -23,7 +23,7 @@ export const GameFilter = ({dataGames}) => {
                 <h2 className="text-white">Games By Filter</h2>
                 <p className="text-[#979797]">At This Section You Can Search For Games by multiple filters</p>
             </div>
-            <Filters/>
+            <Filters dataGames={dataGames}/>
             <div className="grid grid-cols-2">
                 {dataGames?.games?.edges.slice(0, gamesCount).map((edge => 
                     <div key={edge.node.objectId} className="">

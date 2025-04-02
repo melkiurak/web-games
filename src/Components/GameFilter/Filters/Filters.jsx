@@ -1,14 +1,26 @@
+import {  useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = () => {
+export const Filters = ({dataGames}) => {
+    const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
+    const [nameValue, setNameValue] = useState('')
+    const handelSearchGame = () => {
+        const gameNames =  dataGames?.games.edges.filter(edge => edge.node.name).map(edge=> edge.node.name);
+        console.log("Original nameValue:", nameValue);
+        console.log("nameValue after replace:", nameValue.replace(/\s+/g, " "));
+        console.log("Game names:", gameNames);
+        return gameNames.find(name => name === nameValue.replace(/\s+/g, " ").toLowerCase()) ? console.log('Тут есть игра с таким именем') : console.log('тут нихуя нет дядя')
+    }
     return <div className="flex flex-col gap-8">
         <div className="relative h-[48px]">
-            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" />
-            <div className="absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE]">
-                <CiSearch className="text-3xl"/>
-                <span>Game Name</span>
-            </div>
+            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(e)=> setNameValue(e.target.value)} />
+            {isPlaceholderVisible && (
+                <div className={`absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE] pointer-events-none`}>
+                    <CiSearch className="text-3xl"/>
+                    <span>Game Name</span>
+                </div>
+            )}
         </div>
         <div className="flex gap-4 justify-between items-center h-[44px]">
             <button className="">Prev</button>
@@ -64,7 +76,7 @@ export const Filters = () => {
                 </div>
             </div>
         </div>
-        <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2">
+        <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2" onClick={handelSearchGame}>
             <CiSearch className="text-xl"/>
             <span>Search For Games</span>
         </button>
