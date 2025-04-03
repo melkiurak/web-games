@@ -5,35 +5,55 @@ import { IoIosArrowDown } from "react-icons/io";
 export const Filters = ({dataGames, setResultSearch}) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [nameValue, setNameValue] = useState('');
+    const [validationMessage, setValidationMessage] = useState('');
+
+    const handleInputChange = (event) => {
+        setNameValue(event.target.value);
+        setValidationMessage('');
+    };
+    
+    const CheckInput = useCallback(() => {
+        const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase());
+        if (nameGame?.includes(nameValue.replace(/\s+/g, " ").toLowerCase())) {
+            setValidationMessage('');
+        } else {
+            setValidationMessage('Такого имени нет'); 
+        }
+    },[dataGames, nameValue]);
 
     const SearchInput = useCallback(() => {
-        if(!nameValue.trim()) {
+        if (!nameValue.trim()) {
             return setResultSearch([]);
         }
-        const foundGameName = dataGames?.games.edges.filter(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase().includes(nameValue.replace(/\s+/g, " ").toLowerCase()));
-        if(foundGameName && foundGameName.length > 0){
-            const gameData = foundGameName.map(edge => edge.node)
-            setResultSearch(gameData)
+        const foundGameName = dataGames?.games.edges.filter(edge => 
+            edge.node.name.replace(/\s+/g, " ").toLowerCase().includes(nameValue.replace(/\s+/g, " ").toLowerCase())
+        );
+        if (foundGameName && foundGameName.length > 0) {
+            setResultSearch(foundGameName.map(edge => edge.node));
         } else {
-            return setResultSearch([])
+            setResultSearch([]);
         }
-    }, [nameValue, dataGames, setResultSearch]);
+        CheckInput(); 
+    }, [nameValue, dataGames, setResultSearch, CheckInput]);
 
     const handelSearchGame = useCallback(() => {
-        SearchInput()
+        SearchInput();
     }, [SearchInput]);
 
     useEffect(() => {
         handelSearchGame();
-    }, [handelSearchGame]);
+    }, [handelSearchGame, nameValue]);
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
-            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(e)=> setNameValue(e.target.value)} />
+            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={handleInputChange} />
             {isPlaceholderVisible && (
                 <div className={`absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE] pointer-events-none`}>
                     <CiSearch className="text-3xl"/>
                     <span>Game Name</span>
                 </div>
+            )}
+            {validationMessage && (
+                <p className="text-red-500">{validationMessage}</p>
             )}
         </form>
         <div className="flex gap-4 justify-between items-center h-[44px]">
