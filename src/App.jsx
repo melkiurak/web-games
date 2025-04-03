@@ -31,7 +31,7 @@ function App() {
         <MonthlyGames dataGames={dataGames}/>
         <Reviews dataGames={dataGames}/>
         <Upcoming dataUpcomingGames={dataUpcomingGames}/>
-        <GameFilter dataGames={dataGames}/>
+        <GameFilter dataGames={dataGames} dataDiscounts={dataDiscounts}/>
       </main>
     </div>
   )

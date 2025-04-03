@@ -1,19 +1,33 @@
-import {  useState } from "react";
+import {  useCallback, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = ({dataGames}) => {
+export const Filters = ({dataGames, setResultSearch}) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
-    const [nameValue, setNameValue] = useState('')
-    const handelSearchGame = () => {
-        const gameNames =  dataGames?.games.edges.filter(edge => edge.node.name).map(edge=> edge.node.name);
-        console.log("Original nameValue:", nameValue);
-        console.log("nameValue after replace:", nameValue.replace(/\s+/g, " "));
-        console.log("Game names:", gameNames);
-        return gameNames.find(name => name === nameValue.replace(/\s+/g, " ").toLowerCase()) ? console.log('Тут есть игра с таким именем') : console.log('тут нихуя нет дядя')
-    }
+    const [nameValue, setNameValue] = useState('');
+
+    const SearchInput = useCallback(() => {
+        if(!nameValue.trim()) {
+            return setResultSearch([]);
+        }
+        const foundGameName = dataGames?.games.edges.filter(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase().includes(nameValue.replace(/\s+/g, " ").toLowerCase()));
+        if(foundGameName && foundGameName.length > 0){
+            const gameData = foundGameName.map(edge => edge.node)
+            setResultSearch(gameData)
+        } else {
+            return setResultSearch([])
+        }
+    }, [nameValue, dataGames, setResultSearch]);
+
+    const handelSearchGame = useCallback(() => {
+        SearchInput()
+    }, [SearchInput]);
+
+    useEffect(() => {
+        handelSearchGame();
+    }, [handelSearchGame]);
     return <div className="flex flex-col gap-8">
-        <div className="relative h-[48px]">
+        <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(e)=> setNameValue(e.target.value)} />
             {isPlaceholderVisible && (
                 <div className={`absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE] pointer-events-none`}>
@@ -21,7 +35,7 @@ export const Filters = ({dataGames}) => {
                     <span>Game Name</span>
                 </div>
             )}
-        </div>
+        </form>
         <div className="flex gap-4 justify-between items-center h-[44px]">
             <button className="">Prev</button>
             <div className="flex flex-wrap  items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden ">
