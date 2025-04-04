@@ -4,34 +4,14 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
 export const Filters = ({dataGames, setResultSearch}) => {
+    //InputSearchName
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
-    const [nameValue, setNameValue] = useState('');
     const [validationMessage, setValidationMessage] = useState('');
-    //Slider genre
-    const [slide, setSlide] = useState(0);
-    const visibleCount = 9;
-    const genre = ['Action', 'RPG', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Open World','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer','Co-op',];
-    const handelGenreGame = useCallback(() => {
-        const genreGame = dataGames?.games?.edges.filter(edge => edge.node.genre.value).map(edge => edge.node.genre.value);
-        if(genreGame.includes(genre))
-    }, [dataGames]);
-    const buttonNext = () => {
-        if (slide < genre.length - visibleCount) {
-            setSlide(slide + 1);
-        }
-    }
-
-    const buttonPrev = () => {
-        if (slide > 0) {
-            setSlide(slide - 1);
-        }
-    }
-    
+    const [nameValue, setNameValue] = useState('');
     const handleInputChange  = (event) => {
         setNameValue(event.target.value);
         setValidationMessage('');
     };
-    
     const CheckInput = useCallback(() => {
         const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase());
         if (nameGame?.includes(nameValue.replace(/\s+/g, " ").toLowerCase())) {
@@ -41,29 +21,55 @@ export const Filters = ({dataGames, setResultSearch}) => {
         }
     },[dataGames, nameValue]);
 
-    const SearchInput = useCallback(() => {
+    const SearchInput =() => {
         if (!nameValue.trim()) {
             return setResultSearch([]);
         }
-        const foundGameName = dataGames?.games.edges.filter(edge => 
-            edge.node.name.replace(/\s+/g, " ").toLowerCase().includes(nameValue.replace(/\s+/g, " ").toLowerCase())
-        );
+        const foundGameName = dataGames?.games.edges.filter(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase().includes(nameValue.replace(/\s+/g, " ").toLowerCase()));
         if (foundGameName && foundGameName.length > 0) {
             setResultSearch(foundGameName.map(edge => edge.node));
         } else {
             setResultSearch([]);
         }
         CheckInput(); 
-    }, [nameValue, dataGames, setResultSearch, CheckInput]);
-
-    const handelSearchGame = useCallback(() => {
-        SearchInput();
-        handelGenreGame();
-    }, [SearchInput, handelGenreGame]);
+    };
+    //Slider genre
+    const [selectedGenres, setSelectedGenres] = useState([]);
+    const [slide, setSlide] = useState(0);
+    const visibleCount = 9;
+    const genre = ['Action','Action RPG', 'Open world', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Open World','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer','Co-op',];
+    const toggleButton = (genreName) => {
+        setSelectedGenres(selectedGenre => {
+            if (selectedGenre.includes(genreName)) {
+                return selectedGenre.filter(genre => genre !== genreName);
+            } else {
+                return [...selectedGenre, genreName];
+            }
+        });        
+    };
+    const handelGenreGame = () => {
+        setResultSearch(dataGames?.games?.edges.filter(edge => edge?.node?.genre?.some(g => selectedGenres.includes(g.value))).map(edge => edge.node));
+    };  
+    
+    const buttonNext = () => {
+        if (slide < genre.length - visibleCount) {
+            setSlide(slide + 1);
+        }
+    }
+    const buttonPrev = () => {
+        if (slide > 0) {
+            setSlide(slide - 1);
+        }
+    }
+    
+    const handelSearchGame = () => {
+        const gameByName = SearchInput();
+        handelGenreGame(gameByName);
+    };
 
     useEffect(() => {
-        handelSearchGame();
-    }, [handelSearchGame, nameValue]);
+        toggleButton();
+    }, [nameValue]);
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={handleInputChange} />
@@ -81,7 +87,7 @@ export const Filters = ({dataGames, setResultSearch}) => {
             <button className="buttonSwitch flex-0 z-20 px-3 py-[6px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
             <div className="flex items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden">
                 {genre.slice(slide, slide + visibleCount).map((filter, index) => (
-                    <button className="bg-[#181724] text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer focus:bg-[#FF5733]" key={index}>{filter}</button>
+                    <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'}`} key={index} onClick={() => {toggleButton(filter)}}>{filter}</button>
                 ))}
             </div>
             <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
