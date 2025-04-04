@@ -3,11 +3,14 @@ import { CiSearch } from "react-icons/ci";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = ({dataGames, setResultSearch}) => {
-    //InputSearchName
+export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [validationMessage, setValidationMessage] = useState('');
     const [nameValue, setNameValue] = useState('');
+    const [selectedGenres, setSelectedGenres] = useState([]);
+    const [slide, setSlide] = useState(0);
+    const genre = ['Action','Action RPG', 'Open world', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Open World','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
+    
     const handleInputChange  = (event) => {
         setNameValue(event.target.value);
         setValidationMessage('');
@@ -33,11 +36,6 @@ export const Filters = ({dataGames, setResultSearch}) => {
         }
         CheckInput(); 
     };
-    //Slider genre
-    const [selectedGenres, setSelectedGenres] = useState([]);
-    const [slide, setSlide] = useState(0);
-    const visibleCount = 9;
-    const genre = ['Action','Action RPG', 'Open world', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Open World','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer','Co-op',];
     const toggleButton = (genreName) => {
         setSelectedGenres(selectedGenre => {
             if (selectedGenre.includes(genreName)) {
@@ -63,8 +61,8 @@ export const Filters = ({dataGames, setResultSearch}) => {
     }
     
     const handelSearchGame = () => {
-        const gameByName = SearchInput();
-        handelGenreGame(gameByName);
+        SearchInput();
+        handelGenreGame();
     };
 
     useEffect(() => {
@@ -83,11 +81,11 @@ export const Filters = ({dataGames, setResultSearch}) => {
                 <p className="text-red-500">{validationMessage}</p>
             )}
         </form>
-        <div className="flex gap-4 justify-between items-center h-[44px]">
+        <div className="flex gap-4 max-lg:gap-2 justify-between items-center h-[44px]">
             <button className="buttonSwitch flex-0 z-20 px-3 py-[6px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
             <div className="flex items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden">
                 {genre.slice(slide, slide + visibleCount).map((filter, index) => (
-                    <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'}`} key={index} onClick={() => {toggleButton(filter)}}>{filter}</button>
+                    <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {toggleButton(filter)}}>{filter}</button>
                 ))}
             </div>
             <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - 1 ? '#FFFFFF' : '#979797'}} /></button>

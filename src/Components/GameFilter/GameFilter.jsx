@@ -7,16 +7,26 @@ import { BsArrowRight } from "react-icons/bs";
 export const GameFilter = ({dataGames, dataDiscounts}) => {
     const [resultSearch, setResultSearch] = useState([]);
     const [gamesCount, setGamesCount] = useState(10);
+    const [visibleCount, setVisibleCount] = useState(9);
     const [discountsPrice, setDiscountsPrice] = useState(null);
     const handleGameCount = () => {
-        if (window.innerWidth <= 541) {
+        if(window.innerWidth <= 424){
+            setVisibleCount(2);
+        } 
+        else if (window.innerWidth <= 541) {
             setGamesCount(4); 
+            setVisibleCount(3);
         }else if (window.innerWidth <= 767) {
             setGamesCount(6); 
+            setVisibleCount(4);
         }
-         else if (window.innerWidth <= 1023) {
+         else if (window.innerWidth <= 1023) {             
             setGamesCount(8);
-        } else {
+            setVisibleCount(6);
+        } else if (window.innerWidth <= 1440) {
+            setVisibleCount(7);
+            setGamesCount(10);
+        }  else {
             setGamesCount(10); 
         }
     };
@@ -72,7 +82,7 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
                 <h2 className="text-white">Games By Filter</h2>
                 <p className="text-[#979797]">At This Section You Can Search For Games by multiple filters</p>
             </div>
-            <Filters dataGames={dataGames} setResultSearch={setResultSearch}/>
+            <Filters dataGames={dataGames} setResultSearch={setResultSearch} visibleCount={visibleCount}/>
             <div className="grid grid-cols-5 max-lg:grid-cols-4 max-md:grid-cols-3 max-small-screen:!grid-cols-2 justify-items-center gap-y-10 max-desktop:gap-y-5 max-lg:gap-y-5 gap-x-4 max-desktop:gap-x-3 max-lg:gap-x-4">
                 {((resultSearch?.length > 0 ? resultSearch : dataGames?.games?.edges || []).slice(0, gamesCount).map((game, index) => 
                     <div key={game.objectId || game.node?.objectId} className="w-full p-[10px] max-desktop:p-2 border border-[#7D3C98] rounded-lg flex flex-col gap-3">
