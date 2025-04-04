@@ -9,7 +9,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const [nameValue, setNameValue] = useState('');
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [slide, setSlide] = useState(0);
-    const genre = ['Action','Action RPG', 'Open world', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Open World','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
+    const genre = ['Action','Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
     
     const handleInputChange  = (event) => {
         setNameValue(event.target.value);
@@ -24,7 +24,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         }
     },[dataGames, nameValue]);
 
-    const SearchInput =() => {
+    const SearchInput = useCallback(() => {
         if (!nameValue.trim()) {
             return setResultSearch([]);
         }
@@ -35,7 +35,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             setResultSearch([]);
         }
         CheckInput(); 
-    };
+    },[dataGames, CheckInput, nameValue, setResultSearch]);
     const toggleButton = (genreName) => {
         setSelectedGenres(selectedGenre => {
             if (selectedGenre.includes(genreName)) {
@@ -45,9 +45,10 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             }
         });        
     };
-    const handelGenreGame = () => {
-        setResultSearch(dataGames?.games?.edges.filter(edge => edge?.node?.genre?.some(g => selectedGenres.includes(g.value))).map(edge => edge.node));
-    };  
+    const handelGenreGame = useCallback(() => {
+        const genreAll = Array.isArray(selectedGenres)  ? selectedGenres.join(',').toLowerCase().replace(/\s+/g, '') : selectedGenres.toLowerCase().replace(/\s+/g, '');
+        setResultSearch(dataGames?.games?.edges.filter(edge => edge?.node?.genre?.some(g => genreAll.includes(g.value.toLowerCase().replace(/\s+/g, '')))).map(edge => edge.node));
+    }, [dataGames, selectedGenres, setResultSearch]);  
     
     const buttonNext = () => {
         if (slide < genre.length - visibleCount) {
@@ -60,14 +61,17 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         }
     }
     
-    const handelSearchGame = () => {
+    const handelSearchGame = useCallback(() => {
         SearchInput();
-        handelGenreGame();
-    };
+    
+        if (selectedGenres.length > 0) {
+            handelGenreGame();
+        }
+    }, [SearchInput, handelGenreGame, selectedGenres]);
 
     useEffect(() => {
-        toggleButton();
-    }, [nameValue]);
+        handelSearchGame()
+    },[nameValue, selectedGenres, handelSearchGame]);
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={handleInputChange} />
@@ -88,7 +92,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                     <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {toggleButton(filter)}}>{filter}</button>
                 ))}
             </div>
-            <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
+            <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - visibleCount ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - visibleCount  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - visibleCount ? '#FFFFFF' : '#979797'}} /></button>
         </div>
         <div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
