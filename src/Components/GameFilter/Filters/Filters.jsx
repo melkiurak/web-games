@@ -1,13 +1,33 @@
 import {  useCallback, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
+import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
 export const Filters = ({dataGames, setResultSearch}) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [nameValue, setNameValue] = useState('');
     const [validationMessage, setValidationMessage] = useState('');
+    //Slider genre
+    const [slide, setSlide] = useState(0);
+    const visibleCount = 9;
+    const genre = ['Action', 'RPG', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Open World','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer','Co-op',];
+    const handelGenreGame = useCallback(() => {
+        const genreGame = dataGames?.games?.edges.filter(edge => edge.node.genre.value).map(edge => edge.node.genre.value);
+        if(genreGame.includes(genre))
+    }, [dataGames]);
+    const buttonNext = () => {
+        if (slide < genre.length - visibleCount) {
+            setSlide(slide + 1);
+        }
+    }
 
-    const handleInputChange = (event) => {
+    const buttonPrev = () => {
+        if (slide > 0) {
+            setSlide(slide - 1);
+        }
+    }
+    
+    const handleInputChange  = (event) => {
         setNameValue(event.target.value);
         setValidationMessage('');
     };
@@ -38,7 +58,8 @@ export const Filters = ({dataGames, setResultSearch}) => {
 
     const handelSearchGame = useCallback(() => {
         SearchInput();
-    }, [SearchInput]);
+        handelGenreGame();
+    }, [SearchInput, handelGenreGame]);
 
     useEffect(() => {
         handelSearchGame();
@@ -57,13 +78,13 @@ export const Filters = ({dataGames, setResultSearch}) => {
             )}
         </form>
         <div className="flex gap-4 justify-between items-center h-[44px]">
-            <button className="">Prev</button>
-            <div className="flex flex-wrap  items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden ">
-                {['Action','RPG','Samurai','Sports','Shooting','Racing','Survival','Strategy','Battle'].map((filter, index) => (
-                    <button className="bg-[#181724] text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm" key={index}>{filter}</button>
+            <button className="buttonSwitch flex-0 z-20 px-3 py-[6px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
+            <div className="flex items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden">
+                {genre.slice(slide, slide + visibleCount).map((filter, index) => (
+                    <button className="bg-[#181724] text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer focus:bg-[#FF5733]" key={index}>{filter}</button>
                 ))}
             </div>
-            <button>Next</button>
+            <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - 1 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
         </div>
         <div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
