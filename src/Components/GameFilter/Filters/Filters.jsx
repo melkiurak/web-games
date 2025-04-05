@@ -9,8 +9,15 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const [nameValue, setNameValue] = useState('');
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [slide, setSlide] = useState(0);
+    const [platformVisible, setPlatformVisible] = useState(false);    
+    const [publishersVisible, setPublishersVisible] = useState(false);
+    const [playersVisible, setPlayersVisible] = useState(false);
+
     const genre = ['Action','Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
-    
+    const platform = ["PC", "PS 5","PS 4","Xbox Series X","Xbox Series S", "Xbox One", 'Xbox'];
+    const publishers = ["Sony Interactive Entertainment","Microsoft Studios","Nintendo","Electronic Arts (EA)","Ubisoft","Rockstar Games","Bethesda Softworks","Activision","2K Games","Square Enix","Bandai Namco","CD Projekt","Capcom","SEGA","Blizzard Entertainment","Epic Games","Tencent Games","Paradox Interactive","Devolver Digital","Focus Entertainment","FromSoftware"];
+    const players = ["Single-player","Multiplayer","Online Multiplayer","Local Multiplayer","Split-screen","Co-op","Online Co-op","LAN Multiplayer","PvP (Player vs Player)","MMO (Massively Multiplayer Online)" ];
+      
     const handleInputChange  = (event) => {
         setNameValue(event.target.value);
         setValidationMessage('');
@@ -60,7 +67,22 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             setSlide(slide - 1);
         }
     }
-    
+    const handelPlarform = () => {
+        setPlatformVisible(prev => !prev);
+    };
+    const handelPublishers = () => {
+        setPublishersVisible(prev => !prev);
+    };
+    const handelPlayers = () => {
+        setPlayersVisible(prev => !prev);
+    };
+    const handelPlarformsGame = (platform) => {
+        const cleanPlatform = platform.toLowerCase().replace(/\s+/g, '');
+        const resultsPlatfotms = dataGames?.games?.edges.filter(edge => edge.node.platform.some(p => cleanPlatform === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node);        
+        console.log(cleanPlatform, resultsPlatfotms)
+        setResultSearch(resultsPlatfotms);
+        setPlatformVisible(false);
+    }
     const handelSearchGame = useCallback(() => {
         SearchInput();
     
@@ -97,24 +119,51 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         <div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
                 <h4 className="text-white">Platform</h4>
-                <button className="rounded-lg bg-[#181724] w-[280px] max-desktop:w-[195.67px] max-lg:w-full  flex justify-between px-3 items-center h-full">
-                    <span className=" text-sm text-[#BEBEBE]">All</span>
-                    <IoIosArrowDown className="text-xl text-[#FF5733] "/>
-                </button>
+                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
+                    <button className="rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full" onClick={handelPlarform}>
+                        <span className=" text-sm text-[#BEBEBE]">All</span>
+                        <IoIosArrowDown className="text-xl text-[#FF5733] "/>
+                    </button>
+                    {platformVisible && (
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg">
+                            {platform.map((platform, index) => (
+                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate" onClick={(() =>handelPlarformsGame(platform))}>{platform}</button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
                 <h4 className="text-white">Platform</h4>
-                <button className="rounded-lg bg-[#181724] w-[280px] max-desktop:w-[195.67px] max-lg:w-full  flex justify-between px-3 items-center h-full">
-                    <span className=" text-sm text-[#BEBEBE]">Publisher</span>
-                    <IoIosArrowDown className="text-xl text-[#FF5733] "/>
-                </button>
+                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
+                    <button className="w-full rounded-lg bg-[#181724] flex justify-between px-3 items-center h-full" onClick={handelPublishers}>
+                        <span className=" text-sm text-[#BEBEBE]">Publisher</span>
+                        <IoIosArrowDown className="text-xl text-[#FF5733] "/>
+                    </button>
+                    {publishersVisible && (
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg">
+                            {publishers.map((publishers, index) => (
+                                <p key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate">{publishers}</p>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
                 <h4 className="text-white">Platform</h4>
-                <button className="rounded-lg bg-[#181724] w-[280px] max-desktop:w-[195.67px] max-lg:w-full flex justify-between px-3 items-center h-full">
-                    <span className=" text-sm text-[#BEBEBE]">Players</span>
-                    <IoIosArrowDown className="text-xl text-[#FF5733] "/>
-                </button>
+                <div  className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
+                    <button className="w-full rounded-lg bg-[#181724]  flex justify-between px-3 items-center h-full" onClick={handelPlayers}>
+                        <span className=" text-sm text-[#BEBEBE]">Players</span>
+                        <IoIosArrowDown className="text-xl text-[#FF5733] "/>
+                    </button>
+                    {playersVisible && (
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg">
+                            {players.map((players, index) => (
+                                <p key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate">{players}</p>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
         <div className="flex justify-between gap-9">
