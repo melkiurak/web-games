@@ -56,7 +56,8 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         const genreAll = Array.isArray(selectedGenres)  ? selectedGenres.join(',').toLowerCase().replace(/\s+/g, '') : selectedGenres.toLowerCase().replace(/\s+/g, '');
         setResultSearch(dataGames?.games?.edges.filter(edge => edge?.node?.genre?.some(g => genreAll.includes(g.value.toLowerCase().replace(/\s+/g, '')))).map(edge => edge.node));
     }, [dataGames, selectedGenres, setResultSearch]);  
-    
+    const gameName = dataGames?.games.edges.filter(edge=>edge.node.name).map(edge=>edge.node.name)
+    console.log(gameName);
     const buttonNext = () => {
         if (slide < genre.length - visibleCount) {
             setSlide(slide + 1);
@@ -76,12 +77,18 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const handelPlayers = () => {
         setPlayersVisible(prev => !prev);
     };
-    const handelPlarformsGame = (platform) => {
+    const handelPlarformsFilter = (platform) => {
         const cleanPlatform = platform.toLowerCase().replace(/\s+/g, '');
         const resultsPlatfotms = dataGames?.games?.edges.filter(edge => edge.node.platform.some(p => cleanPlatform === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node);        
         console.log(cleanPlatform, resultsPlatfotms)
         setResultSearch(resultsPlatfotms);
         setPlatformVisible(false);
+    };
+    const handelPublishersFilter = (publisher) => {
+       const cleanPublisher = publisher.toLowerCase().replace(/\s+/g, '');
+       const resultsPublisher = dataGames?.games?.edges.filter(edge =>{return cleanPublisher  === edge.node.Publisher.toLowerCase().replace(/\s+/g, '')}).map(edge => edge.node);
+       setResultSearch(resultsPublisher); 
+       setPublishersVisible(false);
     }
     const handelSearchGame = useCallback(() => {
         SearchInput();
@@ -125,9 +132,9 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                         <IoIosArrowDown className="text-xl text-[#FF5733] "/>
                     </button>
                     {platformVisible && (
-                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg">
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
                             {platform.map((platform, index) => (
-                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate" onClick={(() =>handelPlarformsGame(platform))}>{platform}</button>
+                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate" onClick={(() => handelPlarformsFilter(platform))}>{platform}</button>
                             ))}
                         </div>
                     )}
@@ -141,9 +148,9 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                         <IoIosArrowDown className="text-xl text-[#FF5733] "/>
                     </button>
                     {publishersVisible && (
-                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg">
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
                             {publishers.map((publishers, index) => (
-                                <p key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate">{publishers}</p>
+                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate" onClick={(() => handelPublishersFilter(publishers))}>{publishers}</button>
                             ))}
                         </div>
                     )}
@@ -157,9 +164,9 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                         <IoIosArrowDown className="text-xl text-[#FF5733] "/>
                     </button>
                     {playersVisible && (
-                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg">
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
                             {players.map((players, index) => (
-                                <p key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate">{players}</p>
+                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate ">{players}</button>
                             ))}
                         </div>
                     )}

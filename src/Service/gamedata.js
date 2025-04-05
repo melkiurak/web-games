@@ -50,6 +50,7 @@ const GET_GAMES = gql `
         }
         Reviews
         Comments
+        Publisher
       }
     }
   }
