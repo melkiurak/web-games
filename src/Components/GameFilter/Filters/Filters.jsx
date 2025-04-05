@@ -200,6 +200,22 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                     </div>
                 </div>
             </div>
+            <div className="flex flex-1 gap-24">
+                <div className="flex items-center  justify-between  flex-1">
+                    <span className="text-white text-xl ">Online</span>
+                    <label className="relative inline-block w-[50px] h-6">
+                        <input type="checkbox" className="opacity-0 w-0 h-0" />
+                        <span className="slider round"></span>
+                    </label>
+                </div>
+                <div className="flex items-center  justify-between flex-1">
+                    <span className="text-white text-xl ">Free</span>
+                    <label className="relative inline-block w-[50px] h-6">
+                        <input type="checkbox" className="opacity-0 w-0 h-0" />
+                        <span className="slider round"></span>
+                    </label>
+                </div>
+            </div>
         </div>
         <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2" onClick={handelSearchGame}>
             <CiSearch className="text-xl"/>
