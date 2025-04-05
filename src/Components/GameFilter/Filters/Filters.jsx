@@ -183,7 +183,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Release Year</label>
                 <div className="flex flex-col gap-[10px] w-[266px]">
-                    <input type="range" min={1} max={24} />
+                    <input type="range" min={1} max={24} className="custom-range w-full h-5 rounded-full appearance-none relative" />
                     <div className="flex justify-between text-white text-sm">
                         <p>2000</p>
                         <p>2024</p>
@@ -192,8 +192,8 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             </div>
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Rating</label>
-                <div className="flex flex-col gap-[10px] w-[266px]">
-                    <input type="range" min={1} max={10}/>
+                <div className="flex flex-col gap-[10px] w-[266px]" >
+                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative"/>
                     <div className="flex justify-between text-white text-sm">
                         <p>0</p>
                         <p>10</p>
