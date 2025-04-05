@@ -16,7 +16,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const genre = ['Action','Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
     const platform = ["PC", "PS 5","PS 4","Xbox Series X","Xbox Series S", "Xbox One", 'Xbox'];
     const publishers = ["Sony Interactive Entertainment","Microsoft Studios","Nintendo","Electronic Arts (EA)","Ubisoft","Rockstar Games","Bethesda Softworks","Activision","2K Games","Square Enix","Bandai Namco","CD Projekt","Capcom","SEGA","Blizzard Entertainment","Epic Games","Tencent Games","Paradox Interactive","Devolver Digital","Focus Entertainment","FromSoftware"];
-    const players = ["Single-player","Multiplayer","Online Multiplayer","Local Multiplayer","Split-screen","Co-op","Online Co-op","LAN Multiplayer","PvP (Player vs Player)","MMO (Massively Multiplayer Online)" ];
+    const players = ["Single-player","Multiplayer","Online Multiplayer","Local Multiplayer","Split-screen","Co-op","Online Co-op","LAN Multiplayer","PvP", "MMO" ];
       
     const handleInputChange  = (event) => {
         setNameValue(event.target.value);
@@ -89,6 +89,12 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
        const resultsPublisher = dataGames?.games?.edges.filter(edge =>{return cleanPublisher  === edge.node.Publisher.toLowerCase().replace(/\s+/g, '')}).map(edge => edge.node);
        setResultSearch(resultsPublisher); 
        setPublishersVisible(false);
+    };
+    const handelPlayersFilter = (players) => {
+        const cleanPlayers = players.toLowerCase().replace(/\s+/g, '');
+        const resultsPlayers = dataGames?.games?.edges.filter(edge => edge.node.players.some(p => cleanPlayers === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node);
+        setResultSearch(resultsPlayers);
+        setPlayersVisible(false);
     }
     const handelSearchGame = useCallback(() => {
         SearchInput();
@@ -129,7 +135,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                 <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
                     <button className="rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full" onClick={handelPlarform}>
                         <span className=" text-sm text-[#BEBEBE]">All</span>
-                        <IoIosArrowDown className="text-xl text-[#FF5733] "/>
+                        <IoIosArrowDown className={`text-xl text-[#FF5733] ${platformVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {platformVisible && (
                         <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
@@ -145,7 +151,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                 <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
                     <button className="w-full rounded-lg bg-[#181724] flex justify-between px-3 items-center h-full" onClick={handelPublishers}>
                         <span className=" text-sm text-[#BEBEBE]">Publisher</span>
-                        <IoIosArrowDown className="text-xl text-[#FF5733] "/>
+                        <IoIosArrowDown className={`text-xl text-[#FF5733] ${publishersVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {publishersVisible && (
                         <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
@@ -161,12 +167,12 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                 <div  className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
                     <button className="w-full rounded-lg bg-[#181724]  flex justify-between px-3 items-center h-full" onClick={handelPlayers}>
                         <span className=" text-sm text-[#BEBEBE]">Players</span>
-                        <IoIosArrowDown className="text-xl text-[#FF5733] "/>
+                        <IoIosArrowDown className={`text-xl text-[#FF5733] ${playersVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {playersVisible && (
                         <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
                             {players.map((players, index) => (
-                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate ">{players}</button>
+                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate" onClick={(() => handelPlayersFilter(players))}>{players}</button>
                             ))}
                         </div>
                     )}

@@ -51,6 +51,11 @@ const GET_GAMES = gql `
         Reviews
         Comments
         Publisher
+        players {
+          ...on Element {
+            value
+          }
+        }
       }
     }
   }
