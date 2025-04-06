@@ -7,6 +7,8 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [validationMessage, setValidationMessage] = useState('');
     const [nameValue, setNameValue] = useState('');
+    const [yearValue, setYearValue] = useState('');
+    const [ratingValue, setRatingValue] = useState('');
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [slide, setSlide] = useState(0);
     const [platformVisible, setPlatformVisible] = useState(false);    
@@ -21,6 +23,12 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const handleInputChange  = (event) => {
         setNameValue(event.target.value);
         setValidationMessage('');
+    };
+    const handelInputYearChange = (event) => {
+        setYearValue(event.target.value)
+    };
+    const handelInputRatingChange = (event) => {
+        setRatingValue(event.target.value)
     };
     const CheckInput = useCallback(() => {
         const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase());
@@ -56,8 +64,6 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         const genreAll = Array.isArray(selectedGenres)  ? selectedGenres.join(',').toLowerCase().replace(/\s+/g, '') : selectedGenres.toLowerCase().replace(/\s+/g, '');
         setResultSearch(dataGames?.games?.edges.filter(edge => edge?.node?.genre?.some(g => genreAll.includes(g.value.toLowerCase().replace(/\s+/g, '')))).map(edge => edge.node));
     }, [dataGames, selectedGenres, setResultSearch]);  
-    const gameName = dataGames?.games.edges.filter(edge=>edge.node.name).map(edge=>edge.node.name)
-    console.log(gameName);
     const buttonNext = () => {
         if (slide < genre.length - visibleCount) {
             setSlide(slide + 1);
@@ -95,7 +101,17 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         const resultsPlayers = dataGames?.games?.edges.filter(edge => edge.node.players.some(p => cleanPlayers === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node);
         setResultSearch(resultsPlayers);
         setPlayersVisible(false);
-    }
+    };
+    const yearFilter = useCallback(() => {
+        const filteredGames = dataGames?.games?.edges.filter(edge => new Date(edge.node.date).getFullYear() == yearValue).map(edge => edge.node);
+        setResultSearch(filteredGames);
+    }, [dataGames, setResultSearch,yearValue]);
+
+    const ratingFilter = useCallback(() => {
+        const allRatingGames = dataGames?.games?.edges.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseFloat(ratingValue)).map(edge => edge.node);
+        setResultSearch(allRatingGames)
+    }, [setResultSearch, ratingValue, dataGames])
+
     const handelSearchGame = useCallback(() => {
         SearchInput();
     
@@ -105,8 +121,10 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     }, [SearchInput, handelGenreGame, selectedGenres]);
 
     useEffect(() => {
-        handelSearchGame()
-    },[nameValue, selectedGenres, handelSearchGame]);
+        handelSearchGame();
+        yearFilter();
+        ratingFilter();
+    },[nameValue, selectedGenres, handelSearchGame, yearFilter, ratingFilter]);
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={handleInputChange} />
@@ -183,7 +201,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Release Year</label>
                 <div className="flex flex-col gap-[10px] w-[266px]">
-                    <input type="range" min={1} max={24} className="custom-range w-full h-5 rounded-full appearance-none relative" />
+                    <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={handelInputYearChange} value={yearValue} />
                     <div className="flex justify-between text-white text-sm">
                         <p>2000</p>
                         <p>2024</p>
@@ -193,7 +211,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Rating</label>
                 <div className="flex flex-col gap-[10px] w-[266px]" >
-                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative"/>
+                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={handelInputRatingChange}/>
                     <div className="flex justify-between text-white text-sm">
                         <p>0</p>
                         <p>10</p>
