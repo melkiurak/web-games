@@ -86,7 +86,7 @@ export const Trending = ({dataGames, dataDiscounts}) => {
                 <div className="flex justify-between max-lg:gap-[16px] max-lg:whitespace-nowrap max-md:whitespace-nowrap max-lg:overflow-x-auto overflow-hidden ">
                     {groupGamesIntoSlides(dataGames?.games?.edges)[slide]?.map((edge, index) => (
                         <div key={edge.node.objectId} className="flex flex-col gap-3 border-1 border-solid border-[#7D3C98] p-[10px] max-desktop:p-2 rounded-xl" >
-                            <div className="w-[207.2px] max-desktop:w-[151.2px] h-[239px] max-desktop:h-[184px] max-lg:h-[178px] bg-center bg-cover bg-no-repeat rounded-xl" style={{backgroundImage: `url('${edge.node.BannerImg.url}')`}}>
+                            <div className="w-[207.2px] max-desktop:w-[151.2px] h-[239px] max-desktop:h-[184px] max-lg:h-[178px] bg-center bg-cover bg-no-repeat rounded-xl" style={{backgroundImage: `url('${edge?.node?.BannerImg?.url}')`}}>
                             </div>
                             <div className="flex flex-col gap-3">
                                 <p className="text-white font-medium">{edge.node.name}</p>

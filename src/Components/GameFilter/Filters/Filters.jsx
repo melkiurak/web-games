@@ -15,6 +15,8 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const [publishersVisible, setPublishersVisible] = useState(false);
     const [playersVisible, setPlayersVisible] = useState(false);
     const [isFreeToPlay, setIsFreeToPlay] = useState(false);
+    const [isOnline, setIsOnline] = useState(false);
+
     const genre = ['Action','Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
     const platform = ["PC", "PS 5","PS 4","Xbox Series X","Xbox Series S", "Xbox One", 'Xbox'];
     const publishers = ["Sony Interactive Entertainment","Microsoft Studios","Nintendo","Electronic Arts (EA)","Ubisoft","Rockstar Games","Bethesda Softworks","Activision","2K Games","Square Enix","Bandai Namco","CD Projekt","Capcom","SEGA","Blizzard Entertainment","Epic Games","Tencent Games","Paradox Interactive","Devolver Digital","Focus Entertainment","FromSoftware"];
@@ -111,6 +113,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         const allRatingGames = dataGames?.games?.edges.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseFloat(ratingValue)).map(edge => edge.node);
         setResultSearch(allRatingGames)
     }, [setResultSearch, ratingValue, dataGames])
+
     const freeToPLayFilter = useCallback(() => {
         if(isFreeToPlay){
             setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.price === 0 || edge.node.price == null))
@@ -118,6 +121,16 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             setResultSearch([]);
         };
     },[dataGames, setResultSearch, isFreeToPlay])
+
+    const onlineFilter = useCallback(() => {
+        const game = dataGames?.games?.edges?.filter(edge => edge?.node?.players?.some(o => o?.value?.toLowerCase().includes('online')))
+        if(isOnline){
+            setResultSearch(game)
+        } else {
+            setResultSearch([]);
+        }
+    },[dataGames, setResultSearch, isOnline])
+
     const handelSearchGame = useCallback(() => {
         SearchInput();
     
@@ -131,7 +144,8 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         yearFilter();
         ratingFilter();
         freeToPLayFilter();
-    },[nameValue, selectedGenres, handelSearchGame, yearFilter, ratingFilter,freeToPLayFilter]);
+        onlineFilter();
+    },[nameValue, selectedGenres, handelSearchGame, yearFilter, ratingFilter,freeToPLayFilter,onlineFilter]);
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={handleInputChange} />
@@ -229,7 +243,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                 <div className="flex items-center  justify-between  flex-1">
                     <span className="text-white text-xl ">Online</span>
                     <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" />
+                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => setIsOnline(prev => !prev)} />
                         <span className="slider round"></span>
                     </label>
                 </div>
