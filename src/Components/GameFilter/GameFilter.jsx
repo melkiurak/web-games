@@ -104,9 +104,9 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
                             </div>
                             <div className="flex justify-between max-desktop:flex-col max-desktop:items-center max-desktop:gap-2">
                                 <div className="w-[85px] flex justify-between items-center">
-                                    <span className={`${discountsPrice ? 'line-through text-[#979797] text-xs font-light' : 'text-white font-main '}`}>{Math.round(game.price || game.node?.price)}$</span>
+                                    <span className={`${discountsPrice ? 'line-through text-[#979797] text-xs font-light' : 'text-white font-main '}`}>{Math.round(game.price || game?.node?.price)}$</span>
                                     <span className="text-white font-main">{discountsPrice ? `${discountsPrice[index]}$` : ''}</span>
-                                    <span className={`${discountsPrice ? 'bg-[#FF5733] rounded-[12px] px-1 text-[10px] font-light text-white' : 'hidden'}`}>{game.discount || game.node?.discount}%</span>                                    
+                                    <span className={`${discountsPrice ? 'bg-[#FF5733] rounded-[12px] px-1 text-[10px] font-light text-white' : 'hidden'}`}>{game.discount || game.node.discount}%</span>                                    
                                 </div>
                                 <button className="flex items-center gap-1 max-lg:hidden">
                                     <span className="text-xs font-main text-white">Buy now</span>
