@@ -1,122 +1,122 @@
-import {  useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
+export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [validationMessage, setValidationMessage] = useState('');
     const [nameValue, setNameValue] = useState('');
     const [yearValue, setYearValue] = useState('');
     const [ratingValue, setRatingValue] = useState('');
     const [selectedGenres, setSelectedGenres] = useState([]);
+    const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+    const [selectedPublishers, setSelectedPublishers] = useState([]);
+    const [selectedPlayers, setSelectedPlayers] = useState([]);
     const [slide, setSlide] = useState(0);
-    const [platformVisible, setPlatformVisible] = useState(false);    
+    const [platformVisible, setPlatformVisible] = useState(false);
     const [publishersVisible, setPublishersVisible] = useState(false);
     const [playersVisible, setPlayersVisible] = useState(false);
     const [isFreeToPlay, setIsFreeToPlay] = useState(false);
     const [isOnline, setIsOnline] = useState(false);
 
-    const genre = ['Action','Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle','Adventure','Puzzle', 'Horror','Fighting','Simulation','Stealth','Platformer','Indie','MOBA', 'MMORPG', 'Sandbox', 'Idle','Card','VR','Tactical','Hunting','Multiplayer',];
-    const platform = ["PC", "PS 5","PS 4","Xbox Series X","Xbox Series S", "Xbox One", 'Xbox'];
-    const publishers = ["Sony Interactive Entertainment","Microsoft Studios","Nintendo","Electronic Arts (EA)","Ubisoft","Rockstar Games","Bethesda Softworks","Activision","2K Games","Square Enix","Bandai Namco","CD Projekt","Capcom","SEGA","Blizzard Entertainment","Epic Games","Tencent Games","Paradox Interactive","Devolver Digital","Focus Entertainment","FromSoftware"];
-    const players = ["Single-player","Multiplayer","Online Multiplayer","Local Multiplayer","Split-screen","Co-op","Online Co-op","LAN Multiplayer","PvP", "MMO" ];
-      
-    const handleInputChange  = (event) => {
+    const genre = ['Action', 'Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle', 'Adventure', 'Puzzle', 'Horror', 'Fighting', 'Simulation', 'Stealth', 'Platformer', 'Indie', 'MOBA', 'MMORPG', 'Sandbox', 'Idle', 'Card', 'VR', 'Tactical', 'Hunting', 'Multiplayer'];
+    const platform = ["PC", "PS 5", "PS 4", "Xbox Series X", "Xbox Series S", "Xbox One", 'Xbox'];
+    const publishers = ["Sony Interactive Entertainment", "Microsoft Studios", "Nintendo", "Electronic Arts (EA)", "Ubisoft", "Rockstar Games", "Bethesda Softworks", "Activision", "2K Games", "Square Enix", "Bandai Namco", "CD Projekt", "Capcom", "SEGA", "Blizzard Entertainment", "Epic Games", "Tencent Games", "Paradox Interactive", "Devolver Digital", "Focus Entertainment", "FromSoftware"];
+    const players = ["Single-player", "Multiplayer", "Online Multiplayer", "Local Multiplayer", "Split-screen", "Co-op", "Online Co-op", "LAN Multiplayer", "PvP", "MMO"];
+
+    const handleInputChange = (event) => {
         setNameValue(event.target.value);
         setValidationMessage('');
     };
+
     const CheckInput = useCallback(() => {
         const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, '').toLowerCase());
         if (nameGame?.includes(nameValue.replace(/\s+/g, '').toLowerCase())) {
             setValidationMessage('');
         } else {
-            setValidationMessage('Такого имени нет'); 
+            setValidationMessage('Такого имени нет');
         }
-    },[dataGames, nameValue]);
+    }, [dataGames, nameValue]);
+
+    const filterGames = useCallback(() => {
+        let filteredGames = dataGames?.games?.edges || [];
+
+        if (nameValue.trim()) {
+            filteredGames = filteredGames.filter(edge =>edge?.node?.name?.toLowerCase().includes(nameValue.toLowerCase()));
+        }
+        if (selectedGenres.length > 0) {
+            filteredGames = filteredGames.filter(edge => edge?.node?.genre?.some(g => selectedGenres.map(sg => sg.toLowerCase()).includes(g.value.toLowerCase())));
+        }
+        if (selectedPlatforms.length > 0) {
+            filteredGames = filteredGames.filter(edge => edge?.node?.platform?.some(p => selectedPlatforms.map(sp => sp.toLowerCase()).includes(p.value.toLowerCase())));
+        }
+
+        if (selectedPublishers.length > 0) {
+            filteredGames = filteredGames.filter(edge => selectedPublishers.map(sp => sp.toLowerCase()).includes(edge?.node?.Publisher?.toLowerCase()));
+        }
+
+        if (selectedPlayers.length > 0) {
+            filteredGames = filteredGames.filter(edge => edge?.node?.players?.some(p => selectedPlayers.map(sp => sp.toLowerCase()).includes(p.value.toLowerCase())));
+        }
+        if (yearValue) {
+            filteredGames = filteredGames.filter(edge => new Date(edge.node.date).getFullYear() === parseInt(yearValue, 10));
+        }
+        if (ratingValue) {
+            filteredGames = filteredGames.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseInt(ratingValue, 10));
+        }
+        if (isFreeToPlay) {
+            filteredGames = filteredGames.filter(edge => edge.node.price === 0 || edge.node.price === null);
+        }
+        if (isOnline) {
+            filteredGames = filteredGames.filter(edge =>edge?.node?.players?.some(o => o?.value?.toLowerCase().includes('online')));
+        }
+        setResultSearch(filteredGames.map(edge => edge.node));
+    }, [dataGames, setResultSearch, nameValue, selectedGenres, selectedPlatforms, selectedPublishers, selectedPlayers, yearValue, ratingValue, isFreeToPlay, isOnline]);
+
     const SearchInput = useCallback(() => {
-        if (!nameValue.trim()) {
-            return setResultSearch([]);
-        }
-        const foundGameName = dataGames?.games?.edges?.filter(edge => edge?.node?.name?.replace(/\s+/g, " ").toLowerCase().includes(nameValue));
-        if (foundGameName && foundGameName.length > 0) {
-            setResultSearch(foundGameName.map(edge => edge.node));
-        } else {
-            setResultSearch([]);
-        }
-        CheckInput()
-    }, [dataGames, setResultSearch, nameValue, CheckInput]);
+        filterGames();
+        CheckInput();
+    }, [filterGames, CheckInput]);
+
     const GenresFilter = (genreName) => {
-        setSelectedGenres(selectedGenre => {
-            const updatedGenres = selectedGenre.includes(genreName) ? selectedGenre.filter(genre => genre !== genreName): [...selectedGenre, genreName];
-            const genreAll = Array.isArray(updatedGenres) ? updatedGenres.join(',').toLowerCase().replace(/\s+/g, '') : updatedGenres.toLowerCase().replace(/\s+/g, '');
-            setResultSearch(dataGames?.games?.edges?.filter(edge => edge?.node?.genre?.some(g => genreAll.includes(g.value.toLowerCase().replace(/\s+/g, '')))).map(edge => edge.node));
-            return updatedGenres; 
-        });
+        setSelectedGenres(prev => prev.includes(genreName) ? prev.filter(g => g !== genreName) : [...prev, genreName]);
     };
+    const handelPlarformsFilter = useCallback((platform) => {
+        setPlatformVisible(false);
+        setSelectedPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]);
+    }, []);
+
+    const handelPublishersFilter = useCallback((publisher) => {
+        setPublishersVisible(false);
+        setSelectedPublishers(prev => prev.includes(publisher) ? prev.filter(p => p !== publisher) : [...prev, publisher]);
+    }, []);
+
+    const handelPlayersFilter = useCallback((players) => {
+        setPlayersVisible(false);
+        setSelectedPlayers(prev => prev.includes(players) ? prev.filter(p => p !== players) : [...prev, players]);
+    }, []);
+
     const buttonNext = () => {
         if (slide < genre.length - visibleCount) {
             setSlide(slide + 1);
         }
-    }
+    };
+
     const buttonPrev = () => {
         if (slide > 0) {
             setSlide(slide - 1);
         }
-    }
-    const handelPlarform = () => {
-        setPlatformVisible(prev => !prev);
     };
-    const handelPublishers = () => {
-        setPublishersVisible(prev => !prev);
-    };
-    const handelPlayers = () => {
-        setPlayersVisible(prev => !prev);
-    };
-    const handelPlarformsFilter = useCallback((platform) => {
-        const cleanPlatform = platform.toLowerCase().replace(/\s+/g, '');
-        setPlatformVisible(false);
-        return setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.platform.some(p => cleanPlatform === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node));        
-    },[dataGames,setResultSearch ]);
-    const handelPublishersFilter = useCallback((publisher) => {
-       const cleanPublisher = publisher.toLowerCase().replace(/\s+/g, '');
-       setPublishersVisible(false);
-       return setResultSearch(dataGames?.games?.edges.filter(edge =>{return cleanPublisher  === edge.node.Publisher.toLowerCase().replace(/\s+/g, '')}).map(edge => edge.node));
-    }, [dataGames, setResultSearch]);
-    const handelPlayersFilter = useCallback((players) => {
-        const cleanPlayers = players.toLowerCase().replace(/\s+/g, '');
-        setPlayersVisible(false);
-        return setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.players.some(p => cleanPlayers === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node));
-    },[dataGames,setResultSearch]);
-    const yearFilter = useCallback(() => {
-        return setResultSearch(dataGames?.games?.edges.filter(edge => new Date(edge.node.date).getFullYear() == yearValue).map(edge => edge.node));
-    },[dataGames, setResultSearch, yearValue]);
 
-    const ratingFilter = useCallback(() => {
-        return  setResultSearch(dataGames?.games?.edges.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseFloat(ratingValue)).map(edge => edge.node));
-    },[setResultSearch, dataGames, ratingValue]);
-
-    const freeToPLayFilter = useCallback(() => {
-        if(isFreeToPlay){
-            setResultSearch([])
-        } else{
-            setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.price === 0 || edge.node.price === null));
-        }
-    },[dataGames, setResultSearch, isFreeToPlay]);
-
-    const onlineFilter = useCallback(() => {
-        if(isOnline){
-            setResultSearch([])
-        } else{
-            setResultSearch(dataGames?.games?.edges?.filter(edge => edge?.node?.players?.some(o => o?.value?.toLowerCase().includes('online'))));
-        }
-    },[dataGames, setResultSearch, isOnline]);
     const handelSearchGame = useCallback(() => {
- 
-    },[])
+        filterGames();
+    }, [filterGames]);
+
     useEffect(() => {
-        SearchInput();
-    }, [SearchInput])
+        filterGames();
+    }, [selectedGenres, selectedPlatforms, selectedPublishers, selectedPlayers, yearValue, ratingValue, isFreeToPlay, isOnline, filterGames]);
+
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(event) => {handleInputChange(event); SearchInput(event)}} />
@@ -140,27 +140,27 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - visibleCount ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - visibleCount  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - visibleCount ? '#FFFFFF' : '#979797'}} /></button>
         </div>
         <div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
-            <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
+            <div className="flex items-center justify-between gap-5 max-desktop:gap-3">
                 <h4 className="text-white">Platform</h4>
-                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
-                    <button className="rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full" onClick={handelPlarform}>
-                        <span className=" text-sm text-[#BEBEBE]">All</span>
+                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full  relative py-2">
+                    <button className="rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full" onClick={() => setPlatformVisible(prev => !prev)}>
+                        <span className=" text-sm text-[#BEBEBE] py-2">{selectedPlatforms.length > 0 ? selectedPlatforms.join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`text-xl text-[#FF5733] ${platformVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {platformVisible && (
-                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col items-start">
+                        <div className="absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col">
                             {platform.map((platform, index) => (
-                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate" onClick={(() => handelPlarformsFilter(platform))}>{platform}</button>
+                                <button key={index} className="px-3 py-2 text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate w-full text-start" onClick={(() => handelPlarformsFilter(platform))}>{platform}</button>
                             ))}
                         </div>
                     )}
                 </div>
             </div>
-            <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
+            <div className="flex items-center justify-between gap-5 max-desktop:gap-3">
                 <h4 className="text-white">Platform</h4>
-                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
-                    <button className="w-full rounded-lg bg-[#181724] flex justify-between px-3 items-center h-full" onClick={handelPublishers}>
-                        <span className=" text-sm text-[#BEBEBE]">Publisher</span>
+                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full py-2 relative">
+                    <button className="w-full rounded-lg bg-[#181724] flex justify-between px-3 items-center py-2" onClick={() => setPublishersVisible(prev => !prev)}>
+                        <span className=" text-sm text-[#BEBEBE]">{selectedPublishers.length > 0 ? selectedPublishers.join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`text-xl text-[#FF5733] ${publishersVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {publishersVisible && (
@@ -172,11 +172,11 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                     )}
                 </div>
             </div>
-            <div className="flex items-center justify-between gap-5 max-desktop:gap-3 h-[38px]">
+            <div className="flex items-center justify-between gap-5 max-desktop:gap-3">
                 <h4 className="text-white">Platform</h4>
-                <div  className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full h-full relative">
-                    <button className="w-full rounded-lg bg-[#181724]  flex justify-between px-3 items-center h-full" onClick={handelPlayers}>
-                        <span className=" text-sm text-[#BEBEBE]">Players</span>
+                <div  className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full py-2 relative">
+                    <button className="w-full rounded-lg bg-[#181724]  flex justify-between px-3 items-center py-2" onClick={() => setPlayersVisible(prev => !prev)}>
+                        <span className=" text-sm text-[#BEBEBE]">{selectedPlayers.length > 0 ? selectedPlayers.join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`text-xl text-[#FF5733] ${playersVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {playersVisible && (
@@ -193,7 +193,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Release Year</label>
                 <div className="flex flex-col gap-[10px] w-[266px]">
-                    <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={(event) => {setYearValue(event.target.value); yearFilter()}} value={yearValue} />
+                    <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={(event) => {setYearValue(event.target.value)}} value={yearValue} />
                     <div className="flex justify-between text-white text-sm">
                         <p>2000</p>
                         <p>2024</p>
@@ -203,7 +203,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Rating</label>
                 <div className="flex flex-col gap-[10px] w-[266px]" >
-                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={(event) => {setRatingValue(event.target.value); ratingFilter()}}/>
+                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={(event) => {setRatingValue(event.target.value)}}/>
                     <div className="flex justify-between text-white text-sm">
                         <p>0</p>
                         <p>10</p>
@@ -214,14 +214,14 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                 <div className="flex items-center  justify-between  flex-1">
                     <span className="text-white text-xl ">Online</span>
                     <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => {setIsOnline(prev => !prev); onlineFilter()}} />
+                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => {setIsOnline(prev => !prev);}} />
                         <span className="slider round"></span>
                     </label>
                 </div>
                 <div className="flex items-center  justify-between flex-1">
                     <span className="text-white text-xl ">Free</span>
                     <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isFreeToPlay} onChange={() => {setIsFreeToPlay(prev => !prev); freeToPLayFilter()}} />
+                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isFreeToPlay} onChange={() => {setIsFreeToPlay(prev => !prev)}} />
                         <span className="slider round"></span>
                     </label>
                 </div>

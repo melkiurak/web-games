@@ -30,36 +30,20 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
             setGamesCount(10); 
         }
     };
-    const discount = useCallback((currentSlideGames) => {
-        if (!currentSlideGames || !dataDiscounts?.discounts?.edges?.length) {
-            return [];
-        }
-        const discountValues = dataGames?.games?.edges.map(edge => edge.node.discount);
-        const finalPrices = currentSlideGames.map((edge, index) => {
-            const price = edge.node.price;
     
-            const discountedPrice = price * (1 - discountValues[index] / 100); 
-            return Math.round(discountedPrice);
-        });
-    
-        console.log("Final Prices:", finalPrices);
-        return finalPrices;
-    }, [dataDiscounts, dataGames]);
-
     const dataChek = useCallback(() => {
         for (let i = 0; i < dataDiscounts?.discounts?.edges?.length; i++) {
             const discountData = dataDiscounts?.discounts?.edges[i]?.node;
             const date = new Date().toISOString();
             if (discountData?.startDate && discountData?.endDate && discountData?.startDate <= date && date <= discountData?.endDate) {
-                setDiscountsPrice(discount((dataGames?.games?.edges)));
+                setDiscountsPrice((dataGames?.games?.edges));
                 return true;
             } else {
                 setDiscountsPrice(null);
                 return false;
             }
         }
-    }, [dataDiscounts, discount, dataGames,]);
-
+    }, [dataDiscounts, dataGames, ]);
     useEffect(() => {
         dataChek();
     }, [dataChek]);
@@ -76,6 +60,8 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
+    console.log(resultSearch?.length, dataGames?.games?.edges);
+
     return <div className="max-lg:px-5 max-md:px-3">
         <div className="container flex flex-col gap-8">
             <div className="flex flex-col text-center">
@@ -84,7 +70,7 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
             </div>
             <Filters dataGames={dataGames} setResultSearch={setResultSearch} visibleCount={visibleCount}/>
             <div className="grid grid-cols-5 max-lg:grid-cols-4 max-md:grid-cols-3 max-small-screen:!grid-cols-2 justify-items-center gap-y-10 max-desktop:gap-y-5 max-lg:gap-y-5 gap-x-4 max-desktop:gap-x-3 max-lg:gap-x-4">
-                {((resultSearch?.length > 0 ? resultSearch : dataGames?.games?.edges || []).slice(0, gamesCount).map((game, index) => 
+                {((resultSearch?.length > 0 ? resultSearch : dataGames?.games?.edges || []).slice(0, gamesCount).map((game) =>   
                     <div key={game.objectId || game.node?.objectId} className="w-full p-[10px] max-desktop:p-2 border border-[#7D3C98] rounded-lg flex flex-col gap-3">
                         <div className="w-full h-[239px] max-desktop:h-[178px] max-lg:h-[200px] max-md:h-[250px] max-small-screen:!h-[200px] bg-center  bg-cover bg-no-repeat rounded-lg" style={{backgroundImage: `url('${game.BannerImg?.url || game.node?.BannerImg?.url}')`}}></div>
                         <div className="flex flex-col gap-3 ">
@@ -104,9 +90,15 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
                             </div>
                             <div className="flex justify-between max-desktop:flex-col max-desktop:items-center max-desktop:gap-2">
                                 <div className="w-[85px] flex justify-between items-center">
-                                    <span className={`${discountsPrice ? 'line-through text-[#979797] text-xs font-light' : 'text-white font-main '}`}>{Math.round(game.price || game?.node?.price)}$</span>
-                                    <span className="text-white font-main">{discountsPrice ? `${discountsPrice[index]}$` : ''}</span>
-                                    <span className={`${discountsPrice ? 'bg-[#FF5733] rounded-[12px] px-1 text-[10px] font-light text-white' : 'hidden'}`}>{game.discount || game.node.discount}%</span>                                    
+                                {game.price > 0 || game?.node?.price > 0 ? (
+                                    <>
+                                    <span className={`${discountsPrice ? 'line-through text-[#979797] text-xs font-light' : 'text-white font-main '}`}>{Math.round(game.price || game?.node?.price) + '$'}</span>
+                                    <span className="text-white font-main">{Math.round((game.price || game?.node?.price) * (1 - (game?.discount || game?.node?.discount || 0) / 100)) + '$'}</span>                                    
+                                    <span className={`${discountsPrice ? 'bg-[#FF5733] rounded-[12px] px-1 text-[10px] font-light text-white' : 'hidden'}`}>{game?.discount || game?.node?.discount ? `${game.discount || game.node.discount}%` : ''}</span>
+                                    </>
+                                ) : (
+                                    <span className="text-white font-main">Free</span>
+                                )}
                                 </div>
                                 <button className="flex items-center gap-1 max-lg:hidden">
                                     <span className="text-xs font-main text-white">Buy now</span>
