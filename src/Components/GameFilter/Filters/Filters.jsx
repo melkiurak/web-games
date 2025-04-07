@@ -29,7 +29,7 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
         setNameValue(event.target.value);
         setValidationMessage('');
     };
-
+ 
     const CheckInput = useCallback(() => {
         const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, '').toLowerCase());
         if (nameGame?.includes(nameValue.replace(/\s+/g, '').toLowerCase())) {
@@ -140,10 +140,10 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
             <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - visibleCount ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - visibleCount  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - visibleCount ? '#FFFFFF' : '#979797'}} /></button>
         </div>
         <div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
-            <div className="flex items-center justify-between gap-5 max-desktop:gap-3">
+            <div className="flex items-center justify-between gap-5 max-desktop:gap-3 ">
                 <h4 className="text-white">Platform</h4>
-                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full  relative py-2">
-                    <button className="rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full" onClick={() => setPlatformVisible(prev => !prev)}>
+                <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full relative py-2">
+                    <button className="rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full cursor-pointer" onClick={() => setPlatformVisible(prev => !prev)}>
                         <span className=" text-sm text-[#BEBEBE] py-2">{selectedPlatforms.length > 0 ? selectedPlatforms.join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`text-xl text-[#FF5733] ${platformVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
@@ -157,9 +157,9 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
                 </div>
             </div>
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3">
-                <h4 className="text-white">Platform</h4>
+                <h4 className="text-white">Publisher</h4>
                 <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full py-2 relative">
-                    <button className="w-full rounded-lg bg-[#181724] flex justify-between px-3 items-center py-2" onClick={() => setPublishersVisible(prev => !prev)}>
+                    <button className="w-full rounded-lg bg-[#181724] flex justify-between px-3 items-center py-2 cursor-pointer" onClick={() => setPublishersVisible(prev => !prev)}>
                         <span className=" text-sm text-[#BEBEBE]">{selectedPublishers.length > 0 ? selectedPublishers.join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`text-xl text-[#FF5733] ${publishersVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
@@ -173,9 +173,9 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
                 </div>
             </div>
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3">
-                <h4 className="text-white">Platform</h4>
+                <h4 className="text-white">Players</h4>
                 <div  className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full py-2 relative">
-                    <button className="w-full rounded-lg bg-[#181724]  flex justify-between px-3 items-center py-2" onClick={() => setPlayersVisible(prev => !prev)}>
+                    <button className="w-full rounded-lg bg-[#181724]  flex justify-between px-3 items-center py-2 cursor-pointer" onClick={() => setPlayersVisible(prev => !prev)}>
                         <span className=" text-sm text-[#BEBEBE]">{selectedPlayers.length > 0 ? selectedPlayers.join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`text-xl text-[#FF5733] ${playersVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
@@ -189,10 +189,10 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
                 </div>
             </div>
         </div>
-        <div className="flex justify-between gap-9">
-            <div className="flex items-center gap-4 flex-1">
+        <div className="flex max-lg:flex-col justify-between gap-9 max-desktop:gap-6">
+            <div className="flex max-lg:flex-col items-center max-lg:items-start gap-4 flex-1">
                 <label htmlFor="" className="text-white">Release Year</label>
-                <div className="flex flex-col gap-[10px] w-[266px]">
+                <div className="flex flex-col gap-[10px] w-full">
                     <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={(event) => {setYearValue(event.target.value)}} value={yearValue} />
                     <div className="flex justify-between text-white text-sm">
                         <p>2000</p>
@@ -200,9 +200,9 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
                     </div>
                 </div>
             </div>
-            <div className="flex items-center gap-4 flex-1">
+            <div className="flex max-lg:flex-col items-center max-lg:items-start gap-4 flex-1">
                 <label htmlFor="" className="text-white">Rating</label>
-                <div className="flex flex-col gap-[10px] w-[266px]" >
+                <div className="flex flex-col gap-[10px] w-full" >
                     <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={(event) => {setRatingValue(event.target.value)}}/>
                     <div className="flex justify-between text-white text-sm">
                         <p>0</p>
@@ -210,15 +210,15 @@ export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-1 gap-24">
-                <div className="flex items-center  justify-between  flex-1">
+            <div className="flex flex-1 gap-24 max-desktop:gap-[18px]">
+                <div className="flex items-center justify-between max-lg:justify-start max-lg:gap-4  flex-1">
                     <span className="text-white text-xl ">Online</span>
                     <label className="relative inline-block w-[50px] h-6">
                         <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => {setIsOnline(prev => !prev);}} />
                         <span className="slider round"></span>
                     </label>
                 </div>
-                <div className="flex items-center  justify-between flex-1">
+                <div className="flex items-center justify-between max-lg:justify-end max-lg:gap-4 flex-1">
                     <span className="text-white text-xl ">Free</span>
                     <label className="relative inline-block w-[50px] h-6">
                         <input type="checkbox" className="opacity-0 w-0 h-0" checked={isFreeToPlay} onChange={() => {setIsFreeToPlay(prev => !prev)}} />

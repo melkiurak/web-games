@@ -3,6 +3,8 @@ import { Filters } from "./Filters/Filters";
 import metacritic from '../../assets/main/metacritic.png'
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { BsArrowRight } from "react-icons/bs";
+import { IoIosArrowForward } from "react-icons/io"
+
 
 export const GameFilter = ({dataGames, dataDiscounts}) => {
     const [resultSearch, setResultSearch] = useState([]);
@@ -69,7 +71,7 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
                 <p className="text-[#979797]">At This Section You Can Search For Games by multiple filters</p>
             </div>
             <Filters dataGames={dataGames} setResultSearch={setResultSearch} visibleCount={visibleCount}/>
-            <div className="grid grid-cols-5 max-lg:grid-cols-4 max-md:grid-cols-3 max-small-screen:!grid-cols-2 justify-items-center gap-y-10 max-desktop:gap-y-5 max-lg:gap-y-5 gap-x-4 max-desktop:gap-x-3 max-lg:gap-x-4">
+            <div className="items-start grid grid-cols-5 max-lg:grid-cols-4 max-md:grid-cols-3 max-small-screen:!grid-cols-2 justify-items-center gap-y-10 max-desktop:gap-y-5 max-lg:gap-y-5 gap-x-4 max-desktop:gap-x-3 max-lg:gap-x-4">
                 {((resultSearch?.length > 0 ? resultSearch : dataGames?.games?.edges || []).slice(0, gamesCount).map((game) =>   
                     <div key={game.objectId || game.node?.objectId} className="w-full p-[10px] max-desktop:p-2 border border-[#7D3C98] rounded-lg flex flex-col gap-3">
                         <div className="w-full h-[239px] max-desktop:h-[178px] max-lg:h-[200px] max-md:h-[250px] max-small-screen:!h-[200px] bg-center  bg-cover bg-no-repeat rounded-lg" style={{backgroundImage: `url('${game.BannerImg?.url || game.node?.BannerImg?.url}')`}}></div>
@@ -108,6 +110,12 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
                         </div>
                     </div>
                 ))}
+            </div>
+            <div className="flex justify-center w-full">
+                <button className="flex items-center gap-1 text-[#FF5733] border-[#FF5733] border w-[130px] px-6 py-[10px] rounded-3xl">
+                    <span className="font-medium whitespace-nowrap">View All</span>
+                    <IoIosArrowForward className="text-2xl" />
+                </button>
             </div>
         </div>
     </div>
