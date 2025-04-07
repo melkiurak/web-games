@@ -26,41 +26,34 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
         setNameValue(event.target.value);
         setValidationMessage('');
     };
-    const handelInputYearChange = (event) => {
-        setYearValue(event.target.value)
-    };
-    const handelInputRatingChange = (event) => {
-        setRatingValue(event.target.value)
-    };
     const CheckInput = useCallback(() => {
-        const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, " ").toLowerCase());
-        if (nameGame?.includes(nameValue.replace(/\s+/g, " ").toLowerCase())) {
+        const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, '').toLowerCase());
+        if (nameGame?.includes(nameValue.replace(/\s+/g, '').toLowerCase())) {
             setValidationMessage('');
         } else {
             setValidationMessage('Такого имени нет'); 
         }
     },[dataGames, nameValue]);
-
     const SearchInput = useCallback(() => {
         if (!nameValue.trim()) {
-            return [];
+            return setResultSearch([]);
         }
-        CheckInput(); 
-        return dataGames?.games?.edges.filter(edge => edge?.node?.name?.replace(/\s+/g, " ").toLowerCase().includes(nameValue.replace(/\s+/g, " ").toLowerCase()));
-    },[nameValue, CheckInput]);
-    const toggleButton = (genreName) => {
+        const foundGameName = dataGames?.games?.edges?.filter(edge => edge?.node?.name?.replace(/\s+/g, " ").toLowerCase().includes(nameValue));
+        if (foundGameName && foundGameName.length > 0) {
+            setResultSearch(foundGameName.map(edge => edge.node));
+        } else {
+            setResultSearch([]);
+        }
+        CheckInput()
+    }, [dataGames, setResultSearch, nameValue, CheckInput]);
+    const GenresFilter = (genreName) => {
         setSelectedGenres(selectedGenre => {
-            if (selectedGenre.includes(genreName)) {
-                return selectedGenre.filter(genre => genre !== genreName);
-            } else {
-                return [...selectedGenre, genreName];
-            }
-        });        
+            const updatedGenres = selectedGenre.includes(genreName) ? selectedGenre.filter(genre => genre !== genreName): [...selectedGenre, genreName];
+            const genreAll = Array.isArray(updatedGenres) ? updatedGenres.join(',').toLowerCase().replace(/\s+/g, '') : updatedGenres.toLowerCase().replace(/\s+/g, '');
+            setResultSearch(dataGames?.games?.edges?.filter(edge => edge?.node?.genre?.some(g => genreAll.includes(g.value.toLowerCase().replace(/\s+/g, '')))).map(edge => edge.node));
+            return updatedGenres; 
+        });
     };
-    const handelGenreGame = () => {
-        const genreAll = Array.isArray(selectedGenres)  ? selectedGenres.join(',').toLowerCase().replace(/\s+/g, '') : selectedGenres.toLowerCase().replace(/\s+/g, '');
-        return dataGames?.games?.edges?.filter(edge => edge?.node?.genre?.some(g => genreAll.includes(g.value.toLowerCase().replace(/\s+/g, '')))).map(edge => edge.node);
-    };  
     const buttonNext = () => {
         if (slide < genre.length - visibleCount) {
             setSlide(slide + 1);
@@ -80,40 +73,53 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
     const handelPlayers = () => {
         setPlayersVisible(prev => !prev);
     };
-    const handelPlarformsFilter = (platform) => {
+    const handelPlarformsFilter = useCallback((platform) => {
         const cleanPlatform = platform.toLowerCase().replace(/\s+/g, '');
         setPlatformVisible(false);
-        return dataGames?.games?.edges.filter(edge => edge.node.platform.some(p => cleanPlatform === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node);        
-    };
-    const handelPublishersFilter = (publisher) => {
+        return setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.platform.some(p => cleanPlatform === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node));        
+    },[dataGames,setResultSearch ]);
+    const handelPublishersFilter = useCallback((publisher) => {
        const cleanPublisher = publisher.toLowerCase().replace(/\s+/g, '');
        setPublishersVisible(false);
-       return dataGames?.games?.edges.filter(edge =>{return cleanPublisher  === edge.node.Publisher.toLowerCase().replace(/\s+/g, '')}).map(edge => edge.node);
-    };
-    const handelPlayersFilter = (players) => {
+       return setResultSearch(dataGames?.games?.edges.filter(edge =>{return cleanPublisher  === edge.node.Publisher.toLowerCase().replace(/\s+/g, '')}).map(edge => edge.node));
+    }, [dataGames, setResultSearch]);
+    const handelPlayersFilter = useCallback((players) => {
         const cleanPlayers = players.toLowerCase().replace(/\s+/g, '');
         setPlayersVisible(false);
-        return dataGames?.games?.edges.filter(edge => edge.node.players.some(p => cleanPlayers === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node);
-    };
-    const yearFilter = () => {
-        return dataGames?.games?.edges.filter(edge => new Date(edge.node.date).getFullYear() == yearValue).map(edge => edge.node);
-    };
+        return setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.players.some(p => cleanPlayers === p.value.toLowerCase().replace(/\s+/g, ''))).map(edge => edge.node));
+    },[dataGames,setResultSearch]);
+    const yearFilter = useCallback(() => {
+        return setResultSearch(dataGames?.games?.edges.filter(edge => new Date(edge.node.date).getFullYear() == yearValue).map(edge => edge.node));
+    },[dataGames, setResultSearch, yearValue]);
 
-    const ratingFilter = () => {
-        return dataGames?.games?.edges.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseFloat(ratingValue)).map(edge => edge.node);
-    };
+    const ratingFilter = useCallback(() => {
+        return  setResultSearch(dataGames?.games?.edges.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseFloat(ratingValue)).map(edge => edge.node));
+    },[setResultSearch, dataGames, ratingValue]);
 
-    const freeToPLayFilter = () => {
-        return dataGames?.games?.edges.filter(edge => edge.node.price === 0 || edge.node.price === null)
-    };
+    const freeToPLayFilter = useCallback(() => {
+        if(isFreeToPlay){
+            setResultSearch([])
+        } else{
+            setResultSearch(dataGames?.games?.edges.filter(edge => edge.node.price === 0 || edge.node.price === null));
+        }
+    },[dataGames, setResultSearch, isFreeToPlay]);
 
-    const onlineFilter = () => {
-        return dataGames?.games?.edges?.filter(edge => edge?.node?.players?.some(o => o?.value?.toLowerCase().includes('online')))
-    };
-
+    const onlineFilter = useCallback(() => {
+        if(isOnline){
+            setResultSearch([])
+        } else{
+            setResultSearch(dataGames?.games?.edges?.filter(edge => edge?.node?.players?.some(o => o?.value?.toLowerCase().includes('online'))));
+        }
+    },[dataGames, setResultSearch, isOnline]);
+    const handelSearchGame = useCallback(() => {
+ 
+    },[])
+    useEffect(() => {
+        SearchInput();
+    }, [SearchInput])
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
-            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={handleInputChange} />
+            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(event) => {handleInputChange(event); SearchInput(event)}} />
             {isPlaceholderVisible && (
                 <div className={`absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE] pointer-events-none`}>
                     <CiSearch className="text-3xl"/>
@@ -128,7 +134,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <button className="buttonSwitch flex-0 z-20 px-3 py-[6px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
             <div className="flex items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden">
                 {genre.slice(slide, slide + visibleCount).map((filter, index) => (
-                    <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {toggleButton(filter)}}>{filter}</button>
+                    <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {GenresFilter(filter)}}>{filter}</button>
                 ))}
             </div>
             <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - visibleCount ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - visibleCount  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - visibleCount ? '#FFFFFF' : '#979797'}} /></button>
@@ -187,7 +193,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Release Year</label>
                 <div className="flex flex-col gap-[10px] w-[266px]">
-                    <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={handelInputYearChange} value={yearValue} />
+                    <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={(event) => {setYearValue(event.target.value); yearFilter()}} value={yearValue} />
                     <div className="flex justify-between text-white text-sm">
                         <p>2000</p>
                         <p>2024</p>
@@ -197,7 +203,7 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
             <div className="flex items-center gap-4 flex-1">
                 <label htmlFor="" className="text-white">Rating</label>
                 <div className="flex flex-col gap-[10px] w-[266px]" >
-                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={handelInputRatingChange}/>
+                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={(event) => {setRatingValue(event.target.value); ratingFilter()}}/>
                     <div className="flex justify-between text-white text-sm">
                         <p>0</p>
                         <p>10</p>
@@ -208,20 +214,20 @@ export const Filters = ({dataGames, setResultSearch,visibleCount}) => {
                 <div className="flex items-center  justify-between  flex-1">
                     <span className="text-white text-xl ">Online</span>
                     <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => setIsOnline(prev => !prev)} />
+                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => {setIsOnline(prev => !prev); onlineFilter()}} />
                         <span className="slider round"></span>
                     </label>
                 </div>
                 <div className="flex items-center  justify-between flex-1">
                     <span className="text-white text-xl ">Free</span>
                     <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isFreeToPlay} onChange={() => setIsFreeToPlay(prev => !prev)} />
+                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isFreeToPlay} onChange={() => {setIsFreeToPlay(prev => !prev); freeToPLayFilter()}} />
                         <span className="slider round"></span>
                     </label>
                 </div>
             </div>
         </div>
-        <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2" onClick={handelSearchGame}>
+        <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2" onClick={handelSearchGame} >
             <CiSearch className="text-xl"/>
             <span>Search For Games</span>
         </button>
