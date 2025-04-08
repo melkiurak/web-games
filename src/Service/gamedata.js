@@ -119,6 +119,12 @@ query {
     edges {
       node {
         objectId
+        Date
+        genre{
+          ...on Element{
+            value
+          }
+        }
         Background{
           url
         }
