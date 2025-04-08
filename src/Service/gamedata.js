@@ -118,6 +118,7 @@ query {
     count
     edges {
       node {
+        objectId
         Background{
           url
         }
