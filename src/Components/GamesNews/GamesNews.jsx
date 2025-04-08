@@ -14,7 +14,7 @@ export const GamesNews = ({dataNewsGames}) => {
         return newsSliderGroups;
     }
     const buutonNext = () => {
-        if(slide < dataNewsGames.length - 1){ 
+        if(slide < groupNews(dataNewsGames.length) - 1){ 
             setSlide(slide + 1);
         }
     };
@@ -41,7 +41,9 @@ export const GamesNews = ({dataNewsGames}) => {
                         <button className={`buttonSwitch py-1.5 px-3  ${slide < dataNewsGames.length - 1 ? 'cursor-pointer' : 'cursor-auto'} `} style={{border: slide < dataNewsGames.length  - 1  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buutonNext}><GrLinkNext style={{color: slide < dataNewsGames.length - 1 ? '#FFFFFF' : '#979797'}} /></button>
                     </div>
                     <div className=" w-full h-[12px] flex gap-4 items-center max-md:hidden">
-                        
+                        {groupNews(dataNewsGames.news.edges).map((_, index) => 
+                            <div key={index} className={`w-[17px] h-[7px] bg-[#452154] rounded-3xl ${slide === index ? 'w-[28px] bg-[#FF5733] h-full' : ''}`}></div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -66,7 +68,7 @@ export const GamesNews = ({dataNewsGames}) => {
                     </div>
                 </div>
                 <div className="grid max-lg:flex grid-cols-2 h-full flex-1 items-baseline gap-3 max-desktop:gap-2 whitespace-normal ">
-                    {groupNews(dataNewsGames?.news?.edges)[slide].slice(1).map((edge, index) => 
+                    {groupNews(dataNewsGames?.news?.edges)[slide].slice(1).map((edge) => 
                       <div key={edge.node.objectId} className="h-full flex flex-col flex-1 rounded-[10px] max-lg:gap-2 max-lg:w-[280px]">
                             <div className="h-full bg-center bg-cover bg-no-repeat rounded-[10px] pl-3 flex items-end relative" style={{backgroundImage: `url('${edge?.node?.Background?.url}')`}}>
                                 <h4 className="text-white z-10 max-desktop:text-xs max-desktop:font-medium max-lg:hidden">{edge.node.Title}</h4>
