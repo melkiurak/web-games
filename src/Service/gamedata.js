@@ -112,5 +112,19 @@ const GET_UPCOMING_GAMES = gql`
   }
 
 `
-
-export { GET_GAMES, GET_CATEGORY, GET_DISCOUNTS, GET_UPCOMING_GAMES}
+const GET_NEWS_GAMES = gql`
+query {
+  news {
+    count
+    edges {
+      node {
+        Background{
+          url
+        }
+        Title
+      	}
+      }
+    }
+  }
+`
+export { GET_GAMES, GET_CATEGORY, GET_DISCOUNTS, GET_UPCOMING_GAMES, GET_NEWS_GAMES}
