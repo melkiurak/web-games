@@ -1,16 +1,15 @@
-import express from 'express'; // Импорт бибилотеки
+import express, { json } from 'express';
+import cors from "cors"
 
-const app = express(); // Создание сервера
-const PORT = 5000 // Создание порта
-app.get('/A', (req, res) => { // Тут мы пишем что хотим получить по порту сообщение сосал, но я таки не понял зачем нам req, типо  res нужнна для отображение сообещением
-    res.send("Сосал?")
+const app = express(); 
+const PORT = 5000 
+app.use(express.json())
+app.use(cors())
+app.post('/games', (req, res) => {
+    console.log('Запрос пришёл')
+    console.log(req.body)
+    res.send('Всё круто')
 })
-app.listen(PORT, () =>{ // Тут мы просто выводим в консоль то что надо случать порт и если всё правлиьно оно нам выводит сообщение потому что оно его услышало
-    console.log('Server is running')
-});
-app.put('/users/1', (req, res) => {
-    res.send("User updated");
-});
-app.delete('/users/1', (req, res) => {
-    res.send("User deleted");
-});
+app.listen(PORT, () => {
+    console.log("server started")
+})
