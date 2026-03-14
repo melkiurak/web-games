@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id Int @id @default(autoincrement())
+  name String
+  rating Float?
+  first_release_date Int?
+  summary String? @db.Text
+  price  Float?
+  min_requirements String?
+  max_requirements String?
+  cover_url String?
+  genres  String?
+  platforms String?
+  screenshots String?
+  videos String?
+  companies String?
+  @@map("games")
+}
