@@ -16,10 +16,27 @@ model Game {
   min_requirements String?
   max_requirements String?
   cover_url String?
-  genres  String?
+  genres  Genre[]
   platforms String?
   screenshots String?
   videos String?
-  companies String?
+  companies Company[]
+  comments Comment[]
   @@map("games")
+}
+model Company {
+  id Int @id @default(autoincrement())
+  name String
+  game Game[]
+}
+model Genre {
+  id Int @id @default(autoincrement())
+  name String
+  game Game[]
+}
+model Comment {
+  id Int @id @default(autoincrement())
+  text String
+  gameId Int
+  game Game @relation(fields:[gameId], references: [id])
 }
