@@ -7,36 +7,30 @@ datasource db {
 }
 
 model Game {
-  id Int @id @default(autoincrement())
-  name String
-  rating Float?
-  first_release_date Int?
-  summary String? @db.Text
-  price  Float?
-  min_requirements String?
-  max_requirements String?
-  cover_url String?
-  genres  Genre[]
-  platforms String?
-  screenshots String?
-  videos String?
-  companies Company[]
-  comments Comment[]
+  id                 BigInt    @id @default(autoincrement()) 
+  name               String
+  rating             Decimal?  
+  first_release_date BigInt?   
+  summary            String?   @db.Text
+  price              Decimal?  
+  min_requirements   String?
+  max_requirements   String?
+  cover_url          String?
+  genres             String?   
+  platforms          String?
+  screenshots        String?
+  videos             String?
+  companies          String?  
+  
+  // Добавляем связь для комментариев
+  comments           Comment[]
+
   @@map("games")
 }
-model Company {
-  id Int @id @default(autoincrement())
-  name String
-  game Game[]
-}
-model Genre {
-  id Int @id @default(autoincrement())
-  name String
-  game Game[]
-}
+
 model Comment {
-  id Int @id @default(autoincrement())
-  text String
-  gameId Int
-  game Game @relation(fields:[gameId], references: [id])
+  id     Int    @id @default(autoincrement())
+  text   String
+  gameId BigInt 
+  game   Game   @relation(fields: [gameId], references: [id])
 }
