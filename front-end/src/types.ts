@@ -1,35 +1,41 @@
-export interface GameNode {
-    objectId: string;
-    name: string;
-    category: { name: string };
+interface User {
+    id: string,
+    name: string,
+    avatar: string,
 }
+interface Comment {
+    id: string,
+    user: User,
+    gameId: number,
+    text: string,
+    date: string,
+}
+interface ISystemRequirements{
+    os: string,
+    cpu: string,
+    gpu: string,
+    ram: string,
+    storage: string;
+}
+interface Game {
+    id: string,
+    name: string,
+    rating: number,
+    first_release_date: string,
+    summary: string,
+    price: number,
+    min_requirements: ISystemRequirements | null,
+    max_requirements: ISystemRequirements | null,
+    cover_url: string,
+    genres: string[],
+    platforms: string[],
+    screenshots: string[],
+    videos: string[],
+    companies: string,
+    comments: Comment[]
+}
+export type GameCardPreview = Pick<Game, 'id' | 'name' | 'cover_url' | 'rating' | 'price' | 'genres' >
 
-export interface GameEdge {
-    node: GameNode;
-}
+export type GameHero = Pick<Game, 'id' | 'name' | 'summary' | 'cover_url'>
 
-export interface GamesDataProp {
-    dataGames: {
-        games: {
-            edges: GameEdge[];
-        };
-    };
-}
-
-export interface CategoryNode {
-    objectId: string;
-    name: string;
-    img: { url: string };
-    type: string; 
-}
-
-export interface CategoryEdge {
-    node: CategoryNode;
-}
-
-export interface CategoryQueryData {
-    categoryGames: {
-        count: number;
-        edges: CategoryEdge[];
-    };
-}
+export type GameFilter = Partial<Pick<Game, 'genres' | 'platforms' | 'first_release_date' | 'price' >>
