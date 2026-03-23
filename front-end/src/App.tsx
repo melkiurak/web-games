@@ -14,6 +14,7 @@ import { Auth } from './Components/Auth/Auth';
 import { Faq } from './Components/FAQ/Faq';
 import { Footer } from './Components/Footer/Footer';
 import { useEffect } from 'react';
+import { GameCard } from './Components/ui/GameCard';
 
 function App() {
   let x: any = 5;
@@ -39,6 +40,7 @@ function App() {
   }, []);*/
   return (
     <div className='max-w-[1440px] max-desktop:max-w-[1080px] w-full h-full m-auto relative overflow-hidden'>
+      <GameCard/>
       {/*<Header/>
       <Hero dataGames={dataGames}/>
       <main className='flex flex-col gap-[100px] max-desktop:gap-[80px] max-lg:gap-[60px] mb-[100px] max-desktop:mb-[80px] max-lg:mb-[60px]'>
