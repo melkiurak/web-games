@@ -34,7 +34,7 @@ interface Game {
     companies: string,
     comments: Comment[]
 }
-export type GameCardPreview = Pick<Game, 'id' | 'name' | 'cover_url' | 'rating' | 'price' | 'genres' | 'first_release_date' >
+export type GameCardPreview = Pick<Game, 'id' | 'name' | 'cover_url' | 'rating' | 'price' | 'genres' | 'first_release_date' | 'platforms' >
 
 export type GameHero = Pick<Game, 'id' | 'name' | 'summary' | 'cover_url'>
 
