@@ -3,7 +3,7 @@ import { MOCK_GAME_CARDS } from "@/mocks/game";
 import { GameCardPreview } from "@/types";
 
 export const TestHook = () => {
-    const { filterGames, selectedGenres, selectedPlatforms, toggleGenre, togglePlatform } = useFilter<GameCardPreview>(MOCK_GAME_CARDS);
+    const { filterGames, selectedGenres, selectedPlatforms, toggleFilter } = useFilter<GameCardPreview>(MOCK_GAME_CARDS);
 
     const testGenres = ["RPG", "Action", "Shooter", "Adventure"];
     const testPlatforms = ["PC", "PS5", "Xbox Series X", "Nintendo Switch"];
@@ -14,7 +14,7 @@ export const TestHook = () => {
                 {testGenres.map(genre => (
                     <button 
                         key={genre}
-                        onClick={() => toggleGenre(genre)}
+                        onClick={() => toggleFilter('genre', genre)}
                         style={{
                             padding: '10px',
                             backgroundColor: selectedGenres.includes(genre) ? '#FF5733' : '#333',
@@ -31,7 +31,7 @@ export const TestHook = () => {
                 {testPlatforms.map(platform => (
                     <button 
                         key={platform}
-                        onClick={() => togglePlatform(platform)}
+                        onClick={() => toggleFilter('platform', platform)}
                         style={{
                             padding: '10px',
                             backgroundColor: selectedPlatforms.includes(platform) ? '#3498db' : '#333',

@@ -9,7 +9,6 @@ export const useFilter = <T extends {genres: any[], platforms: any[]}> (allGame:
     //const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
     
-    
     const selectedGenres = useMemo(() => {
         return searchParams.get('genre')?.split(',') || []
     }, [searchParams]);
@@ -18,27 +17,17 @@ export const useFilter = <T extends {genres: any[], platforms: any[]}> (allGame:
         return searchParams.get('platform')?.split(',') || []
     }, [searchParams])
     
-    const toggleGenre = useCallback((genre: string) => {
+    const toggleFilter = useCallback((key:string, value: string) => {
+        const currentValues = searchParams.get(`${key}`)?.split(',') || []
         const params = new URLSearchParams(searchParams);
-        const updated = selectedGenres.includes(genre) ? selectedGenres.filter(g => g !== genre) : [...selectedGenres, genre];
-        if(updated.length > 0){
-            params.set('genre', updated.join(','))
-        } else {
-            params.delete('genre')
+        const updated = currentValues.includes(value) ? currentValues.filter(v => v !== value) : [...currentValues, value]
+        if(updated.length > 0) {
+            params.set(`${key}`, updated.join(','))
+        } else{
+            params.delete(`${key}`)
         }
         setSearchParams(params)
-    }, [selectedGenres, searchParams, setSearchParams]);
-
-    const togglePlatform = useCallback((platform: string) => {
-        const params = new URLSearchParams(searchParams);
-        const updated = selectedPlatforms.includes(platform) ? selectedPlatforms.filter(p => p !== platform) : [...selectedPlatforms, platform];
-        if(updated.length > 0) {
-            params.set('platform', updated.join(','))            
-        } else {
-            params.delete('platform')
-        }
-        setSearchParams(params);
-    }, [selectedPlatforms, searchParams, setSearchParams]);
+    }, [searchParams, setSearchParams]);
 
     const filterGames = useMemo(() => {
         let result = [...allGame];
@@ -59,5 +48,5 @@ export const useFilter = <T extends {genres: any[], platforms: any[]}> (allGame:
         return result;
         
     }, [allGame, selectedGenres, selectedPlatforms]);
-    return { filterGames, selectedGenres, selectedPlatforms, toggleGenre, togglePlatform };
+    return { filterGames, selectedGenres, selectedPlatforms, toggleFilter };
 } 
