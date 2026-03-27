@@ -1,21 +1,15 @@
-import { GameFilter } from "@/types";
-import { split } from "@apollo/client";
-import { platform } from "node:os";
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo } from "react"
 import { useSearchParams } from "react-router";
 
 export const useFilter = <T extends {genres: any[], platforms: any[]}> (allGame: T[]) => {
-   // const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-    //const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
     
-    const selectedGenres = useMemo(() => {
-        return searchParams.get('genre')?.split(',') || []
-    }, [searchParams]);
-   
-    const selectedPlatforms = useMemo(() => {
-        return searchParams.get('platform')?.split(',') || []
-    }, [searchParams])
+    const getSelected = (key: string) => {
+        return searchParams.get(key)?.split(',').filter(Boolean) || [];
+    };
+
+    const selectedGenres = getSelected('genre');
+    const selectedPlatforms = getSelected('platform');
     
     const toggleFilter = useCallback((key:string, value: string) => {
         const currentValues = searchParams.get(`${key}`)?.split(',') || []
