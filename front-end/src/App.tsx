@@ -14,7 +14,7 @@ import { Auth } from './Components/Auth/Auth';
 import { Faq } from './Components/FAQ/Faq';
 import { Footer } from './Components/Footer/Footer';
 import { useEffect } from 'react';
-import { GameCard } from './Components/ui/GameCard';
+import { GameCard } from './Components/ui/GameCard/GameCard';
 import { TestHook } from './Components/TestHooks/TestHooks';
 
 function App() {

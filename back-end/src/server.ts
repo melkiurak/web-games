@@ -1,15 +1,17 @@
-import express, { json } from 'express';
-import cors from "cors"
-import dotenv from 'dotenv'
-import gamesRoutes from './routes/gamesRoutes';
+import Fastify from 'fastify';
+import gameRoutes from './routes/gamesRoutes';
 
-dotenv.config()
-const app = express(); 
-const PORT = 5000 
 
-app.use(express.json())
-app.use(cors())
-app.use(gamesRoutes)
-app.listen(PORT, () => {
-    console.log("server started")
+const fastify = Fastify({
+    logger: true
 })
+const server = async() => {
+    try{
+       await fastify.listen({port:3001})
+    } catch(er) {
+        fastify.log.error(er)
+        process.exit(1)
+    }
+}
+fastify.register(gameRoutes)
+server()

@@ -5,6 +5,12 @@ import { BsArrowRight } from "react-icons/bs"
 import { GameCardPreview } from "@/types"
 
 export const GameCard = ({game} : {game: GameCardPreview}) => {
+    const validateGame = () => {
+        if(game.name === 'string' && game.name.trim() !== '' && Array.isArray(game.genres) && game.genres.length > 0 ){
+            return true;
+        } 
+        return false;
+    }
     return <div className="flex justify-between max-lg:gap-[16px] max-lg:whitespace-nowrap max-md:whitespace-nowrap max-lg:overflow-x-auto overflow-hidden ">
         <div  className="flex flex-col gap-3 border-1 border-solid border-[#7D3C98] p-[10px] max-desktop:p-2 rounded-xl" >
             <div className="w-[207.2px] max-desktop:w-[151.2px] h-[239px] max-desktop:h-[184px] max-lg:h-[178px] bg-center bg-cover bg-no-repeat rounded-xl" style={{backgroundImage: `url('${game.cover_url}')`}}>

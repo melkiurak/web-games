@@ -3,7 +3,7 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { BsArrowRight } from "react-icons/bs";
 import metacritic from '../../assets/main/metacritic.png'
 import { useCallback, useEffect, useState } from "react";
-import { GameCard } from "../ui/GameCard";
+import { GameCard } from "../ui/GameCard/GameCard";
 import { MOCK_GAME_CARDS } from "@/mocks/game";
 export const Trending = ({/*dataGames, dataDiscounts*/}) => {
     /*const [discountsPrice, setDiscountsPrice] = useState(null);

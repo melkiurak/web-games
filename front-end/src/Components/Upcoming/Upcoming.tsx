@@ -3,7 +3,7 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr"
 import { IoIosArrowForward } from "react-icons/io"
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { HiOutlineArrowLongRight } from "react-icons/hi2";
-import { GameCard } from "../ui/GameCard";
+import { GameCard } from "../ui/GameCard/GameCard";
 import { MOCK_GAME_CARDS } from "@/mocks/game";
 
 export const Upcoming = ({/*dataUpcomingGames*/}) => {

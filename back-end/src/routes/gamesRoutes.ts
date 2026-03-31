@@ -1,7 +1,9 @@
-import express from "express"
-import { getGames } from "../controllers/gamesController";
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
+import { gameService } from "../services/gameService"
 
-const router = express.Router();
-router.get('/games', getGames )
-
-export default router;
+export default async function gameRoutes(fastify:FastifyInstance, options:FastifyPluginOptions) {
+    fastify.get('/api-games', async (request, reply) => {
+        const result = gameService.getGame();
+        return {message: result};
+    });
+}
