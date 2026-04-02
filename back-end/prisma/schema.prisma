@@ -20,8 +20,8 @@ model Game {
   screenshots  String[]
   minReqId Int? @unique
   recReqId Int? @unique
-  minReq   SystemRequirement? @relation("MinReq", fields: [minReqId], references: [id])?
-  recReq   SystemRequirement? @relation("RecReq", fields: [recReqId], references: [id])?
+  minReq   SystemRequirement? @relation("MinReq", fields: [minReqId], references: [id])
+  recReq   SystemRequirement? @relation("RecReq", fields: [recReqId], references: [id])
 }
 model SystemRequirement {
   id Int @id @default(autoincrement())
