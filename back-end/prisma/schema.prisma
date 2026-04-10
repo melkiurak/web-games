@@ -8,6 +8,7 @@ datasource db {
 
 model Game {
   id Int @id @default(autoincrement())
+  externalId  Int      @unique 
   name String
   description String
   rating Float?
@@ -15,18 +16,18 @@ model Game {
   platforms Platform[]
   genres Genre[]
   poster String
-  price Float?
+  price Float @default(0)
   trailer String[]
   screenshots  String[]
-  minReqId Int? @unique
-  recReqId Int? @unique
+  minReqId String? @unique
+  recReqId String? @unique
   minReq   SystemRequirement? @relation("MinReq", fields: [minReqId], references: [id])
   recReq   SystemRequirement? @relation("RecReq", fields: [recReqId], references: [id])
 }
 model SystemRequirement {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
   os String
-  сpu String
+  cpu String
   memory String
   gpu String
   directX String
