@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr"
 import { IoIosArrowForward } from "react-icons/io"
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { HiOutlineArrowLongRight } from "react-icons/hi2";
 import { GameCard } from "../ui/GameCard/GameCard";
 import { MOCK_GAME_CARDS } from "@/mocks/game";
+import { data } from "react-router";
+import { GameCardPreview } from "@/types";
 
 export const Upcoming = ({/*dataUpcomingGames*/}) => {
+    const [upcoming, setUpcoming] = useState<GameCardPreview[]>([]);
     /*const [slide, setSlide] = useState(0);
     const upcomingData = dataUpcomingGames.upcomingGames.edges.map(edge => edge?.node);
     const groupUpcomingGames = (upcomingGames = []) => {
@@ -39,6 +42,14 @@ export const Upcoming = ({/*dataUpcomingGames*/}) => {
             }
         });
     };*/
+    useEffect(() => {
+        const getDate = async() => {
+            const response = await fetch('http://localhost:3000/games?upcoming=true')
+            const data = await response.json()
+            setUpcoming(data)
+        }
+        getDate();
+    }, [])
     return <div className="max-lg:pl-6">
         <div className="container flex flex-col gap-8">
             <div className="flex items-center justify-between">
@@ -48,6 +59,12 @@ export const Upcoming = ({/*dataUpcomingGames*/}) => {
                         <span className="text-lg font-medium">View All</span>
                         <IoIosArrowForward className="text-2xl"/>
                     </button>
+                </div>
+                <div>
+                    {upcoming.map((g) => (
+                        
+                        <GameCard key={g.id} game={g} />
+                    ))}
                 </div>
                 {/*<div className="flex flex-col gap-2 max-lg:hidden">
                     <div className="flex gap-2">
@@ -61,9 +78,9 @@ export const Upcoming = ({/*dataUpcomingGames*/}) => {
                     </div>
                 </div>*/}
             </div>
-            {MOCK_GAME_CARDS.map((item) => (
+            {/*{MOCK_GAME_CARDS.map((item) => (
                 <GameCard key={item.id} game={item} />
-            ))}
+            ))}*/}
         </div>
     </div>
 }

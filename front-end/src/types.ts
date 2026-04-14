@@ -26,7 +26,7 @@ interface Game {
     price: number,
     min_requirements: ISystemRequirements | null,
     max_requirements: ISystemRequirements | null,
-    cover_url: string,
+    poster: string,
     genres: string[],
     platforms: string[],
     screenshots: string[],
@@ -34,8 +34,8 @@ interface Game {
     companies: string,
     comments: Comment[]
 }
-export type GameCardPreview = Pick<Game, 'id' | 'name' | 'cover_url' | 'rating' | 'price' | 'genres' | 'first_release_date' | 'platforms' >
+export type GameCardPreview = Pick<Game, 'id' | 'name' | 'poster' | 'rating' | 'price' | 'genres' | 'first_release_date' | 'platforms' >
 
-export type GameHero = Pick<Game, 'id' | 'name' | 'summary' | 'cover_url'>
+export type GameHero = Pick<Game, 'id' | 'name' | 'summary' | 'poster'>
 
 export type GameFilter = Partial<Pick<Game, 'genres' | 'platforms' | 'first_release_date' | 'price' >>

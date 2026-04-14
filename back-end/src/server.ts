@@ -6,3 +6,6 @@ const app = express();
 
 app.use(cors());
 app.use(gameRouter);
+app.listen(3000, () => {
+    console.log("Server started");
+});
