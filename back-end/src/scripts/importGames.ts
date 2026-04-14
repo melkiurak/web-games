@@ -1,4 +1,4 @@
-import axios, { all } from "axios";
+import axios, { all, get } from "axios";
 import "dotenv/config";
 import { prisma } from "../database/client";
 
@@ -200,23 +200,18 @@ const getExistingGameNames = async () => {
     });
     return new Set(games.map(g => g.name.toLowerCase()));
 }
-const fetchGames1 = async () => {
-    
-}
 async function fetchGames() {
-    const existingNames = await getExistingGameNames();
-    const seeNames = new Set(existingNames);
+    const seeNames = await getExistingGameNames();
     const targets = [
         {generate: getTopGames, limit: 3000},
         {generate: getNewsGame, limit: 1000},
         {generate: getUpcomingGames, limit: 500},
     ]
-
     for(const item of targets) {
         let count = 0;
         let offset = 0;
         const batchSize = 50;
-        while (count < item.limit) {
+        while (count <= item.limit) {
             const query = item.generate(offset, batchSize);
             const games = await requestIGDB(query);
 
@@ -228,7 +223,6 @@ async function fetchGames() {
     
                 if (seeNames.has(baseName) || !steamId?.uid) {
                     console.log(`⏩ Пропуск: ${game.name} (уже в списке или нет в Steam)`);
-                    offset++;
                     continue;
                 }
     
