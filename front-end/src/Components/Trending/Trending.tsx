@@ -5,7 +5,10 @@ import metacritic from '../../assets/main/metacritic.png'
 import { useCallback, useEffect, useState } from "react";
 import { GameCard } from "../ui/GameCard/GameCard";
 import { MOCK_GAME_CARDS } from "@/mocks/game";
+import { GameCardPreview } from "@/types";
+import { getGames } from "@/Service/gamedata";
 export const Trending = ({/*dataGames, dataDiscounts*/}) => {
+    const [trending, setTrending] = useState<GameCardPreview[]>([]);
     /*const [discountsPrice, setDiscountsPrice] = useState(null);
     const [slide, setSlide] = useState(0);
 
@@ -63,7 +66,14 @@ export const Trending = ({/*dataGames, dataDiscounts*/}) => {
     useEffect(() => {
         dataChek();
     }, [dataChek, slide]);*/
-    return <div className="h-[453px] max-desktop:h-[405px] max-lg:h-[357px] max-lg:ml-6">
+    useEffect(() => {
+        const loadGame = async() => {
+            const data = await getGames({trending: 'true', take:20})
+            setTrending(data);
+        }
+        loadGame()
+    }, [])
+    return <div className="{ max-lg:ml-6">
             <div className="flex flex-col justify-between h-full container">
                 <div className="flex w-full justify-between h-[51px]">
                     <div className="w-full flex justify-between items-center gap-12">
@@ -85,9 +95,11 @@ export const Trending = ({/*dataGames, dataDiscounts*/}) => {
                         </div>
                     </div>*/}
                 </div>
-                {MOCK_GAME_CARDS.map((item) => (
-                    <GameCard key={item.id} game={item} />
-                ))}
+                <div>
+                    {trending.map((g) => (
+                        <GameCard key={g.id} game={g} />
+                    ))}
+                </div>
             </div>
         </div>
 }

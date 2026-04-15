@@ -1,5 +1,19 @@
 import { gql} from '@apollo/client';
 
+interface gameFetch {
+  [key: string]: string | number | boolean | undefined;
+}
+
+const getGames = async(params:gameFetch) => {
+  try{
+    const searchParams = new URLSearchParams(params as any)
+    const response = await fetch(`http://localhost:3000/games?${searchParams.toString()}`);
+    return  response.json()
+  } catch (error) {
+    console.log('Error to get the game:', error)
+    return [];
+  }
+}
 
 const GET_GAMES = gql `
   query {
@@ -135,4 +149,4 @@ query {
     }
   }
 `
-export { GET_GAMES, GET_CATEGORY, GET_DISCOUNTS, GET_UPCOMING_GAMES, GET_NEWS_GAMES}
+export { getGames}

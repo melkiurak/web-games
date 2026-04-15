@@ -7,6 +7,7 @@ import { GameCard } from "../ui/GameCard/GameCard";
 import { MOCK_GAME_CARDS } from "@/mocks/game";
 import { data } from "react-router";
 import { GameCardPreview } from "@/types";
+import { getGames } from "@/Service/gamedata";
 
 export const Upcoming = ({/*dataUpcomingGames*/}) => {
     const [upcoming, setUpcoming] = useState<GameCardPreview[]>([]);
@@ -43,12 +44,11 @@ export const Upcoming = ({/*dataUpcomingGames*/}) => {
         });
     };*/
     useEffect(() => {
-        const getDate = async() => {
-            const response = await fetch('http://localhost:3000/games?upcoming=true')
-            const data = await response.json()
+        const loadGames = async() => {
+            const data = await getGames({upcoming: 'true', take: 20})
             setUpcoming(data)
         }
-        getDate();
+        loadGames()
     }, [])
     return <div className="max-lg:pl-6">
         <div className="container flex flex-col gap-8">
@@ -60,9 +60,8 @@ export const Upcoming = ({/*dataUpcomingGames*/}) => {
                         <IoIosArrowForward className="text-2xl"/>
                     </button>
                 </div>
-                <div>
+                <div >
                     {upcoming.map((g) => (
-                        
                         <GameCard key={g.id} game={g} />
                     ))}
                 </div>

@@ -5,21 +5,38 @@ const gameRouter = Router();
 
 gameRouter.get('/games',  async(req, res) => {
     try{
-        const upcoming = req.query.upcoming === 'true'
+        let where: any = {}
+        let orderBy
+        const {upcoming, mostPopular, trending, lastId, take,} = req.query
         const nowDate = new Date();
-        const lastId = req.query.lastId;
+        const takeCount = Number(take) || 20;
+
+        if(upcoming) {
+            where.date = { gt: nowDate };
+            orderBy = {date: 'asc'  as const}
+        } else if (mostPopular) {
+            where.rating = { gte: 90 };
+            orderBy = {rating: 'desc'  as const}
+        } else if (trending) {
+            const trendingLimit = new Date();
+            trendingLimit.setMonth(trendingLimit.getMonth() - 12);
+            where.date = {gt:trendingLimit, lt:nowDate}
+            where.rating = {gte: 80}
+            orderBy = {rating: 'desc' as const}
+        } 
+        else {
+            orderBy = {id: 'asc' as const}
+        }
+
+
         const games = await prisma.game.findMany({
-            where: {
-                date: upcoming ? {gt: nowDate} : undefined
-            },
-            take: 10,
+            where,
+            take: takeCount,
             skip: lastId ? 1 : 0,
             cursor: lastId ? {
                 id: Number(lastId),
             } : undefined,
-            orderBy: {
-                date: 'asc'
-            }
+            orderBy
         })
         res.json(games)
     } catch (error) {

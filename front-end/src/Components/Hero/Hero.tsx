@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import date from '../../assets/Hero/date.png'
 import matacritic from '../../assets/Hero/metacritic.png';
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
+import { GameCardPreview } from "@/types";
+import { getGames } from "@/Service/gamedata";
 
-export const Hero = ({dataGames}) => {
-    const [slide, setSlide] = useState(0);
+export const Hero = ({}) => {
+    const [mostPopular, setMostPopular] = useState<GameCardPreview[]>([]);
+   /* const [slide, setSlide] = useState(0);
     const background = dataGames?.games?.edges?.filter(edge => edge?.node?.BackgroundTop?.url);
     const buutonNext = () => {
         if(slide < background.length - 1){
@@ -15,10 +18,24 @@ export const Hero = ({dataGames}) => {
         if(slide > 0){
             setSlide(slide - 1);
         }
-    };
-
+    };*/
+    useEffect(() => {
+        const loadGames = async() => {
+            const data = await getGames({mostPopular: 'true', take: 50})
+            setMostPopular(data)
+        }
+        loadGames()
+    }, [])
     return (
         <>
+        {mostPopular.map((g) => (
+            <div key={g.id}>
+            <div className="w-[207.2px] max-desktop:w-[151.2px] h-[239px] max-desktop:h-[184px] max-lg:h-[178px] bg-center bg-cover bg-no-repeat rounded-xl" style={{backgroundImage: `url('${g.poster}')`}}>
+            </div>
+            <p>{g.name}</p>
+            </div>
+        ))}
+        {/*
             {background.map((edge, index) => 
                 index === slide && (
                 <div key={edge.node.objectId} className={`w-full h-[894px] max-desktop:h-[696px] max-md:h-[486px] bg-no-repeat bg-auto max-desktop:bg-cover bg-top ${index === 0 ? 'max-md:bg-[80%_center]' : 'max-md:bg-center'} items-center relative after:content-[''] after:absolute after:w-full after:h-full  after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_73.5%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_50%)] max-md:after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_95%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_25%)] ${index === slide ? 'flex' : 'hidden'} `} style={{backgroundImage: `url('${edge.node.BackgroundTop.url}')`}}>
@@ -99,6 +116,7 @@ export const Hero = ({dataGames}) => {
                 </div>
                 )
             )}
+                */}
         </>
     )
 }

@@ -3,7 +3,6 @@ import './App.css'
 import { Category } from './Components/Categorys/Categorys'
 import { Header } from './Components/Header/Header'
 import { Hero } from './Components/Hero/Hero'
-import { GET_DISCOUNTS, GET_GAMES, GET_NEWS_GAMES, GET_UPCOMING_GAMES } from './Service/gamedata';
 import { Trending } from './Components/Trending/Trending';
 import { MonthlyGames } from './Components/MonthlyGames/MonthlyGames';
 import { Reviews } from './Components/Reviews/Reviews';
@@ -41,15 +40,15 @@ function App() {
   }, []);*/
   return (
     <div className='max-w-[1440px] max-desktop:max-w-[1080px] w-full h-full m-auto relative overflow-hidden'>
-      <Upcoming/>
-      {/*<Header/>
       <Trending/>
+      {/*<Header/>
+      <Hero/>
+      <Trending/>
+      <Upcoming/>
       <TestHook/>
       <Upcoming/>
-      <Hero dataGames={dataGames}/>
       <main className='flex flex-col gap-[100px] max-desktop:gap-[80px] max-lg:gap-[60px] mb-[100px] max-desktop:mb-[80px] max-lg:mb-[60px]'>
         <Category dataGames={dataGames}/>
-        <Trending dataGames={dataGames} dataDiscounts={dataDiscounts}/>
         <MonthlyGames dataGames={dataGames}/>
         <Reviews dataGames={dataGames}/>
         <GameFilter dataGames={dataGames} dataDiscounts={dataDiscounts}/>
