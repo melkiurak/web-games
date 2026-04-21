@@ -3,7 +3,7 @@ Gaming prime is a web-site built on back-end and front-end.
 
 ## 🛠 Tech stack
 back-end: Prisma, Express, Zod;
-front-end: React, TypeScript, React-Icons, React-router, TailwindCss;
+front-end: React, TypeScript, React-Icons, React-router, TailwindCSS;
 Api: IGDB API, Steam API
 
 ## 📋 Features
