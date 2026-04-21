@@ -20,31 +20,32 @@ const getToken = async() => {
 
 const getTopGames = (offset: number, limit: number) => {
   const now = Math.floor(Date.now() / 1000);
-  return `fields name,summary,rating,external_games.uid,external_games.external_game_source,first_release_date,platforms.name,genres.name,cover.url,videos.video_id; 
-  where platforms = (6,48,167,49,169) &  
+  return `fields name,summary,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,aggregated_rating,aggregated_rating_count,total_rating,total_rating_count,external_games.uid,external_games.external_game_source; 
+  where platforms = (6,48,167,49,169) & 
   first_release_date >= 1262304000 & 
   first_release_date < ${now} & 
-  rating >= 75 & 
-  rating_count >= 500; 
-  sort rating desc; 
+  total_rating >= 75 & 
+  total_rating_count >= 100; 
+  sort total_rating desc; 
   limit ${limit}; offset ${offset};`;
 }
 
 const getNewsGame = (offset: number, limit: number) => {
   const now = Math.floor(Date.now() / 1000);
-  return `fields name,summary,rating,external_games.uid,external_games.external_game_source,first_release_date,platforms.name,genres.name,cover.url,videos.video_id; 
-    where platforms = (6,48,167,49,169) & 
+  return `fields name,summary,total_rating,total_rating_count,external_games.uid,external_games.external_game_source,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,aggregated_rating; 
+    where platforms = (6,48,167,49,169) &
+    first_release_date >= 1262304000 & 
     first_release_date < ${now} &
     parent_game = null &
-    rating >= 55 &  
-    rating_count >= 10; 
+    total_rating >= 55 &  
+    total_rating_count >= 10; 
     sort first_release_date desc; 
     limit ${limit}; offset ${offset};`;
 }
 
 const getUpcomingGames = (offset: number, limit: number) => {
   const now = Math.floor(Date.now() / 1000);
-  return `fields name,summary,rating,external_games.uid,external_games.external_game_source,first_release_date,platforms.name,genres.name,cover.url,videos.video_id; 
+  return `fields name,summary,hypes,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,external_games.uid,external_games.external_game_source; 
     where platforms = (6,48,167,49,169) & 
     (first_release_date > ${now}) &
     version_parent = null &
@@ -65,11 +66,14 @@ const getSteamData = async(steamId: string | number) => {
             return null;
         }
         const steamGameData = response.data[steamId]?.data;
+        if (steamGameData.type === 'dlc' || steamGameData.type === 'demo') return null
         return {
-            price: steamGameData.is_free ? 0 : steamGameData.price_overview?.final,
+            price: steamGameData.is_free ? 0 : (steamGameData.price_overview?.final || 0),
             screenshots: steamGameData.screenshots ? steamGameData.screenshots.map((img: any) => img.path_full) : [],
             minReq: steamGameData.pc_requirements.minimum,
-            recReq: steamGameData.pc_requirements.recommended
+            recReq: steamGameData.pc_requirements.recommended,
+            recommendations: steamGameData.recommendations?.total || null,
+            metacritic: steamGameData.metacritic?.score || null
         }
     } catch(error) {
         console.log('Ошибка при получения стим игр',error);
@@ -113,19 +117,25 @@ const parseSteamReq = (html:string) => {
     return req
 }
 const formatedData = (igbdGame:any, steamGame: any) => {
-    const roundedRating = igbdGame.rating ? Math.round(igbdGame.rating * 10) / 10 : 0;
     const releaseDate = igbdGame.first_release_date ? new Date(igbdGame.first_release_date * 1000) : new Date();
     const posterUrl = formateImg(igbdGame.cover?.url) || '';
     const trailerUrl = igbdGame.videos?.[0] ? [`https://www.youtube.com/watch?v=${igbdGame.videos?.[0].video_id}`] : [];
     const finalPrice = steamGame?.price ? steamGame?.price / 100 : 0;
     const steamScreenshots = steamGame.screenshots?.length > 0 ? steamGame.screenshots : (igbdGame.screenshots?.map((s: any) => formateImg(s.url)).filter(Boolean) || []);
-    return{
+    const metaScore = (steamGame?.metacritic && steamGame.metacritic > 0) ? steamGame.metacritic : (igbdGame.aggregated_rating || igbdGame.total_rating || 0);
+        return{
         externalId: igbdGame.id,
         name: igbdGame.name,
         description: igbdGame.summary,
-        rating: roundedRating,
         date: releaseDate,
         price: finalPrice,
+        totalRating: igbdGame.total_rating ? Math.round(igbdGame.total_rating * 10) / 10 : null ,
+        totalRatingCount: igbdGame.total_rating_count || 0,
+        aggregatedRating: igbdGame.aggregated_rating ? Math.round(igbdGame.aggregated_rating * 10) / 10 : null,
+        aggregatedRatingCount: igbdGame.aggregated_rating_count || 0,
+        metaScore: metaScore,
+        recommendations: steamGame?.recommendations || 0,
+        hypes: igbdGame.hypes || 0,
         platforms: igbdGame.platforms?.map((p:any) => p.name) || [],
         genres: igbdGame.genres?.map((g:any) => g.name) || [],
         poster: posterUrl,
@@ -135,54 +145,61 @@ const formatedData = (igbdGame:any, steamGame: any) => {
         recReq: parseSteamReq(steamGame?.recReq || ''),
     }
 }
-const upsertGameData = async(formatedData:any) => {
+const upsertGameData = async(formated:any) => {
     try{
         await prisma.game.upsert({
             where: {
-                externalId: formatedData.externalId 
+                externalId: formated.externalId 
             },
             update: {
-                rating: formatedData.rating,
-                price: formatedData.price,
+                price: formated.price,
+                totalRating: formated.totalRating,
+                totalRatingCount: formated.totalRatingCount,
+                metaScore: formated.metaScore,
             },
             create: {
-                externalId: formatedData.externalId,
-                name: formatedData.name,
-                description: formatedData.description,
-                rating: formatedData.rating,
-                poster: formatedData.poster,
-                screenshots: formatedData.screenshots,
-                trailer: formatedData.trailer,
-                price: formatedData.price,
-                date: formatedData.date,
-                minReq: formatedData.minReq ? {
+                externalId: formated.externalId,
+                name: formated.name,
+                description: formated.description,
+                totalRating: formated.totalRating,            
+                totalRatingCount: formated.totalRatingCount,
+                aggregatedRatingCount: formated.aggregatedRatingCount,
+                metaScore: formated.metaScore,
+                recommendations: formated.recommendations,
+                hypes: formated.hypes,
+                poster: formated.poster,
+                screenshots: formated.screenshots,
+                trailer: formated.trailer,
+                price: formated.price,
+                date: formated.date,
+                minReq: formated.minReq ? {
                     create:{
-                        os: formatedData.minReq.os,
-                        cpu: formatedData.minReq.cpu,
-                        memory: formatedData.minReq.memory,
-                        gpu: formatedData.minReq.gpu,
-                        directX: formatedData.minReq.directX,
-                        storage: formatedData.minReq.diskspace
+                        os: formated.minReq.os,
+                        cpu: formated.minReq.cpu,
+                        memory: formated.minReq.memory,
+                        gpu: formated.minReq.gpu,
+                        directX: formated.minReq.directX,
+                        storage: formated.minReq.diskspace
                     }
                 } : undefined, 
-                recReq: formatedData.recReq ? {
+                recReq: formated.recReq ? {
                     create:{
-                        os: formatedData.recReq.os,
-                        cpu: formatedData.recReq.cpu,
-                        memory: formatedData.recReq.memory,
-                        gpu: formatedData.recReq.gpu,
-                        directX: formatedData.recReq.directX,
-                        storage: formatedData.recReq.diskspace
+                        os: formated.recReq.os,
+                        cpu: formated.recReq.cpu,
+                        memory: formated.recReq.memory,
+                        gpu: formated.recReq.gpu,
+                        directX: formated.recReq.directX,
+                        storage: formated.recReq.diskspace
                     }
                 } : undefined,                           
                 genres: {
-                    connectOrCreate: formatedData.genres.map((g:string) => ({
+                    connectOrCreate: formated.genres.map((g:string) => ({
                         where: {name: g},
                         create: {name: g}
                     }))
                 },
                 platforms: {
-                    connectOrCreate: formatedData.platforms.map((p:string) => ({
+                    connectOrCreate: formated.platforms.map((p:string) => ({
                         where: {name: p},
                         create: {name: p},
                     }))
@@ -217,7 +234,7 @@ async function fetchGames() {
 
             if (!games || games.length === 0) break;
             for(const game of games) {
-                const baseName = game.name.toLowerCase().split(':')[0].split('–')[0].trim();
+                const baseName = game.name.toLowerCase().trim();
     
                 const steamId = game.external_games?.find((ext: any) => ext.external_game_source === 1);
     

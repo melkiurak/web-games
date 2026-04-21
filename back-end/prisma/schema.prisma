@@ -7,22 +7,35 @@ datasource db {
 }
 
 model Game {
-  id Int @id @default(autoincrement())
-  externalId  Int      @unique 
-  name String
-  description String
-  rating Float?
-  date DateTime
-  platforms Platform[]
-  genres Genre[]
-  poster String
-  price Float @default(0)
-  trailer String[]
-  screenshots  String[]
-  minReqId String? @unique
-  recReqId String? @unique
-  minReq   SystemRequirement? @relation("MinReq", fields: [minReqId], references: [id])
-  recReq   SystemRequirement? @relation("RecReq", fields: [recReqId], references: [id])
+  id                    Int      @id @default(autoincrement())
+  externalId            Int      @unique 
+  name                  String
+  description           String   @db.Text 
+  date                  DateTime
+  poster                String
+  price                 Float    @default(0)
+
+  // Rating
+  totalRatingCount      Int      @default(0) 
+  totalRating           Float?
+  aggregatedRatingCount Int      @default(0)
+  metaScore             Float?    
+  recommendations       Int      @default(0)
+  hypes                 Int      @default(0) 
+
+  // Medias 
+  trailer               String[]
+  screenshots           String[]
+
+  // Connections
+  platforms             Platform[]
+  genres                Genre[]
+
+  // SystemRequirement
+  minReqId              String?  @unique
+  recReqId              String?  @unique
+  minReq                SystemRequirement? @relation("MinReq", fields: [minReqId], references: [id])
+  recReq                SystemRequirement? @relation("RecReq", fields: [recReqId], references: [id])
 }
 model SystemRequirement {
   id String @id @default(uuid())

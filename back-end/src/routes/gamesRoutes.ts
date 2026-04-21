@@ -1,46 +1,48 @@
 import { Router } from "express"
 import { prisma } from "../database/client";
+import { gameSchema } from "../schemas/game.schema";
+import { Prisma } from "@prisma/client";
 
 const gameRouter = Router();
 
 gameRouter.get('/games',  async(req, res) => {
     try{
-        let where: any = {}
-        let orderBy
-        const {upcoming, mostPopular, trending, lastId, take,} = req.query
-        const nowDate = new Date();
-        const takeCount = Number(take) || 20;
+        let where: Prisma.GameWhereInput = {} 
+        let orderBy: Prisma.GameOrderByWithRelationInput = { id: 'asc'}
+        const parse =  gameSchema.safeParse(req.query)
+        
+        if(!parse.success){
+            return res.status(400).json(parse.error.format())
+        }
 
-        if(upcoming) {
+        const nowDate = new Date();
+        if(parse.data.upcoming) {
             where.date = { gt: nowDate };
-            orderBy = {date: 'asc'  as const}
-        } else if (mostPopular) {
-            where.rating = { gte: 90 };
-            orderBy = {rating: 'desc'  as const}
-        } else if (trending) {
+            orderBy = {date: 'asc'}
+        } else if (parse.data.mostPopular) {
+            where.metaScore = { gte: 90 };
+            orderBy = {metaScore: 'desc'}
+        } else if (parse.data.trending) {
             const trendingLimit = new Date();
             trendingLimit.setMonth(trendingLimit.getMonth() - 12);
             where.date = {gt:trendingLimit, lt:nowDate}
-            where.rating = {gte: 80}
-            orderBy = {rating: 'desc' as const}
+            where.metaScore = {gte: 80}
+            orderBy = {metaScore: 'desc'}
         } 
-        else {
-            orderBy = {id: 'asc' as const}
-        }
-
 
         const games = await prisma.game.findMany({
             where,
-            take: takeCount,
-            skip: lastId ? 1 : 0,
-            cursor: lastId ? {
-                id: Number(lastId),
+            take: parse.data.take,
+            skip: parse.data.lastId ? 1 : 0,
+            cursor: parse.data.lastId ? {
+                id: parse.data.lastId,
             } : undefined,
             orderBy
         })
         res.json(games)
     } catch (error) {
         console.log('Error to get the data:', error)
+        
         res.status(500).json()
     }
 })
