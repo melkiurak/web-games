@@ -7,8 +7,13 @@ import { GameCard } from "../ui/GameCard/GameCard";
 import { MOCK_GAME_CARDS } from "@/mocks/game";
 import { GameCardPreview } from "@/types";
 import { getGames } from "@/Service/gamedata";
+import { useGetData } from "@/hooks/useGetData";
+import { GameLoading } from "../ui/GameLoading/GameLoading";
+import { GameError } from "../ui/GameError/GameError";
 export const Trending = ({/*dataGames, dataDiscounts*/}) => {
-    const [trending, setTrending] = useState<GameCardPreview[]>([]);
+    const {data, loading, error} = useGetData('trending', 20);
+    if(loading) return <GameLoading/>
+    if(error) return <GameError/>
     /*const [discountsPrice, setDiscountsPrice] = useState(null);
     const [slide, setSlide] = useState(0);
 
@@ -66,13 +71,6 @@ export const Trending = ({/*dataGames, dataDiscounts*/}) => {
     useEffect(() => {
         dataChek();
     }, [dataChek, slide]);*/
-    useEffect(() => {
-        const loadGame = async() => {
-            const data = await getGames({trending: 'true', take:20})
-            setTrending(data);
-        }
-        loadGame()
-    }, [])
     return <div className="{ max-lg:ml-6">
             <div className="flex flex-col justify-between h-full container">
                 <div className="flex w-full justify-between h-[51px]">
@@ -96,7 +94,7 @@ export const Trending = ({/*dataGames, dataDiscounts*/}) => {
                     </div>*/}
                 </div>
                 <div>
-                    {trending.map((g) => (
+                    {data.map((g) => (
                         <GameCard key={g.id} game={g} />
                     ))}
                 </div>
