@@ -17,32 +17,12 @@ import { GameCard } from './Components/ui/GameCard/GameCard';
 import { TestHook } from './Components/TestHooks/TestHooks';
 
 function App() {
-  let x: any = 5;
-  /*const { data: dataGames, loading: loadingGames, error: errorGames } = useQuery(GET_GAMES, {fetchPolicy: 'cache-first'});
-  const { data: dataDiscounts, loading: loadingDiscounts, error: errorDiscounts } = useQuery(GET_DISCOUNTS, {fetchPolicy: 'cache-first'});
-  const { data: dataUpcomingGames, loading: loadingUpcomingGames, error: errorUpcomingGames } = useQuery(GET_UPCOMING_GAMES, {fetchPolicy: 'cache-first'});
-  const {data: dataNewsGames, loading: loadingNewsGames, error: errorNewsGames} = useQuery(GET_NEWS_GAMES, {fetchPolicy:'cache-first'});
-  if (loadingGames || loadingDiscounts || loadingUpcomingGames || loadingNewsGames ) {
-    return <p>Загрузка...</p>;
-  }
-  
-  if (errorGames || errorDiscounts || errorUpcomingGames || errorNewsGames) {
-    return <p>Ошибка</p>;
-  }
-    useEffect(() => {
-    fetch("http://localhost:5000/games", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: "Deadlock" })
-    })
-    .then(res => res.text())
-    .then(console.log)
-  }, []);*/
   return (
-    <div className='max-w-[1440px] max-desktop:max-w-[1080px] w-full h-full m-auto relative overflow-hidden'>
-      <Trending/>
-      {/*<Header/>
+    <div className={/*`max-w-[1440px] max-desktop:max-w-[1080px]`*/  'w-full h-full m-auto relative overflow-hidden'}>
+      <Header/>
       <Hero/>
+      {/*
+      <Trending/>
       <Trending/>
       <Upcoming/>
       <TestHook/>

@@ -4,11 +4,13 @@ import matacritic from '../../assets/Hero/metacritic.png';
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { GameCardPreview } from "@/types";
 import { getGames } from "@/Service/gamedata";
+import { useGetData } from "@/hooks/useGetData";
 
 export const Hero = ({}) => {
-    const [mostPopular, setMostPopular] = useState<GameCardPreview[]>([]);
-   /* const [slide, setSlide] = useState(0);
-    const background = dataGames?.games?.edges?.filter(edge => edge?.node?.BackgroundTop?.url);
+    const {data, loading, error} = useGetData('mostPopular', 5);
+    const [slide, setSlide] = useState(0);
+    const background = data.filter(g => g.screenshots[1]) 
+    const priorityPlatforms = ['PC', 'Ps 4', 'Ps 5', 'Xbox One', 'Xbox Series X']
     const buutonNext = () => {
         if(slide < background.length - 1){
             setSlide(slide + 1);
@@ -18,43 +20,28 @@ export const Hero = ({}) => {
         if(slide > 0){
             setSlide(slide - 1);
         }
-    };*/
-    useEffect(() => {
-        const loadGames = async() => {
-            const data = await getGames({mostPopular: 'true', take: 50})
-            setMostPopular(data)
-        }
-        loadGames()
-    }, [])
+    };
     return (
         <>
-        {mostPopular.map((g) => (
-            <div key={g.id}>
-            <div className="w-[207.2px] max-desktop:w-[151.2px] h-[239px] max-desktop:h-[184px] max-lg:h-[178px] bg-center bg-cover bg-no-repeat rounded-xl" style={{backgroundImage: `url('${g.poster}')`}}>
-            </div>
-            <p>{g.name}</p>
-            </div>
-        ))}
-        {/*
-            {background.map((edge, index) => 
+            {background.map((game, index) => 
                 index === slide && (
-                <div key={edge.node.objectId} className={`w-full h-[894px] max-desktop:h-[696px] max-md:h-[486px] bg-no-repeat bg-auto max-desktop:bg-cover bg-top ${index === 0 ? 'max-md:bg-[80%_center]' : 'max-md:bg-center'} items-center relative after:content-[''] after:absolute after:w-full after:h-full  after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_73.5%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_50%)] max-md:after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_95%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_25%)] ${index === slide ? 'flex' : 'hidden'} `} style={{backgroundImage: `url('${edge.node.BackgroundTop.url}')`}}>
+                <div key={game.id} className={`w-full h-[894px] max-desktop:h-[696px] max-md:h-[486px] bg-no-repeat bg-auto max-desktop:bg-cover bg-top ${index === 0 ? 'max-md:bg-[80%_center]' : 'max-md:bg-center'} items-center relative after:content-[''] after:absolute after:w-full after:h-full  after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_73.5%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_50%)] max-md:after:bg-[linear-gradient(to_left,rgba(28,27,41,0),rgba(28,27,41,1)_95%),linear-gradient(to_top,rgba(28,27,41,1),rgba(28,27,41,0)_25%)] ${index === slide ? 'flex' : 'hidden'} `} style={{backgroundImage: `url('${game.screenshots[1]}')`}}>
                     <div className="flex gap-9 max-desktop:gap-5 w-full h-[654px] max-desktop:h-[500px] max-lg:h-full items-end max-lg:items-center z-10 relative max-lg:flex-col max-lg:justify-end container"> 
                         <div className="max-w-[333px] max-desktop:max-w-[323px] w-full flex flex-col max-lg:items-center gap-8 max-lg:gap-0 max-md:mb-24px">
                             <div className="text-white max-lg:max-w-[382px] max-lg:text-center max-lg:px-[10px] max-lg:items-center">
-                                <h1 className="font-extrabold text-[40px] max-desktop:text-[32px] pb-2">{edge.node.name}</h1>
-                                <p className="max-desktop:text-sm max-lg:hidden">{edge.node.description}</p>
+                                <h1 className="font-extrabold text-[40px] max-desktop:text-[32px] pb-2">{game.name}</h1>
+                                <p className="max-desktop:text-sm max-lg:hidden line-clamp-5">{game.description}</p>
                             </div>
                             <div className="flex flex-col gap-7 max-lg:gap-4 max-lg:w-full max-lg:p-2 max-lg:py-4">
                                 <div className="flex w-full justify-between max-lg:justify-around">
                                     <div className="flex items-center">
                                         <img src={matacritic} alt="Metacritic Score" className="max-lg:h-6 max-lg:w-6" />
-                                        <span className="text-[#FFCC00] text-2xl font-bold pl-3">{edge.node.metacriticScore}</span>  
-                                        <span className="text-[#979797]">/{edge.node.metacriticScoreMax}</span>
+                                        <span className="text-[#FFCC00] text-2xl font-bold pl-3">{game.metaScore}</span>  
+                                        <span className="text-[#979797]">/100</span>
                                     </div>
                                     <div className="flex items-center text-white gap-3">
                                         <img src={date} alt="Release Date" />
-                                        <span>{new Date(edge.node.date).toLocaleDateString("en-US", {
+                                        <span>{new Date(game.first_release_date).toLocaleDateString("en-US", {
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric',
@@ -65,19 +52,22 @@ export const Hero = ({}) => {
                                     <div className="flex flex-col text-center w-1/2">
                                         <span className="text-white text-xl font-semibold">Available For:</span>
                                         <ul className="flex gap-1 justify-center items-center text-[#979797]">
-                                            {edge.node.platform.map((platform, index) => (
-                                                <li key={index}>{platform.value}{index < edge.node.platform.length - 1 ? ' - ' : ''}</li>                                            
+                                            {game.platforms.slice(0, 2).map((platform, index) => (
+                                                <li key={index} className="after:content-['-'] last:after:content-none after:ml-2">
+                                                    {platform}
+                                                </li>
                                             ))}
                                         </ul>
                                     </div>
                                     <div className="w-1/2 flex flex-col text-center">
                                         <span className="text-white text-xl font-semibold">Genre:</span>
-                                        <span className="text-[#979797]">{edge.node.genre[0]?.value}</span>
+                                        <span className="text-[#979797]">{game.genres[0]}</span>
                                     </div>
                                 </div>
+                                {/* */}
                                 <div className="flex gap-2 text-[#979797] w-full max-lg:hidden">
-                                    {edge.node.platform.map((platform, index) => (
-                                        <button className="px-1 w-full rounded-[10px] border border-solid border-[#979797]" key={index}>{platform.value}</button>
+                                    {game.platforms.slice(0,3).map((platform, index) => (
+                                        <button className="px-1 w-full rounded-[10px] border border-solid border-[#979797]" key={index}>{platform}</button>
                                     ))}
                                 </div>
                                 <div className="w-full flex justify-between gap-3 h-[44px]">
@@ -102,11 +92,11 @@ export const Hero = ({}) => {
                                 </div>
                             </div>
                             <div className="flex justify-between items-end max-desktop:gap-2 max-lg:hidden">
-                                {background.map((edge, index) => (
-                                    <div key={edge.node.objectId} className={`h-[220px] max-desktop:h-[164px] ${slide === index ? 'h-[240px] max-desktop:h-[179px]' : ''}`} style={{border: slide === index ? '1px solid #FF5733' : 'none', borderRadius: 4,position: 'relative'}}>
-                                        <img src={edge.node.BannerImg.url}  alt="Game Banner" className="h-full max-desktop:object-cover" />
+                                {background.map((game, index) => (
+                                    <div key={game.id} className={`h-[220px] max-desktop:h-[164px] ${slide === index ? 'h-[240px] max-desktop:h-[179px]' : ''}`} style={{border: slide === index ? '1px solid #FF5733' : 'none', borderRadius: 4,position: 'relative'}}>
+                                        <img src={game.poster}  alt="Game Banner" className="h-full max-desktop:object-cover" />
                                         {slide === index && (
-                                            <div className="text-sm" style={{ display: 'flex', alignItems: 'end', padding: '0 0 16px 8px', color: '#FFFFFF', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', borderRadius: '4px', background: 'linear-gradient(to top, #000000, rgba(0, 0, 0, 0) 40%)' }}>{edge?.node.name}</div>
+                                            <div className="text-sm" style={{ display: 'flex', alignItems: 'end', padding: '0 0 16px 8px', color: '#FFFFFF', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', borderRadius: '4px', background: 'linear-gradient(to top, #000000, rgba(0, 0, 0, 0) 40%)' }}>{game.name}</div>
                                         )}
                                     </div>
                                 ))}
@@ -116,7 +106,6 @@ export const Hero = ({}) => {
                 </div>
                 )
             )}
-                */}
         </>
     )
 }

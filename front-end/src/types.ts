@@ -17,12 +17,13 @@ interface ISystemRequirements{
     ram: string,
     storage: string;
 }
-interface Game {
+export interface Game {
     id: string,
     name: string,
-    rating: number,
+    metaScore: number,
     first_release_date: string,
     summary: string,
+    description: string,
     price: number,
     min_requirements: ISystemRequirements | null,
     max_requirements: ISystemRequirements | null,
@@ -34,8 +35,8 @@ interface Game {
     companies: string,
     comments: Comment[]
 }
-export type GameCardPreview = Pick<Game, 'id' | 'name' | 'poster' | 'rating' | 'price' | 'genres' | 'first_release_date' | 'platforms' >
+export type GameCardPreview = Pick<Game, 'id' | 'name' | 'poster' | 'metaScore' | 'price' | 'genres' | 'first_release_date' | 'platforms' >
 
-export type GameHero = Pick<Game, 'id' | 'name' | 'summary' | 'poster'>
+export type GameHero = Pick<Game, 'id' | 'name' | 'description' | 'poster'>
 
 export type GameFilter = Partial<Pick<Game, 'genres' | 'platforms' | 'first_release_date' | 'price' >>

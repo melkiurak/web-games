@@ -1,9 +1,9 @@
 import { getGames } from "@/Service/gamedata"
-import { GameCardPreview } from "@/types"
+import { Game } from "@/types"
 import { useEffect, useState } from "react"
 
 export const useGetData = (flag: string, limit: number) => {
-    const [data, setData] = useState<GameCardPreview[]>([])
+    const [data, setData] = useState<Game[]>([])
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
