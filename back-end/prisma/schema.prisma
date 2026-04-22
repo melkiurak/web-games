@@ -16,8 +16,6 @@ model Game {
   price                 Float    @default(0)
 
   // Rating
-  totalRatingCount      Int      @default(0) 
-  totalRating           Float?
   aggregatedRatingCount Int      @default(0)
   metaScore             Float?    
   recommendations       Int      @default(0)

@@ -28,7 +28,13 @@ gameRouter.get('/games',  async(req, res) => {
             where.date = {gt:trendingLimit, lt:nowDate}
             where.metaScore = {gte: 80}
             orderBy = {metaScore: 'desc'}
-        } 
+        } else if (parse.data.gameMoth) {
+            const startOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
+            const endOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0);
+            where.date = {gt:startOfMonth, lt:endOfMonth}
+            where.metaScore = {gte: 80}
+            orderBy = {metaScore: 'desc'}
+        }
 
         const games = await prisma.game.findMany({
             where,
@@ -37,9 +43,18 @@ gameRouter.get('/games',  async(req, res) => {
             cursor: parse.data.lastId ? {
                 id: parse.data.lastId,
             } : undefined,
+            include:{
+                genres: true, 
+                platforms: true,
+            },
             orderBy
-        })
-        res.json(games)
+        });
+        const formatedGames = games.map(game => ({
+            ...game,
+            genres: game.genres.map(g => g.name),
+            platforms: game.platforms.map(p => p.name)
+        }))
+        res.json(formatedGames)
     } catch (error) {
         console.log('Error to get the data:', error)
         

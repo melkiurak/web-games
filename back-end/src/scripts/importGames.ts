@@ -20,25 +20,25 @@ const getToken = async() => {
 
 const getTopGames = (offset: number, limit: number) => {
   const now = Math.floor(Date.now() / 1000);
-  return `fields name,summary,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,aggregated_rating,aggregated_rating_count,total_rating,total_rating_count,external_games.uid,external_games.external_game_source; 
+  return `fields name,summary,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,aggregated_rating,aggregated_rating_count,external_games.uid,external_games.external_game_source; 
   where platforms = (6,48,167,49,169) & 
   first_release_date >= 1262304000 & 
   first_release_date < ${now} & 
-  total_rating >= 75 & 
-  total_rating_count >= 100; 
-  sort total_rating desc; 
+  aggregated_rating >= 75 & 
+  aggregated_rating_count >= 5; 
+  sort aggregated_rating desc; 
   limit ${limit}; offset ${offset};`;
 }
 
 const getNewsGame = (offset: number, limit: number) => {
   const now = Math.floor(Date.now() / 1000);
-  return `fields name,summary,total_rating,total_rating_count,external_games.uid,external_games.external_game_source,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,aggregated_rating; 
+  return `fields name,summary,aggregated_rating,aggregated_rating_count,external_games.uid,external_games.external_game_source,first_release_date,platforms.name,genres.name,cover.url,videos.video_id; 
     where platforms = (6,48,167,49,169) &
     first_release_date >= 1262304000 & 
     first_release_date < ${now} &
     parent_game = null &
-    total_rating >= 55 &  
-    total_rating_count >= 10; 
+    aggregated_rating >= 50 &  
+    aggregated_rating_count >= 3; 
     sort first_release_date desc; 
     limit ${limit}; offset ${offset};`;
 }
@@ -122,7 +122,12 @@ const formatedData = (igbdGame:any, steamGame: any) => {
     const trailerUrl = igbdGame.videos?.[0] ? [`https://www.youtube.com/watch?v=${igbdGame.videos?.[0].video_id}`] : [];
     const finalPrice = steamGame?.price ? steamGame?.price / 100 : 0;
     const steamScreenshots = steamGame.screenshots?.length > 0 ? steamGame.screenshots : (igbdGame.screenshots?.map((s: any) => formateImg(s.url)).filter(Boolean) || []);
-    const metaScore = (steamGame?.metacritic && steamGame.metacritic > 0) ? steamGame.metacritic : (igbdGame.aggregated_rating || igbdGame.total_rating || 0);
+    const steamMeta = (steamGame?.metacritic && steamGame.metacritic > 0) ? steamGame.metacritic : 0;
+    const igdbMeta = igbdGame.aggregated_rating ? Math.round(igbdGame.aggregated_rating) : 0;
+    const metaScore = steamMeta > 0 ? steamMeta : igdbMeta;
+    if (metaScore === 0) {
+        return null; 
+    }
         return{
         externalId: igbdGame.id,
         name: igbdGame.name,
@@ -220,7 +225,7 @@ const getExistingGameNames = async () => {
 async function fetchGames() {
     const seeNames = await getExistingGameNames();
     const targets = [
-        {generate: getTopGames, limit: 3000},
+        {generate: getTopGames, limit: 5000},
         {generate: getNewsGame, limit: 1000},
         {generate: getUpcomingGames, limit: 500},
     ]
@@ -247,7 +252,12 @@ async function fetchGames() {
                 const steamExtraInfo = await getSteamData(steamId.uid);
     
                 if (steamExtraInfo !== null) {
+                    
                     const formatted = formatedData(game, steamExtraInfo);
+                    if (!formatted) {
+                        console.log(`⏩ Пропуск: ${game.name} (нет валидного рейтинга Metacritic/IGDB)`);
+                        continue;
+                    }
                     await upsertGameData(formatted)
                     seeNames.add(baseName);
                     count++;
