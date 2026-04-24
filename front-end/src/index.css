@@ -48,7 +48,7 @@ body{
     @apply absolute top-0 left-0 w-full h-[860px] ;
 }
 .container{
-    @apply max-w-[1320px] max-desktop:max-w-[1100px] m-auto;
+    @apply max-w-[1440px] max-desktop:max-w-[1280px] max-lg:max-w-[1024px] m-auto p-4;
 }
 h2{
     @apply text-white text-2xl max-lg:text-xl font-bold max-lg:font-semibold;
