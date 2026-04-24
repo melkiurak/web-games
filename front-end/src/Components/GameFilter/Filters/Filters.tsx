@@ -3,7 +3,7 @@ import { CiSearch } from "react-icons/ci";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = ({ dataGames, setResultSearch, visibleCount }) => {
+export const Filters = ({setResultSearch, visibleCount }) => {
     const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [validationMessage, setValidationMessage] = useState('');
     const [nameValue, setNameValue] = useState('');

@@ -15,14 +15,16 @@ import { Footer } from './Components/Footer/Footer';
 import { useEffect } from 'react';
 import { GameCard } from './Components/ui/GameCard/GameCard';
 import { TestHook } from './Components/TestHooks/TestHooks';
+import { GameFilterTwo } from './Components/GameFilter/GameFilter2';
 
 function App() {
   return (
     <div className={/*`max-w-[1440px] max-desktop:max-w-[1080px]`*/  'w-full h-full m-auto relative overflow-hidden'}>
-      <Header/>
-      <Hero/>
+      <GameFilterTwo/>
       {/*
       <Trending/>
+      <Header/>
+      <Hero/>
       <Trending/>
       <Upcoming/>
       <TestHook/>
@@ -31,7 +33,6 @@ function App() {
         <Category dataGames={dataGames}/>
         <MonthlyGames dataGames={dataGames}/>
         <Reviews dataGames={dataGames}/>
-        <GameFilter dataGames={dataGames} dataDiscounts={dataDiscounts}/>
         <GamesNews dataNewsGames={dataNewsGames}/>
         <Auth/>
         <Faq/>

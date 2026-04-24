@@ -4,9 +4,11 @@ import metacritic from '../../assets/main/metacritic.png'
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { BsArrowRight } from "react-icons/bs";
 import { IoIosArrowForward } from "react-icons/io"
+import { useGetData } from "@/hooks/useGetData";
 
 
-export const GameFilter = ({dataGames, dataDiscounts}) => {
+export const GameFilter = () => {
+    const {data, error, loading} = useGetData('trending', 10)
     const [resultSearch, setResultSearch] = useState([]);
     const [gamesCount, setGamesCount] = useState(10);
     const [visibleCount, setVisibleCount] = useState(9);
@@ -32,7 +34,9 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
             setGamesCount(10); 
         }
     };
-    
+    {/*
+
+    } 
     const dataChek = useCallback(() => {
         for (let i = 0; i < dataDiscounts?.discounts?.edges?.length; i++) {
             const discountData = dataDiscounts?.discounts?.edges[i]?.node;
@@ -63,7 +67,7 @@ export const GameFilter = ({dataGames, dataDiscounts}) => {
         };
     }, []);
     console.log(resultSearch?.length, dataGames?.games?.edges);
-
+*/}
     return <div className="max-lg:px-5 max-md:px-3">
         <div className="container flex flex-col gap-8">
             <div className="flex flex-col text-center">

@@ -7,6 +7,7 @@ const gameRouter = Router();
 
 gameRouter.get('/games',  async(req, res) => {
     try{
+        const {genres} = req.query
         let where: Prisma.GameWhereInput = {} 
         let orderBy: Prisma.GameOrderByWithRelationInput = { id: 'asc'}
         const parse =  gameSchema.safeParse(req.query)
@@ -36,6 +37,16 @@ gameRouter.get('/games',  async(req, res) => {
             orderBy = {metaScore: 'desc'}
         }
 
+        if (genres) {
+            const genreArray = Array.isArray(genres) ? genres.map(g => String(g)): [String(genres)];
+            where.genres = {
+                some: {
+                    name: {
+                        in: genreArray,
+                    },
+                },
+            };
+        }
         const games = await prisma.game.findMany({
             where,
             take: parse.data.take,

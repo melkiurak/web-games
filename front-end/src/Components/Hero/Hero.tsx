@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import date from '../../assets/Hero/date.png'
-import matacritic from '../../assets/Hero/metacritic.png';
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { GameCardPreview } from "@/types";
 import { getGames } from "@/Service/gamedata";
