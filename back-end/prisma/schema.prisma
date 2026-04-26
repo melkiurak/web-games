@@ -28,6 +28,8 @@ model Game {
   // Connections
   platforms             Platform[]
   genres                Genre[]
+  publishers            Publisher[]
+  categories            Category[]
 
   // SystemRequirement
   minReqId              String?  @unique
@@ -54,5 +56,15 @@ model Genre {
 model Platform {
   id Int @id @default(autoincrement())
   name String @unique
+  games Game[]
+}
+model Publisher {
+  id Int @id @default(autoincrement())
+  name String @unique
+  games Game[]
+}
+model Category { 
+  id    Int    @id @default(autoincrement())
+  name  String @unique
   games Game[]
 }

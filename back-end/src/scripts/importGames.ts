@@ -73,7 +73,9 @@ const getSteamData = async(steamId: string | number) => {
             minReq: steamGameData.pc_requirements.minimum,
             recReq: steamGameData.pc_requirements.recommended,
             recommendations: steamGameData.recommendations?.total || null,
-            metacritic: steamGameData.metacritic?.score || null
+            metacritic: steamGameData.metacritic?.score || null,
+            publishers: steamGameData?.publishers || null,
+            categorys: steamGameData?.categories?.map((c: any) => c.description) || [],
         }
     } catch(error) {
         console.log('Ошибка при получения стим игр',error);
@@ -134,8 +136,6 @@ const formatedData = (igbdGame:any, steamGame: any) => {
         description: igbdGame.summary,
         date: releaseDate,
         price: finalPrice,
-        totalRating: igbdGame.total_rating ? Math.round(igbdGame.total_rating * 10) / 10 : null ,
-        totalRatingCount: igbdGame.total_rating_count || 0,
         aggregatedRating: igbdGame.aggregated_rating ? Math.round(igbdGame.aggregated_rating * 10) / 10 : null,
         aggregatedRatingCount: igbdGame.aggregated_rating_count || 0,
         metaScore: metaScore,
@@ -148,26 +148,24 @@ const formatedData = (igbdGame:any, steamGame: any) => {
         screenshots: steamScreenshots,
         minReq: parseSteamReq(steamGame?.minReq || ''),
         recReq: parseSteamReq(steamGame?.recReq || ''),
+        publishers: steamGame.publishers,
+        categorys: steamGame.categorys
     }
 }
 const upsertGameData = async(formated:any) => {
-    try{
+    try {
         await prisma.game.upsert({
             where: {
                 externalId: formated.externalId 
             },
             update: {
                 price: formated.price,
-                totalRating: formated.totalRating,
-                totalRatingCount: formated.totalRatingCount,
                 metaScore: formated.metaScore,
             },
             create: {
                 externalId: formated.externalId,
                 name: formated.name,
                 description: formated.description,
-                totalRating: formated.totalRating,            
-                totalRatingCount: formated.totalRatingCount,
                 aggregatedRatingCount: formated.aggregatedRatingCount,
                 metaScore: formated.metaScore,
                 recommendations: formated.recommendations,
@@ -178,7 +176,7 @@ const upsertGameData = async(formated:any) => {
                 price: formated.price,
                 date: formated.date,
                 minReq: formated.minReq ? {
-                    create:{
+                    create: {
                         os: formated.minReq.os,
                         cpu: formated.minReq.cpu,
                         memory: formated.minReq.memory,
@@ -188,7 +186,7 @@ const upsertGameData = async(formated:any) => {
                     }
                 } : undefined, 
                 recReq: formated.recReq ? {
-                    create:{
+                    create: {
                         os: formated.recReq.os,
                         cpu: formated.recReq.cpu,
                         memory: formated.recReq.memory,
@@ -196,7 +194,7 @@ const upsertGameData = async(formated:any) => {
                         directX: formated.recReq.directX,
                         storage: formated.recReq.diskspace
                     }
-                } : undefined,                           
+                } : undefined,                          
                 genres: {
                     connectOrCreate: formated.genres.map((g:string) => ({
                         where: {name: g},
@@ -208,12 +206,23 @@ const upsertGameData = async(formated:any) => {
                         where: {name: p},
                         create: {name: p},
                     }))
+                },
+                publishers: {
+                    connectOrCreate: formated.publishers.map((p:string) => ({
+                        where: {name: p},
+                        create: {name: p},
+                    }))   
+                },
+                categories: {
+                    connectOrCreate: formated.categorys.map((c:string) => ({
+                        where: {name: c},
+                        create: {name: c},
+                    }))
                 }
             }
         })
-
     } catch(error) {
-        console.log('Ошибка при отправление данных', error)
+        console.log('Ошибка при отправлении данных', error)
     }
 }
 const getExistingGameNames = async () => {
