@@ -2,19 +2,20 @@ import { Router } from "express"
 import { prisma } from "../database/client";
 import { gameSchema } from "../schemas/game.schema";
 import { Prisma } from "@prisma/client";
-import { keyof } from "zod";
+import { file, keyof } from "zod";
 
 const gameRouter = Router();
-
 gameRouter.get('/games',  async(req, res) => {
     try{
         let where: Prisma.GameWhereInput = {} 
         let orderBy: Prisma.GameOrderByWithRelationInput = { id: 'asc'}
+        
+        const {genres, platforms, publishers, categories, metaScore, releaseYear} = req.query 
 
-        const {genres, platforms } = req.query 
-        const filters = [genres, platforms];
         const nowDate = new Date();
         const parse =  gameSchema.safeParse(req.query);
+        const conditions: any[] = []
+
         const genreMap:Record<string, string> = {
             RPG: "Role-playing (RPG)",
             RTS: "Real Time Strategy (RTS)",
@@ -23,7 +24,12 @@ gameRouter.get('/games',  async(req, res) => {
         const platformsMap: Record<string, string> = {
             PC: "PC (Microsoft Windows)",
         }
-        const filterObj = {
+        type FilterType = {
+            value: any;
+            field: 'genres' | 'platforms' | 'publishers' | 'categories' | 'metaScore' ;
+            map?: Record<string, string>;
+        }
+        const filterObj: Record<string, FilterType> = {
             genres: {
                 value: genres,
                 map: genreMap,
@@ -32,16 +38,26 @@ gameRouter.get('/games',  async(req, res) => {
             platforms: {
                 value: platforms,
                 map: platformsMap,
-                field: 'platforms' as const
-            }
+                field: 'platforms' as const,
+            },
+            publishers: {
+                value: publishers,
+                field: 'publishers' as const,
+            },
+            categories: {
+                value: categories,
+                field: 'categories' as const,
+            },
+            metaScore: {
+                value: metaScore,
+                field: 'metaScore' as const,
+            },
         }
 
         if(!parse.success){
             return res.status(400).json(parse.error.format())
         }
-
-        type ViewPresentKey = keyof typeof VIEW_PRESETS;
-        const VIEW_PRESETS = {
+        const staticPresets = {
             mostPopular: {
                 where: { metaScore: { gte: 90}},
                 orderBy: {metaScore: 'desc' as const}
@@ -49,7 +65,9 @@ gameRouter.get('/games',  async(req, res) => {
             upcoming: {
                 where: {date: {gt: nowDate}},
                 orderBy: {date: 'asc' as const},
-            },
+            }
+        }
+        const dynamicPresets = {
             trending: () =>  {
                 const limit = new Date();
                 limit.setMonth(limit.getMonth() - 12);
@@ -66,7 +84,12 @@ gameRouter.get('/games',  async(req, res) => {
                     orderBy: {metaScore: 'desc' as const}
                 }
             }
+        }
+        const VIEW_PRESETS = {
+            ...staticPresets,
+            ...dynamicPresets
         };
+        type ViewPresentKey = keyof typeof VIEW_PRESETS;
         const activeKey = Object.keys(VIEW_PRESETS).find((key): key is ViewPresentKey => parse.data[key as ViewPresentKey])
         
         if(activeKey) {
@@ -77,18 +100,44 @@ gameRouter.get('/games',  async(req, res) => {
             orderBy = appliedPreset.orderBy;
 
         }
+        const сollectionFilters = (field: "genres" | "platforms" | "publishers" | "categories", values: string[] ) => {
+            return {
+                OR: values.map(value => ({
+                    [field]:{ 
+                        some: {
+                            name: {
+                                contains: value,
+                                mode: "insensitive"
+                            }
+                        }
+                    }
+                }))
+            }
+        }
+        const rangeFilters = (field: string, min: number, max:number) => {
+            return {
+                [field]: {
+                    gte: min,
+                    lte: max
+                }
+            }
+        }
         for (let key in filterObj) {
             const filter = filterObj[key as keyof typeof filterObj]
             if(!filter.value) continue;
-            const arr = Array.isArray(filter.value) ? filter.value.map(v => String(v)) : [String(filter.value)]
-            const filterArr = arr.map(arr => filter.map[arr] || arr);
-            where[filter.field  ] = {
-                some: {
-                    name: {
-                        in: filterArr
-                    }
-                }
+
+            if(filter.field === 'metaScore') {
+                const [min, max] = filter.value as [number, number]
+                conditions.push(rangeFilters(filter.field, min, max))
+            } else {
+                const arr = Array.isArray(filter.value) ? filter.value.map(v => String(v)) : [String(filter.value)]
+                const filterArr = arr.map(arr => filter.map?.[arr] || arr);
+                conditions.push(сollectionFilters(filter.field, filterArr),)
             }
+        }
+        where = {
+            ...where,
+            AND: conditions
         }
         const games = await prisma.game.findMany({
             where,
