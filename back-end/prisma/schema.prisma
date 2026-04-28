@@ -13,7 +13,7 @@ model Game {
   description           String   @db.Text 
   date                  DateTime
   poster                String
-  price                 Float    @default(0)
+  price                 Float?
 
   // Rating
   aggregatedRatingCount Int      @default(0)

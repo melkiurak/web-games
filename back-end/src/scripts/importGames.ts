@@ -53,22 +53,42 @@ const getUpcomingGames = (offset: number, limit: number) => {
     sort first_release_date asc; 
     limit ${limit}; offset ${offset};`;
 }
+const getPopularLowRatedGames = (offset: number, limit: number) => {
+    const now = Math.floor(Date.now() / 1000);
 
+    return `fields name,summary,first_release_date,platforms.name,genres.name,cover.url,videos.video_id,aggregated_rating,aggregated_rating_count,external_games.uid,external_games.external_game_source;
+    where platforms = (6,48,167,49,169) &
+    first_release_date < ${now} &
+    aggregated_rating >= 40 &
+    aggregated_rating_count >= 50;
+    sort aggregated_rating_count desc;
+    limit ${limit}; offset ${offset};`;
+};
 const formateImg = (url:string) => {
     if(!url) return null;
     return `https:${url.replace('t_thumb', 't_cover_big')}`
 }
 const getSteamData = async(steamId: string | number) => {
     try{
+        let price: number | null = null;
         const response = await axios.get(`https://store.steampowered.com/api/appdetails?appids=${steamId}&cc=us&l=en`);
-        if(!response.data || response.data[steamId]?.success === false) {
-            console.log('Такую игру не нашёл')
+        const steamGameData = response.data[steamId]?.data;
+        
+         if (!response.data || response.data[steamId]?.success === false) {
             return null;
         }
-        const steamGameData = response.data[steamId]?.data;
         if (steamGameData.type === 'dlc' || steamGameData.type === 'demo') return null
+
+        if (steamGameData.is_free) {
+            price = 0;
+        } else if (steamGameData.price_overview?.final) {
+            price = steamGameData.price_overview.final; 
+        } else {
+            price = null;
+        }
+
         return {
-            price: steamGameData.is_free ? 0 : (steamGameData.price_overview?.final || 0),
+            price: price,
             screenshots: steamGameData.screenshots ? steamGameData.screenshots.map((img: any) => img.path_full) : [],
             minReq: steamGameData.pc_requirements.minimum,
             recReq: steamGameData.pc_requirements.recommended,
@@ -122,7 +142,7 @@ const formatedData = (igbdGame:any, steamGame: any) => {
     const releaseDate = igbdGame.first_release_date ? new Date(igbdGame.first_release_date * 1000) : new Date();
     const posterUrl = formateImg(igbdGame.cover?.url) || '';
     const trailerUrl = igbdGame.videos?.[0] ? [`https://www.youtube.com/watch?v=${igbdGame.videos?.[0].video_id}`] : [];
-    const finalPrice = steamGame?.price ? steamGame?.price / 100 : 0;
+    const finalPrice = steamGame?.price !== null ? steamGame.price / 100 : null;
     const steamScreenshots = steamGame.screenshots?.length > 0 ? steamGame.screenshots : (igbdGame.screenshots?.map((s: any) => formateImg(s.url)).filter(Boolean) || []);
     const steamMeta = (steamGame?.metacritic && steamGame.metacritic > 0) ? steamGame.metacritic : 0;
     const igdbMeta = igbdGame.aggregated_rating ? Math.round(igbdGame.aggregated_rating) : 0;
@@ -159,7 +179,7 @@ const upsertGameData = async(formated:any) => {
                 externalId: formated.externalId 
             },
             update: {
-                price: formated.price,
+                price: formated.price,                
                 metaScore: formated.metaScore,
             },
             create: {
@@ -232,50 +252,64 @@ const getExistingGameNames = async () => {
     return new Set(games.map(g => g.name.toLowerCase()));
 }
 async function fetchGames() {
-    const seeNames = await getExistingGameNames();
+    const seeNames = await prisma.game.findMany({
+        select: { name: true }
+    }).then(g => new Set(g.map(x => x.name.toLowerCase())));
+
     const targets = [
-        {generate: getTopGames, limit: 5000},
-        {generate: getNewsGame, limit: 1000},
-        {generate: getUpcomingGames, limit: 500},
-    ]
-    for(const item of targets) {
+        { generate: getTopGames, limit: 5000 },
+        { generate: getNewsGame, limit: 1000 },
+        { generate: getUpcomingGames, limit: 500 },
+        { generate: getPopularLowRatedGames, limit: 2000 }, // 🔥 НОВЫЙ ТИП
+    ];
+
+    for (const item of targets) {
         let count = 0;
         let offset = 0;
         const batchSize = 50;
+
         while (count <= item.limit) {
             const query = item.generate(offset, batchSize);
             const games = await requestIGDB(query);
 
             if (!games || games.length === 0) break;
-            for(const game of games) {
+
+            for (const game of games) {
                 const baseName = game.name.toLowerCase().trim();
-    
-                const steamId = game.external_games?.find((ext: any) => ext.external_game_source === 1);
-    
+
+                const steamId = game.external_games?.find(
+                    (ext: any) => ext.external_game_source === 1
+                );
+
                 if (seeNames.has(baseName) || !steamId?.uid) {
-                    console.log(`⏩ Пропуск: ${game.name} (уже в списке или нет в Steam)`);
                     continue;
                 }
-    
-                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                await new Promise(r => setTimeout(r, 2000));
+
                 const steamExtraInfo = await getSteamData(steamId.uid);
-    
-                if (steamExtraInfo !== null) {
-                    
-                    const formatted = formatedData(game, steamExtraInfo);
-                    if (!formatted) {
-                        console.log(`⏩ Пропуск: ${game.name} (нет валидного рейтинга Metacritic/IGDB)`);
-                        continue;
-                    }
-                    await upsertGameData(formatted)
-                    seeNames.add(baseName);
-                    count++;
-                    console.log(`✅ Собрано: ${game.name} (${count}/5)`);
-                } else {
-                    console.log(`❌ Ошибка данных Steam для: ${game.name}`);
+
+                if (!steamExtraInfo) {
+                    await prisma.game.deleteMany({
+                        where: { externalId: game.id }
+                    });
+
+                    console.log(`🗑️ Удалена игра (нет Steam): ${game.name}`);
+                    continue;
                 }
 
+                const formatted = formatedData(game, steamExtraInfo);
+
+                if (!formatted) continue;
+
+                await upsertGameData(formatted);
+
+                seeNames.add(baseName);
+                count++;
+
+                console.log(`✅ Собрано: ${game.name} (${count})`);
             }
+
             offset += batchSize;
         }
     }
