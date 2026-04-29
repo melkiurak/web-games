@@ -1,124 +1,41 @@
-import { useCallback, useEffect, useState } from "react";
+import { getMetaDate } from "@/Service/filters.service";
+import { Genre, IAllMetadata } from "@/types";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = () => {
-    /*const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
-    const [validationMessage, setValidationMessage] = useState('');
-    const [nameValue, setNameValue] = useState('');
-    const [yearValue, setYearValue] = useState('');
-    const [ratingValue, setRatingValue] = useState('');
-    const [selectedGenres, setSelectedGenres] = useState([]);
-    const [selectedPlatforms, setSelectedPlatforms] = useState([]);
-    const [selectedPublishers, setSelectedPublishers] = useState([]);
-    const [selectedPlayers, setSelectedPlayers] = useState([]);
+export const Filters = ({selectedGenres, setSelectedGenres}:any) => {
+    const [metaData, setMetaData] = useState<IAllMetadata | null>(null)
     const [slide, setSlide] = useState(0);
-    const [platformVisible, setPlatformVisible] = useState(false);
-    const [publishersVisible, setPublishersVisible] = useState(false);
-    const [playersVisible, setPlayersVisible] = useState(false);
-    const [isFreeToPlay, setIsFreeToPlay] = useState(false);
-    const [isOnline, setIsOnline] = useState(false);
 
-    const genre = ['Action', 'Action RPG', 'Open World', 'RPG', 'Soulslike', 'Samurai', 'Sports', 'Shooting', 'Racing', 'Survival', 'Strategy', 'Battle', 'Adventure', 'Puzzle', 'Horror', 'Fighting', 'Simulation', 'Stealth', 'Platformer', 'Indie', 'MOBA', 'MMORPG', 'Sandbox', 'Idle', 'Card', 'VR', 'Tactical', 'Hunting', 'Multiplayer'];
-    const platform = ["PC", "PS 5", "PS 4", "Xbox Series X", "Xbox Series S", "Xbox One", 'Xbox'];
-    const publishers = ["Sony Interactive Entertainment", "Microsoft Studios", "Nintendo", "Electronic Arts (EA)", "Ubisoft", "Rockstar Games", "Bethesda Softworks", "Activision", "2K Games", "Square Enix", "Bandai Namco", "CD Projekt", "Capcom", "SEGA", "Blizzard Entertainment", "Epic Games", "Tencent Games", "Paradox Interactive", "Devolver Digital", "Focus Entertainment", "FromSoftware"];
-    const players = ["Single-player", "Multiplayer", "Online Multiplayer", "Local Multiplayer", "Split-screen", "Co-op", "Online Co-op", "LAN Multiplayer", "PvP", "MMO"];
-
-    const handleInputChange = (event) => {
-        setNameValue(event.target.value);
-        setValidationMessage('');
-    };
- 
-    const CheckInput = useCallback(() => {
-        const nameGame = dataGames?.games?.edges.filter(edge => edge.node.name).map(edge => edge.node.name.replace(/\s+/g, '').toLowerCase());
-        if (nameGame?.includes(nameValue.replace(/\s+/g, '').toLowerCase())) {
-            setValidationMessage('');
-        } else {
-            setValidationMessage('Такого имени нет');
-        }
-    }, [dataGames, nameValue]);
-
-    const filterGames = useCallback(() => {
-        let filteredGames = dataGames?.games?.edges || [];
-
-        if (nameValue.trim()) {
-            filteredGames = filteredGames.filter(edge =>edge?.node?.name?.toLowerCase().includes(nameValue.toLowerCase()));
-        }
-        if (selectedGenres.length > 0) {
-            filteredGames = filteredGames.filter(edge => edge?.node?.genre?.some(g => selectedGenres.map(sg => sg.toLowerCase()).includes(g.value.toLowerCase())));
-        }
-        if (selectedPlatforms.length > 0) {
-            filteredGames = filteredGames.filter(edge => edge?.node?.platform?.some(p => selectedPlatforms.map(sp => sp.toLowerCase()).includes(p.value.toLowerCase())));
-        }
-
-        if (selectedPublishers.length > 0) {
-            filteredGames = filteredGames.filter(edge => selectedPublishers.map(sp => sp.toLowerCase()).includes(edge?.node?.Publisher?.toLowerCase()));
-        }
-
-        if (selectedPlayers.length > 0) {
-            filteredGames = filteredGames.filter(edge => edge?.node?.players?.some(p => selectedPlayers.map(sp => sp.toLowerCase()).includes(p.value.toLowerCase())));
-        }
-        if (yearValue) {
-            filteredGames = filteredGames.filter(edge => new Date(edge.node.date).getFullYear() === parseInt(yearValue, 10));
-        }
-        if (ratingValue) {
-            filteredGames = filteredGames.filter(edge => Math.round(edge.node.metacriticScore / 10) === parseInt(ratingValue, 10));
-        }
-        if (isFreeToPlay) {
-            filteredGames = filteredGames.filter(edge => edge.node.price === 0 || edge.node.price === null);
-        }
-        if (isOnline) {
-            filteredGames = filteredGames.filter(edge =>edge?.node?.players?.some(o => o?.value?.toLowerCase().includes('online')));
-        }
-        setResultSearch(filteredGames.map(edge => edge.node));
-    }, [dataGames, setResultSearch, nameValue, selectedGenres, selectedPlatforms, selectedPublishers, selectedPlayers, yearValue, ratingValue, isFreeToPlay, isOnline]);
-
-    const SearchInput = useCallback(() => {
-        filterGames();
-        CheckInput();
-    }, [filterGames, CheckInput]);
-
-    const GenresFilter = (genreName) => {
-        setSelectedGenres(prev => prev.includes(genreName) ? prev.filter(g => g !== genreName) : [...prev, genreName]);
-    };
-    const handelPlarformsFilter = useCallback((platform) => {
-        setPlatformVisible(false);
-        setSelectedPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]);
-    }, []);
-
-    const handelPublishersFilter = useCallback((publisher) => {
-        setPublishersVisible(false);
-        setSelectedPublishers(prev => prev.includes(publisher) ? prev.filter(p => p !== publisher) : [...prev, publisher]);
-    }, []);
-
-    const handelPlayersFilter = useCallback((players) => {
-        setPlayersVisible(false);
-        setSelectedPlayers(prev => prev.includes(players) ? prev.filter(p => p !== players) : [...prev, players]);
-    }, []);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     const buttonNext = () => {
-        if (slide < genre.length - visibleCount) {
-            setSlide(slide + 1);
-        }
+        scrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
     };
 
     const buttonPrev = () => {
-        if (slide > 0) {
-            setSlide(slide - 1);
-        }
+        scrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
     };
-
-    const handelSearchGame = useCallback(() => {
-        filterGames();
-    }, [filterGames]);
-
+    const toggleGenre = (genre: Genre) => {
+        const isSelected = selectedGenres.some((g:Genre) => g.name === genre.name);
+        const nextGenres = isSelected 
+            ? selectedGenres.filter((g:Genre) => g.name !== genre.name)
+            : [...selectedGenres, genre];
+            
+        setSelectedGenres(nextGenres);
+    };
+    
     useEffect(() => {
-        filterGames();
-    }, [selectedGenres, selectedPlatforms, selectedPublishers, selectedPlayers, yearValue, ratingValue, isFreeToPlay, isOnline, filterGames]);
-*/
+        const responseDate = async() => {
+            const request = await getMetaDate();
+            setMetaData(request)
+        }
+        responseDate()
+    }, [])
     return <div className="flex flex-col gap-8">
-        <form className="relative h-[48px]">
+        {/*<form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(event) => {handleInputChange(event); SearchInput(event)}} />
             {isPlaceholderVisible && (
                 <div className={`absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE] pointer-events-none`}>
@@ -129,17 +46,17 @@ export const Filters = () => {
             {validationMessage && (
                 <p className="text-red-500">{validationMessage}</p>
             )}
-        </form>
+        </form>*/}
         <div className="flex gap-4 max-lg:gap-2 justify-between items-center h-[44px]">
             <button className="buttonSwitch flex-0 z-20 px-3 py-[6px]" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
-            <div className="flex items-center justify-between  max-md:gap-3 w-full h-full overflow-hidden">
-                {genre.slice(slide, slide + visibleCount).map((filter, index) => (
-                    <button className={` text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer  ${selectedGenres.includes(filter) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {GenresFilter(filter)}}>{filter}</button>
+            <div ref={scrollRef} className="flex items-center justify-between gap-5 max-md:gap-3 w-full h-full overflow-hidden">
+                {metaData?.genres.map((genre, index) => (
+                    <button className={`flex-shrink-0 whitespace-nowrap text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer duration-300 ease-in hover:bg-[#FF5733]  ${selectedGenres.includes(genre) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {toggleGenre(genre)}}>{genre.name}</button>
                 ))}
             </div>
-            <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < genre.length - visibleCount ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < genre.length - visibleCount  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < genre.length - visibleCount ? '#FFFFFF' : '#979797'}} /></button>
+            <button className={`buttonSwitch  flex-0 px-3 py-[6px]  ${slide < (metaData?.genres.length ?? 0)  - 8 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < (metaData?.genres.length ?? 0) - 8  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < (metaData?.genres.length ?? 0) - 8 ? '#FFFFFF' : '#979797'}} /></button>
         </div>
-        <div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
+        {/*<div className="flex justify-between gap-3 max-lg:gap-9 max-lg:flex-col">
             <div className="flex items-center justify-between gap-5 max-desktop:gap-3 ">
                 <h4 className="text-white">Platform</h4>
                 <div className="w-[280px] max-desktop:w-[195.67px] max-lg:w-full relative py-2">
@@ -231,5 +148,6 @@ export const Filters = () => {
             <CiSearch className="text-xl"/>
             <span>Search For Games</span>
         </button>
+        */}
     </div>
 }

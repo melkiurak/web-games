@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInput = axios.create({
-    baseURL: 'http://localhost:3000/games', 
+    baseURL: 'http://localhost:3000/api/games', 
     timeout: 5000,
     paramsSerializer: (params) => {
         const searchParams = new URLSearchParams();
