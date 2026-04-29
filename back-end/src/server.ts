@@ -5,7 +5,7 @@ import gameRouter from './routes/gamesRoutes.js';
 const app = express();
 
 app.use(cors());
-app.use(gameRouter);
+app.use('/api', gameRouter);
 app.listen(3000, () => {
     console.log("Server started");
 });

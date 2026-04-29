@@ -196,6 +196,19 @@ gameRouter.get('/games',  async(req, res) => {
         
         res.status(500).json()
     }
-})
+});
+gameRouter.get('/metadata', async(req, res) => {
+    try {
+        const [genres, platforms, publishers, categories] = await Promise.all([
+            prisma.genre.findMany({orderBy: {name: 'asc'}}),
+            prisma.platform.findMany({orderBy: {name: 'asc'}}),
+            prisma.publisher.findMany({orderBy: {name: 'asc'}}),
+            prisma.category.findMany({orderBy: {name: 'asc'}}),
+        ]);
+        res.json({genres, platforms, publishers, categories})
+    } catch(error) {
+        res.status(500).json({error: 'Failed to load metaDate'})
+    }
+});
 
 export default gameRouter
