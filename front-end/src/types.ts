@@ -35,6 +35,17 @@ export interface Game {
     companies: string,
     comments: Comment[]
 }
+export interface IGameQuery {
+    genres?: string | string[];
+    platforms?: string | string[];
+    publishers?: string | string[];
+    categories?: string | string[];
+
+    date?: number,
+    price?: number,
+    metaScore?: number,
+    online?: boolean,
+}
 export type GameCardPreview = Pick<Game, 'id' | 'name' | 'poster' | 'metaScore' | 'price' | 'genres' | 'date' | 'platforms' >
 
 export type GameHero = Pick<Game, 'id' | 'name' | 'description' | 'poster'>

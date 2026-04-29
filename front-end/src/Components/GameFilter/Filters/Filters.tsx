@@ -3,8 +3,8 @@ import { CiSearch } from "react-icons/ci";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = ({setResultSearch, visibleCount }) => {
-    const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
+export const Filters = () => {
+    /*const [isPlaceholderVisible, setIsPlaceholderVisible] = useState(true);
     const [validationMessage, setValidationMessage] = useState('');
     const [nameValue, setNameValue] = useState('');
     const [yearValue, setYearValue] = useState('');
@@ -116,7 +116,7 @@ export const Filters = ({setResultSearch, visibleCount }) => {
     useEffect(() => {
         filterGames();
     }, [selectedGenres, selectedPlatforms, selectedPublishers, selectedPlayers, yearValue, ratingValue, isFreeToPlay, isOnline, filterGames]);
-
+*/
     return <div className="flex flex-col gap-8">
         <form className="relative h-[48px]">
             <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(event) => {handleInputChange(event); SearchInput(event)}} />

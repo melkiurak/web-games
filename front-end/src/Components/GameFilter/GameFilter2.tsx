@@ -2,15 +2,26 @@ import { useGetData } from "@/hooks/useGetData"
 import { BsArrowRight } from "react-icons/bs"
 import { MdOutlineCalendarMonth } from "react-icons/md"
 import matacritic from '../../assets/Hero/metacritic.png';
+import { useEffect } from "react";
+import { getFilteredGames } from "@/Service/game.service";
+import { Filters } from "./Filters/Filters";
 
 export const GameFilterTwo = () => {
     const {data, error, loading} = useGetData('trending', 10)
+    useEffect(() => {
+        const sa = async () => {
+            const b =  await getFilteredGames({})
+            console.log('Успех! Игры из БД:', b);
+        }
+        sa()
+    }, [])
     return <div className="max-lg:px-5 max-md:px-3">
         <div className="container flex flex-col gap-8">
             <div className="flex flex-col text-center">
                 <h2 className="text-white">Games By Filter</h2>
                 <p className="text-[#979797]">At This Section You Can Search For Games by multiple filters</p>
             </div>
+            <Filters/>
             <div className="items-start grid grid-cols-5 max-lg:grid-cols-4 max-md:grid-cols-3 max-small-screen:!grid-cols-2 justify-items-center gap-y-10 max-desktop:gap-y-5 max-lg:gap-y-5 gap-x-4 max-desktop:gap-x-3 max-lg:gap-x-4">
                 {data.map((game, index) => (
                      <div key={game.id} className="w-full p-[10px] max-desktop:p-2 border border-[#7D3C98] rounded-lg flex flex-col gap-3">
