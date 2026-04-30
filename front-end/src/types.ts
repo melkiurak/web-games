@@ -37,7 +37,6 @@ export interface IAllMetadata {
     categories: Category[];
 }
 
-// 3. Основная модель Игры
 export interface Game {
     id: number; 
     name: string;

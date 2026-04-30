@@ -1,0 +1,34 @@
+@reference "../../index.css";
+@layer components {
+    .filter-unit-container {
+        @apply flex items-center justify-between gap-5 max-desktop:gap-3;
+    }
+
+    .filter-list {
+        @apply absolute top-full mt-1 bg-[#181724] w-full rounded-lg z-10 shadow-lg flex flex-col max-h-60 overflow-y-auto;    
+    }
+    .filter-select-wrapper{
+        @apply w-70 max-desktop:w-[195.67px] max-lg:w-full relative py-2
+    }
+    .filter-selected-text {
+        @apply text-sm text-[#BEBEBE] py-2
+    }
+    .filter-arrow-icon{
+        @apply text-xl text-[#FF5733]
+    }
+    .filter-select-trigger{
+        @apply rounded-lg bg-[#181724] w-full flex justify-between px-3 items-center h-full cursor-pointer
+    }
+    .filter-dropdown-menu{
+        @apply absolute top-full mt-1 bg-[#181724]  w-full rounded-lg z-10 shadow-lg flex flex-col h-52 overflow-y-auto;
+        -ms-overflow-style: none; 
+        scrollbar-width: none; 
+    }
+
+    .filter-dropdown-menu::-webkit-scrollbar {
+        display: none;
+    }
+    .filter-dropdown-item{
+        @apply px-5 py-5 flex items-center text-start text-sm text-white hover:bg-[#2a2938] cursor-pointer truncate w-full;
+    }
+}
