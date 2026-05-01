@@ -1,4 +1,4 @@
-import { FiltersProps } from "@/@types/filtersType";
+import { FiltersProps } from "@/@types/filter.type";
 import { getMetaDate } from "@/Service/filters.service";
 import { Category, Genre, IAllMetadata, Platform, Publisher } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -14,7 +14,7 @@ export const Filters = ({filters, setters, module}:FiltersProps) => {
     const [playerVisible, setPlayerVisible] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null);
 
-
+    const maxYear = new Date().getFullYear()
     const buttonNext = () => {
         scrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
     };
@@ -106,27 +106,28 @@ export const Filters = ({filters, setters, module}:FiltersProps) => {
                 </div>
             </div>
         </div>
-        {/*<div className="flex max-lg:flex-col justify-between gap-9 max-desktop:gap-6">
+        <div className="flex max-lg:flex-col justify-between gap-9 max-desktop:gap-6">
             <div className="flex max-lg:flex-col items-center max-lg:items-start gap-4 flex-1">
                 <label htmlFor="" className="text-white">Release Year</label>
                 <div className="flex flex-col gap-[10px] w-full">
-                    <input type="range" min={2000} max={2024} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={(event) => {setYearValue(event.target.value)}} value={yearValue} />
+                    <input type="range" min={2010} max={maxYear} className="custom-range w-full h-5 rounded-full appearance-none relative" onChange={(event) => {setters.setSelectedDate(Number(event.target.value))}} value={filters.selectedDate ?? 0} />
                     <div className="flex justify-between text-white text-sm">
-                        <p>2000</p>
-                        <p>2024</p>
+                        <p>2010</p>
+                        <p>{maxYear}</p>
                     </div>
                 </div>
             </div>
             <div className="flex max-lg:flex-col items-center max-lg:items-start gap-4 flex-1">
                 <label htmlFor="" className="text-white">Rating</label>
                 <div className="flex flex-col gap-[10px] w-full" >
-                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={ratingValue} onChange={(event) => {setRatingValue(event.target.value)}}/>
+                    <input type="range" min={1} max={10} className="custom-range w-full h-5 rounded-full appearance-none relative" value={filters.selectedRating ?? 0} onChange={(event) => {setters.setSelectedRating(Number(event.target.value))}}/>
                     <div className="flex justify-between text-white text-sm">
                         <p>0</p>
                         <p>10</p>
                     </div>
                 </div>
             </div>
+            {/*
             <div className="flex flex-1 gap-24 max-desktop:gap-[18px]">
                 <div className="flex items-center justify-between max-lg:justify-start max-lg:gap-4  flex-1">
                     <span className="text-white text-xl ">Online</span>
@@ -143,7 +144,10 @@ export const Filters = ({filters, setters, module}:FiltersProps) => {
                     </label>
                 </div>
             </div>
+
+            */}
         </div>
+        {/*
         <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2" onClick={handelSearchGame} >
             <CiSearch className="text-xl"/>
             <span>Search For Games</span>

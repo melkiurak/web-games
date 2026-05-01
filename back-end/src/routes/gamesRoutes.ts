@@ -56,7 +56,7 @@ gameRouter.get('/games',  async(req, res) => {
                 value: date,
                 field: 'date' as const,
             },
-            priсe: {
+            price: {
                 value: price,
                 field: 'price' as const,
             },
@@ -149,14 +149,17 @@ gameRouter.get('/games',  async(req, res) => {
             if(filter.field === 'metaScore') {
                 const numValue = Number(Array.isArray(filter.value) ? filter.value[0] : filter.value)
 
+                if (isNaN(numValue)) continue;
                 const minRange = numValue * 10
                 const maxRenge = (numValue * 10) + 9
-
                 conditions.push(rangeFilters(filter.field, minRange, maxRenge))
-            } else if(filter.field === 'date') {
+            } else if (filter.field === 'date') {
                 const yearBase = Number(filter.value);
-                conditions.push(dateFilter(filter.field, yearBase))
-            }  else if(filter.field === 'price') {                
+
+                if (!yearBase || isNaN(yearBase)) continue;
+
+                conditions.push(dateFilter(filter.field, yearBase));
+            } else if(filter.field === 'price') {                                
                 filter.value && conditions.push({price: 0} )
             } else if(filter.field === 'online') {
                 const onlineKeywords = ['Multi-player','Online','PvP','MMO','Multiplayer'];

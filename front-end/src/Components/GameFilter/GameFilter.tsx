@@ -13,6 +13,8 @@ export const GameFilter = () => {
     const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
     const [selectedPublishers, setSelectedPublishers] = useState<Publisher[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+    const [selectedDate, setSelectedDate] = useState<number | undefined>(undefined);
+    const [selectedRating, setSelectedRating] = useState<number | undefined>(undefined);
     const {data, error, loading} = useGetData('trending', 10)
     
     const filteredGames = async() => {
@@ -21,7 +23,9 @@ export const GameFilter = () => {
             const platforms = selectedPlatforms.map((p:Platform) => p.name)
             const publishers = selectedPublishers.map((p:Publisher) => p.name)
             const categories = selectedCategories.map((c:Category) => c.name)
-            const filter = await getFilteredGames({genres, platforms, publishers, categories})
+            const date = selectedDate
+            const metaScore = selectedRating
+            const filter = await getFilteredGames({genres, platforms, publishers, categories, date, metaScore })
             setGames(filter)
         } catch(error) {
             console.log('Error of filteres', error)
@@ -29,7 +33,7 @@ export const GameFilter = () => {
     }
     useEffect(() => {
         filteredGames();
-    }, [selectedGenres, selectedPlatforms, selectedCategories, selectedPublishers]);
+    }, [selectedGenres, selectedPlatforms, selectedCategories, selectedPublishers, selectedDate, selectedRating]);
 
     return <div className="max-lg:px-5 max-md:px-3">
         <div className="container flex flex-col gap-8">
@@ -38,14 +42,23 @@ export const GameFilter = () => {
                 <p className="text-[#979797]">At This Section You Can Search For Games by multiple filters</p>
             </div>
             <Filters 
-                selectedGenres={selectedGenres} 
-                setSelectedGenres={setSelectedGenres} 
-                selectedPlatforms={selectedPlatforms} 
-                setSelectedPlatforms={setSelectedPlatforms} 
-                selectedPublishers={selectedPublishers} 
-                setSelectedPublishers={setSelectedPublishers} 
-                selectedCategories={selectedCategories} 
-                setSelectedCategories={setSelectedCategories} 
+                filters = {{
+                    selectedGenres,
+                    selectedPlatforms,
+                    selectedPublishers,
+                    selectedCategories,
+                    selectedDate,
+                    selectedRating
+                }}
+                setters = {{
+                    setSelectedGenres,
+                    setSelectedPlatforms,
+                    setSelectedPublishers,
+                    setSelectedCategories,
+                    setSelectedDate,
+                    setSelectedRating,
+                }}
+
                 module = {module}
             />
             <div className="items-start grid grid-cols-5 max-lg:grid-cols-4 max-md:grid-cols-3 max-small-screen:!grid-cols-2 justify-items-center gap-y-10 max-desktop:gap-y-5 max-lg:gap-y-5 gap-x-4 max-desktop:gap-x-3 max-lg:gap-x-4">
