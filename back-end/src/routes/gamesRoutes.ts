@@ -11,7 +11,7 @@ gameRouter.get('/games',  async(req, res) => {
         let orderBy: Prisma.GameOrderByWithRelationInput = { id: 'asc'}
         
         const {genres, platforms, publishers, categories, metaScore, date, price, online} = req.query 
-
+        const onlineValue = req.query.online === 'true';
         const nowDate = new Date();
         const parse =  gameSchema.safeParse(req.query);
         const conditions: any[] = []
@@ -61,7 +61,7 @@ gameRouter.get('/games',  async(req, res) => {
                 field: 'price' as const,
             },
             online: {
-                value: req.query.online,
+                value: onlineValue,
                 field: 'online' as const,
             }
         }
@@ -150,8 +150,8 @@ gameRouter.get('/games',  async(req, res) => {
                 const numValue = Number(Array.isArray(filter.value) ? filter.value[0] : filter.value)
 
                 if (isNaN(numValue)) continue;
-                const minRange = numValue * 10
-                const maxRenge = (numValue * 10) + 9
+                const minRange = (numValue - 1) * 10
+                const maxRenge = numValue * 10
                 conditions.push(rangeFilters(filter.field, minRange, maxRenge))
             } else if (filter.field === 'date') {
                 const yearBase = Number(filter.value);
@@ -161,10 +161,12 @@ gameRouter.get('/games',  async(req, res) => {
                 conditions.push(dateFilter(filter.field, yearBase));
             } else if(filter.field === 'price') {                                
                 filter.value && conditions.push({price: 0} )
-            } else if(filter.field === 'online') {
-                const onlineKeywords = ['Multi-player','Online','PvP','MMO','Multiplayer'];
-                filter.value &&  conditions.push(сollectionFilters('categories', onlineKeywords))
-            }
+            } else if (filter.field === 'online') {
+    if (filter.value === true) {
+        const onlineKeywords = ['Multi-player','Online','PvP','MMO','Multiplayer'];
+        conditions.push(сollectionFilters('categories', onlineKeywords));
+    }
+}
             else {
                 const arr = Array.isArray(filter.value) ? filter.value.map(v => String(v)) : [String(filter.value)]
                 const filterArr = arr.map(arr => filter.map?.[arr] || arr);

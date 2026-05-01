@@ -15,6 +15,7 @@ export const GameFilter = () => {
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
     const [selectedDate, setSelectedDate] = useState<number | undefined>(undefined);
     const [selectedRating, setSelectedRating] = useState<number | undefined>(undefined);
+    const [selectedOnline, setSelectedOnline] = useState(false);    
     const {data, error, loading} = useGetData('trending', 10)
     
     const filteredGames = async() => {
@@ -25,7 +26,8 @@ export const GameFilter = () => {
             const categories = selectedCategories.map((c:Category) => c.name)
             const date = selectedDate
             const metaScore = selectedRating
-            const filter = await getFilteredGames({genres, platforms, publishers, categories, date, metaScore })
+            const online = selectedOnline
+            const filter = await getFilteredGames({genres, platforms, publishers, categories, date, metaScore, online})
             setGames(filter)
         } catch(error) {
             console.log('Error of filteres', error)
@@ -48,7 +50,8 @@ export const GameFilter = () => {
                     selectedPublishers,
                     selectedCategories,
                     selectedDate,
-                    selectedRating
+                    selectedRating,
+                    selectedOnline
                 }}
                 setters = {{
                     setSelectedGenres,
@@ -57,6 +60,7 @@ export const GameFilter = () => {
                     setSelectedCategories,
                     setSelectedDate,
                     setSelectedRating,
+                    setSelectedOnline
                 }}
 
                 module = {module}

@@ -6,6 +6,7 @@ export type FiltersProps = {
         selectedCategories: any[]
         selectedDate?: number,
         selectedRating?: number,
+        selectedOnline?: boolean,
         
     }
     setters: {
@@ -15,6 +16,7 @@ export type FiltersProps = {
         setSelectedCategories: React.Dispatch<any[]>
         setSelectedDate: React.Dispatch<number>
         setSelectedRating: React.Dispatch<number>
+        setSelectedOnline: React.Dispatch<React.SetStateAction<boolean>>
     }
     module:  Record<string, string>
 }

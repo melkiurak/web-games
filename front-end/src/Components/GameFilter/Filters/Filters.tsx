@@ -127,15 +127,15 @@ export const Filters = ({filters, setters, module}:FiltersProps) => {
                     </div>
                 </div>
             </div>
+            <div className="flex items-center justify-between max-lg:justify-start max-lg:gap-4  flex-1">
+                <span className="text-white text-xl ">Online</span>
+                <label className="relative inline-block w-[50px] h-6">
+                    <input type="checkbox" className="opacity-0 w-0 h-0" checked={filters.selectedOnline} onChange={() => {setters.setSelectedOnline(prev => !prev);}} />
+                    <span className="slider round"></span>
+                </label>
+            </div>
             {/*
             <div className="flex flex-1 gap-24 max-desktop:gap-[18px]">
-                <div className="flex items-center justify-between max-lg:justify-start max-lg:gap-4  flex-1">
-                    <span className="text-white text-xl ">Online</span>
-                    <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isOnline} onChange={() => {setIsOnline(prev => !prev);}} />
-                        <span className="slider round"></span>
-                    </label>
-                </div>
                 <div className="flex items-center justify-between max-lg:justify-end max-lg:gap-4 flex-1">
                     <span className="text-white text-xl ">Free</span>
                     <label className="relative inline-block w-[50px] h-6">
