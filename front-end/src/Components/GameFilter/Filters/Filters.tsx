@@ -1,3 +1,4 @@
+import { FiltersProps } from "@/@types/filtersType";
 import { getMetaDate } from "@/Service/filters.service";
 import { Category, Genre, IAllMetadata, Platform, Publisher } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -5,7 +6,7 @@ import { CiSearch } from "react-icons/ci";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { IoIosArrowDown } from "react-icons/io";
 
-export const Filters = ({selectedGenres, setSelectedGenres, selectedPlatforms, setSelectedPlatforms, selectedPublishers, setSelectedPublishers,selectedCategories, setSelectedCategories, module}:any) => {
+export const Filters = ({filters, setters, module}:FiltersProps) => {
     const [metaData, setMetaData] = useState<IAllMetadata | null>(null)
     const [slide, setSlide] = useState(0);
     const [platformVisible, setPlatformVisible] = useState(false)
@@ -50,7 +51,7 @@ export const Filters = ({selectedGenres, setSelectedGenres, selectedPlatforms, s
             <button className="buttonSwitch flex-0 z-20 px-3 py-1.5" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
             <div ref={scrollRef} className="flex items-center justify-between gap-5 max-md:gap-3 w-full h-full overflow-hidden">
                 {metaData?.genres.map((genre, index) => (
-                    <button className={`shrink-0 whitespace-nowrap text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer duration-300 ease-in hover:bg-[#FF5733]  ${selectedGenres.some((g: any) => g.name === genre.name) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {toggleItem(genre, selectedGenres, setSelectedGenres)}}>{genre.name}</button>
+                    <button className={`shrink-0 whitespace-nowrap text-white py-1.5 px-6 max-md:px-5 max rounded-3xl max-lg:text-sm cursor-pointer duration-300 ease-in hover:bg-[#FF5733]  ${filters.selectedGenres.some((g: any) => g.name === genre.name) ? 'bg-[#FF5733]' : 'bg-[#181724]'} truncate`} key={index} onClick={() => {toggleItem(genre, filters.selectedGenres, setters.setSelectedGenres)}}>{genre.name}</button>
                 ))}
             </div>
             <button className={`buttonSwitch  flex-0 px-3  py-1.5  ${slide < (metaData?.genres.length ?? 0)  - 8 ? 'cursor-pointer' : 'cursor-auto'}`} style={{border: slide < (metaData?.genres.length ?? 0) - 8  ? '1px solid #FFFFFF' : '1px solid #979797'}} onClick={buttonNext} ><GrLinkNext style={{color: slide < (metaData?.genres.length ?? 0) - 8 ? '#FFFFFF' : '#979797'}} /></button>
@@ -60,13 +61,13 @@ export const Filters = ({selectedGenres, setSelectedGenres, selectedPlatforms, s
                 <h4 className="text-white">Platform</h4>
                 <div className={module['filter-select-wrapper']}>
                     <button className={module['filter-select-trigger']} onClick={() => setPlatformVisible(prev => !prev)}>
-                        <span className=" text-sm text-[#BEBEBE] py-2">{selectedPlatforms.length > 0 ? selectedPlatforms.map((p:Platform) => p.name).join(',  ') : 'All'}</span>
+                        <span className=" text-sm text-[#BEBEBE] py-2">{filters.selectedPlatforms.length > 0 ? filters.selectedPlatforms.map((p:Platform) => p.name).join(',  ') : 'All'}</span>
                         <IoIosArrowDown className={`${module['filter-arrow-icon']} ${platformVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {platformVisible && (
                         <div className={module['filter-dropdown-menu']}>
                             {metaData?.platforms.map((platform, index) => (
-                                <button key={index} className={module['filter-dropdown-item']} onClick={(() => toggleItem(platform, selectedPlatforms, setSelectedPlatforms))}>{platform.name}</button>
+                                <button key={index} className={module['filter-dropdown-item']} onClick={(() => toggleItem(platform, filters.selectedPlatforms, setters.setSelectedPlatforms))}>{platform.name}</button>
                             ))}
                         </div>
                     )}
@@ -76,13 +77,13 @@ export const Filters = ({selectedGenres, setSelectedGenres, selectedPlatforms, s
                 <h4 className="text-white">Publisher</h4>
                 <div className={module['filter-select-wrapper']}>
                     <button className={module['filter-select-trigger']} onClick={() => setPublisherVisible(prev => !prev)}>
-                        <span className=" text-sm text-[#BEBEBE] py-2">{selectedPublishers.length > 0 ? selectedPublishers.map((p:Publisher) => p.name).join(', ') : 'All'}</span>
+                        <span className=" text-sm text-[#BEBEBE] py-2">{filters.selectedPublishers.length > 0 ? filters.selectedPublishers.map((p:Publisher) => p.name).join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`${module['filter-arrow-icon']} ${platformVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {publisherVisible && (
                         <div className={module['filter-dropdown-menu']}>
                             {metaData?.publishers.map((publisher, index) => (
-                                <button key={index} className={module['filter-dropdown-item']} onClick={(() => toggleItem(publisher, selectedPublishers, setSelectedPublishers))}>{publisher.name}</button>
+                                <button key={index} className={module['filter-dropdown-item']} onClick={(() => toggleItem(publisher, filters.selectedPublishers, setters.setSelectedPublishers))}>{publisher.name}</button>
                             ))}
                         </div>
                     )}
@@ -92,13 +93,13 @@ export const Filters = ({selectedGenres, setSelectedGenres, selectedPlatforms, s
                 <h4 className="text-white">Players</h4>
                 <div className={module['filter-select-wrapper']}>
                     <button className={module['filter-select-trigger']} onClick={() => setPlayerVisible(prev => !prev)}>
-                        <span className=" text-sm text-[#BEBEBE] py-2">{selectedCategories.length > 0 ? selectedCategories.map((c:Category) => c.name).join(', ') : 'All'}</span>
+                        <span className=" text-sm text-[#BEBEBE] py-2">{filters.selectedCategories.length > 0 ? filters.selectedCategories.map((c:Category) => c.name).join(', ') : 'All'}</span>
                         <IoIosArrowDown className={`${module['filter-arrow-icon']} ${platformVisible ? 'rotate-180' : "rotate-0"}`}/>
                     </button>
                     {playerVisible && (
                         <div className={module['filter-dropdown-menu']}>
                             {metaData?.categories.map((category, index) => (
-                                <button key={index} className={module['filter-dropdown-item']} onClick={(() => toggleItem(category, selectedCategories, setSelectedCategories))}>{category.name}</button>
+                                <button key={index} className={module['filter-dropdown-item']} onClick={(() => toggleItem(category, filters.selectedCategories, setters.setSelectedCategories))}>{category.name}</button>
                             ))}
                         </div>
                     )}
