@@ -10,7 +10,7 @@ gameRouter.get('/games',  async(req, res) => {
         let where: Prisma.GameWhereInput = {} 
         let orderBy: Prisma.GameOrderByWithRelationInput = { id: 'asc'}
         
-        const {genres, platforms, publishers, categories, metaScore, date, price, online} = req.query 
+        const {postName: name, genres, platforms, publishers, categories, metaScore, date, free, online} = req.query 
         const onlineValue = req.query.online === 'true';
         const nowDate = new Date();
         const parse =  gameSchema.safeParse(req.query);
@@ -26,10 +26,14 @@ gameRouter.get('/games',  async(req, res) => {
         }
         type FilterType = {
             value: any;
-            field: 'genres' | 'platforms' | 'publishers' | 'categories' | 'metaScore' | 'date' | 'price' | 'online' ;
+            field: 'name' | 'genres' | 'platforms' | 'publishers' | 'categories' | 'metaScore' | 'date' | 'online' | 'price' ;
             map?: Record<string, string>;
         }
         const filterObj: Record<string, FilterType> = {
+            name: {
+                value: name,
+                field: 'name' as const,
+            },
             genres: {
                 value: genres,
                 map: genreMap,
@@ -56,8 +60,8 @@ gameRouter.get('/games',  async(req, res) => {
                 value: date,
                 field: 'date' as const,
             },
-            price: {
-                value: price,
+            free: {
+                value: free,
                 field: 'price' as const,
             },
             online: {
@@ -148,25 +152,28 @@ gameRouter.get('/games',  async(req, res) => {
 
             if(filter.field === 'metaScore') {
                 const numValue = Number(Array.isArray(filter.value) ? filter.value[0] : filter.value)
-
                 if (isNaN(numValue)) continue;
                 const minRange = (numValue - 1) * 10
                 const maxRenge = numValue * 10
                 conditions.push(rangeFilters(filter.field, minRange, maxRenge))
             } else if (filter.field === 'date') {
                 const yearBase = Number(filter.value);
-
                 if (!yearBase || isNaN(yearBase)) continue;
-
                 conditions.push(dateFilter(filter.field, yearBase));
-            } else if(filter.field === 'price') {                                
-                filter.value && conditions.push({price: 0} )
+            } else if(filter.field === 'price') {             
+               String(filter.value) === 'true' && conditions.push({price: 0})
             } else if (filter.field === 'online') {
-    if (filter.value === true) {
-        const onlineKeywords = ['Multi-player','Online','PvP','MMO','Multiplayer'];
-        conditions.push(сollectionFilters('categories', onlineKeywords));
-    }
-}
+                const onlineKeywords = ['Multi-player','Online','PvP','MMO','Multiplayer'];
+                filter.value &&  conditions.push(сollectionFilters('categories', onlineKeywords))
+            } else if(filter.field === 'name') {
+                const searchName = String(filter.value).trim();
+                conditions.push({
+                    name: {
+                        contains: searchName,
+                        mode: 'insensitive'
+                    }
+                })
+            }
             else {
                 const arr = Array.isArray(filter.value) ? filter.value.map(v => String(v)) : [String(filter.value)]
                 const filterArr = arr.map(arr => filter.map?.[arr] || arr);
@@ -198,7 +205,6 @@ gameRouter.get('/games',  async(req, res) => {
         res.json(formatedGames)
     } catch (error) {
         console.log('Error to get the data:', error)
-        
         res.status(500).json()
     }
 });

@@ -58,6 +58,7 @@ export interface Game {
 }
 
 export interface IGameQuery {
+    postName: string,
     genres?: string | string[];
     platforms?: string | string[];
     publishers?: string | string[];
@@ -66,6 +67,7 @@ export interface IGameQuery {
     price?: number;
     metaScore?: number;
     online?: boolean;
+    free?: boolean;
 }
 
 export type GameCardPreview = Pick<Game, 'id' | 'name' | 'poster' | 'metaScore' | 'price' | 'genres' | 'date' | 'platforms'>;

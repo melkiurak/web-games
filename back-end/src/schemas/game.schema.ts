@@ -1,6 +1,7 @@
 import z from "zod";
 
 export const gameSchema = z.object({
+    postName: z.string().optional(),
     take: z.coerce.number().min(5).max(100).default(10),
     lastId: z.coerce.number().optional(),
     trending: z.coerce.boolean().optional().default(false),

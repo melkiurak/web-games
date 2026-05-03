@@ -9,17 +9,20 @@ import { Category, GameCardPreview, Genre, Platform, Publisher } from "@/types";
 import module  from './GameFilter.module.css'
 export const GameFilter = () => {
     const [games, setGames] = useState<GameCardPreview[]>([])
+    const [name, setName] = useState<string>('')
     const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
     const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
     const [selectedPublishers, setSelectedPublishers] = useState<Publisher[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
     const [selectedDate, setSelectedDate] = useState<number | undefined>(undefined);
     const [selectedRating, setSelectedRating] = useState<number | undefined>(undefined);
-    const [selectedOnline, setSelectedOnline] = useState(false);    
+    const [selectedOnline, setSelectedOnline] = useState(false);
+    const [selectedFree, setSelectedFree] = useState(false);    
     const {data, error, loading} = useGetData('trending', 10)
     
     const filteredGames = async() => {
         try{
+            const postName = name 
             const genres = selectedGenres.map((g:Genre) => g.name)
             const platforms = selectedPlatforms.map((p:Platform) => p.name)
             const publishers = selectedPublishers.map((p:Publisher) => p.name)
@@ -27,7 +30,8 @@ export const GameFilter = () => {
             const date = selectedDate
             const metaScore = selectedRating
             const online = selectedOnline
-            const filter = await getFilteredGames({genres, platforms, publishers, categories, date, metaScore, online})
+            const free = selectedFree
+            const filter = await getFilteredGames({postName:name, genres, platforms, publishers, categories, date, metaScore, free:free, online, })
             setGames(filter)
         } catch(error) {
             console.log('Error of filteres', error)
@@ -35,7 +39,7 @@ export const GameFilter = () => {
     }
     useEffect(() => {
         filteredGames();
-    }, [selectedGenres, selectedPlatforms, selectedCategories, selectedPublishers, selectedDate, selectedRating]);
+    }, [name, selectedGenres, selectedPlatforms, selectedCategories, selectedPublishers, selectedDate, selectedRating, selectedOnline, selectedFree,]);
 
     return <div className="max-lg:px-5 max-md:px-3">
         <div className="container flex flex-col gap-8">
@@ -45,22 +49,26 @@ export const GameFilter = () => {
             </div>
             <Filters 
                 filters = {{
+                    name,
                     selectedGenres,
                     selectedPlatforms,
                     selectedPublishers,
                     selectedCategories,
                     selectedDate,
                     selectedRating,
-                    selectedOnline
+                    selectedOnline,
+                    selectedFree
                 }}
                 setters = {{
+                    setName,
                     setSelectedGenres,
                     setSelectedPlatforms,
                     setSelectedPublishers,
                     setSelectedCategories,
                     setSelectedDate,
                     setSelectedRating,
-                    setSelectedOnline
+                    setSelectedOnline,
+                    setSelectedFree
                 }}
 
                 module = {module}
@@ -86,19 +94,19 @@ export const GameFilter = () => {
                             </div>
                             <div className="flex justify-between max-desktop:flex-col max-desktop:items-center max-desktop:gap-2">
                                 <div className="w-[85px] flex justify-between items-center">
-                                {game.price > 0 ? (
-                                    <>
+                                    {game.price === 0 ? (
+                                        <span className="text-white font-main">Free</span>
+                                    ) : game.price === null ? (
+                                        <span className="text-white font-main">TBD</span>
+                                    ) : (
+                                        <span className="text-white font-main">{Math.round(game.price) + '$'}</span>                                    
+                                    )}
                                     {/*
                                         <span className={`${discountsPrice ? 'line-through text-[#979797] text-xs font-light' : 'text-white font-main '}`}>{Math.round(game.price || game?.node?.price) + '$'}</span>
                                         <span className={`${discountsPrice ? 'bg-[#FF5733] rounded-[12px] px-1 text-[10px] font-light text-white' : 'hidden'}`}>{game?.discount || game?.node?.discount ? `${game.discount || game.node.discount}%` : ''}</span>
                                     */
                                     }
                                     
-                                    <span className="text-white font-main">{Math.round(game.price) + '$'}</span>                                    
-                                    </>
-                                ) : (
-                                    <span className="text-white font-main">Free</span>
-                                )}
                                 </div>
                                 <button className="flex items-center gap-1 max-lg:hidden">
                                     <span className="text-xs font-main text-white">Buy now</span>

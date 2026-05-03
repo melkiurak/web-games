@@ -9,6 +9,7 @@ import { IoIosArrowDown } from "react-icons/io";
 export const Filters = ({filters, setters, module}:FiltersProps) => {
     const [metaData, setMetaData] = useState<IAllMetadata | null>(null)
     const [slide, setSlide] = useState(0);
+    const [showHint, setShowHint] = useState(false)
     const [platformVisible, setPlatformVisible] = useState(false)
     const [publisherVisible, setPublisherVisible] = useState(false)
     const [playerVisible, setPlayerVisible] = useState(false)
@@ -35,18 +36,15 @@ export const Filters = ({filters, setters, module}:FiltersProps) => {
         responseDate()
     }, [])
     return <div className="flex flex-col gap-8">
-        {/*<form className="relative h-[48px]">
-            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" onFocus={() => setIsPlaceholderVisible(false)} onBlur={(e) => setIsPlaceholderVisible(!e.target.value)} onChange={(event) => {handleInputChange(event); SearchInput(event)}} />
-            {isPlaceholderVisible && (
+        <form className="relative h-[48px]">
+            <input className="w-full h-full bg-[#181724] rounded-lg outline-none text-[#BEBEBE] pl-3 " type="text" value={filters.name}  onFocus={() => setShowHint(false)} onBlur={(e) => setShowHint(!e.target.value)} onChange={(e) => setters.setName(e.target.value) } />
+            {showHint && (
                 <div className={`absolute flex items-center gap-4 top-2.5 left-3 text-[#BEBEBE] pointer-events-none`}>
                     <CiSearch className="text-3xl"/>
                     <span>Game Name</span>
                 </div>
             )}
-            {validationMessage && (
-                <p className="text-red-500">{validationMessage}</p>
-            )}
-        </form>*/}
+        </form>
         <div className="flex gap-4 max-lg:gap-2 justify-between items-center h-11">
             <button className="buttonSwitch flex-0 z-20 px-3 py-1.5" style={{border: slide > 0 ? '1px solid #FFFFFF' : '1px solid #979797', cursor:  slide > 0 ? "pointer" : 'auto'}} onClick={buttonPrev}><GrLinkPrevious style={{color: slide > 0 ? '#FFFFFF' : '#979797'}} /></button>
             <div ref={scrollRef} className="flex items-center justify-between gap-5 max-md:gap-3 w-full h-full overflow-hidden">
@@ -127,31 +125,24 @@ export const Filters = ({filters, setters, module}:FiltersProps) => {
                     </div>
                 </div>
             </div>
-            <div className="flex items-center justify-between max-lg:justify-start max-lg:gap-4  flex-1">
-                <span className="text-white text-xl ">Online</span>
-                <label className="relative inline-block w-[50px] h-6">
-                    <input type="checkbox" className="opacity-0 w-0 h-0" checked={filters.selectedOnline} onChange={() => {setters.setSelectedOnline(prev => !prev);}} />
-                    <span className="slider round"></span>
-                </label>
-            </div>
-            {/*
-            <div className="flex flex-1 gap-24 max-desktop:gap-[18px]">
-                <div className="flex items-center justify-between max-lg:justify-end max-lg:gap-4 flex-1">
-                    <span className="text-white text-xl ">Free</span>
+            <div className="flex justify-between flex-1">
+                <div className="flex items-center justify-between gap-8 max-lg:justify-start max-lg:gap-4">
+                    <span className="text-white text-xl ">Online</span>
                     <label className="relative inline-block w-[50px] h-6">
-                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={isFreeToPlay} onChange={() => {setIsFreeToPlay(prev => !prev)}} />
+                        <input type="checkbox" className="opacity-0 w-0 h-0" checked={filters.selectedOnline} onChange={(e) => {setters.setSelectedOnline(e.target.checked)}} />
                         <span className="slider round"></span>
                     </label>
                 </div>
+                <div className="flex gap-24 max-desktop:gap-[18px]">
+                    <div className="flex items-center justify-between gap-8 max-lg:justify-end max-lg:gap-4 flex-1">
+                        <span className="text-white text-xl ">Free</span>
+                        <label className="relative inline-block w-[50px] h-6">
+                            <input type="checkbox" className="opacity-0 w-0 h-0" checked={filters.selectedFree} onChange={(e) => {setters.setSelectedFree(e.target.checked)}} />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
-
-            */}
         </div>
-        {/*
-        <button className="opaqueButton w-full py-[7.5px] rounded-2xl flex justify-center items-center gap-2" onClick={handelSearchGame} >
-            <CiSearch className="text-xl"/>
-            <span>Search For Games</span>
-        </button>
-        */}
-        </div>
+    </div>
 }
