@@ -1,21 +1,22 @@
-import { Router } from "express"
-import { prisma } from "../database/client";
-import { gameSchema } from "../schemas/game.schema";
 import { Prisma } from "@prisma/client";
-import { file, keyof, number } from "zod";
+import { prisma } from "../database/client.js";
+import { GameQuery } from "../schemas/game.schema.js"; 
 
-const gameRouter = Router();
-gameRouter.get('/games',  async(req, res) => {
-    try{
+type FilterType = {
+    value: any;
+    field: 'name' | 'genres' | 'platforms' | 'publishers' | 'categories' | 'metaScore' | 'date' | 'online' | 'price' ;
+    map?: Record<string, string>;
+}
+export class GameService {
+    public async getFilteredGames (queryParams: GameQuery) {
         let where: Prisma.GameWhereInput = {} 
         let orderBy: Prisma.GameOrderByWithRelationInput = { id: 'asc'}
-        
-        const {postName: name, genres, platforms, publishers, categories, metaScore, date, free, online} = req.query 
-        const onlineValue = req.query.online === 'true';
-        const nowDate = new Date();
-        const parse =  gameSchema.safeParse(req.query);
-        const conditions: any[] = []
 
+        const conditions: any[] = []
+        const nowDate = new Date();
+        const { postName: name, genres, platforms, publishers, categories, metaScore, date, free } = queryParams;
+        const onlineValue = queryParams.online === 'true';
+        
         const genreMap:Record<string, string> = {
             RPG: "Role-playing (RPG)",
             RTS: "Real Time Strategy (RTS)",
@@ -24,10 +25,48 @@ gameRouter.get('/games',  async(req, res) => {
         const platformsMap: Record<string, string> = {
             PC: "PC (Microsoft Windows)",
         }
-        type FilterType = {
-            value: any;
-            field: 'name' | 'genres' | 'platforms' | 'publishers' | 'categories' | 'metaScore' | 'date' | 'online' | 'price' ;
-            map?: Record<string, string>;
+        const staticPresets = {
+            mostPopular: {
+                where: { metaScore: { gte: 90}},
+                orderBy: {metaScore: 'desc' as const}
+            },
+            upcoming: {
+                where: {date: {gt: nowDate}},
+                orderBy: {date: 'asc' as const},
+            }
+        }
+        const dynamicPresets = {
+            trending: () =>  {
+                const limit = new Date();
+                limit.setMonth(limit.getMonth() - 12);
+                return {
+                    where: {date: {gt: limit, lt: nowDate}, metaScore: {gte: 80}},
+                    orderBy: {metaScore: 'desc' as const}
+                } 
+            },
+            gameMoth: () => {
+                const startOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
+                const endOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0);
+                return {
+                    where: {date: {gt: startOfMonth, lt: endOfMonth}, metaScore: {gte: 80}},
+                    orderBy: {metaScore: 'desc' as const}
+                }
+            }
+        }
+        const VIEW_PRESETS = {
+            ...staticPresets,
+            ...dynamicPresets
+        };
+        type ViewPresentKey = keyof typeof VIEW_PRESETS;
+        const activeKey = Object.keys(VIEW_PRESETS).find((key): key is ViewPresentKey => queryParams[key as ViewPresentKey])
+        
+        if(activeKey) {
+            const present = VIEW_PRESETS[activeKey];
+            const appliedPreset = typeof present === 'function' ? present() : present
+
+            where = {...where, ...appliedPreset.where}
+            orderBy = appliedPreset.orderBy;
+
         }
         const filterObj: Record<string, FilterType> = {
             name: {
@@ -70,52 +109,6 @@ gameRouter.get('/games',  async(req, res) => {
             }
         }
 
-        if(!parse.success){
-            return res.status(400).json(parse.error.format())
-        }
-        const staticPresets = {
-            mostPopular: {
-                where: { metaScore: { gte: 90}},
-                orderBy: {metaScore: 'desc' as const}
-            },
-            upcoming: {
-                where: {date: {gt: nowDate}},
-                orderBy: {date: 'asc' as const},
-            }
-        }
-        const dynamicPresets = {
-            trending: () =>  {
-                const limit = new Date();
-                limit.setMonth(limit.getMonth() - 12);
-                return {
-                    where: {date: {gt: limit, lt: nowDate}, metaScore: {gte: 80}},
-                    orderBy: {metaScore: 'desc' as const}
-                } 
-            },
-            gameMoth: () => {
-                const startOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
-                const endOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0);
-                return {
-                    where: {date: {gt: startOfMonth, lt: endOfMonth}, metaScore: {gte: 80}},
-                    orderBy: {metaScore: 'desc' as const}
-                }
-            }
-        }
-        const VIEW_PRESETS = {
-            ...staticPresets,
-            ...dynamicPresets
-        };
-        type ViewPresentKey = keyof typeof VIEW_PRESETS;
-        const activeKey = Object.keys(VIEW_PRESETS).find((key): key is ViewPresentKey => parse.data[key as ViewPresentKey])
-        
-        if(activeKey) {
-            const present = VIEW_PRESETS[activeKey];
-            const appliedPreset = typeof present === 'function' ? present() : present
-
-            where = {...where, ...appliedPreset.where}
-            orderBy = appliedPreset.orderBy;
-
-        }
         const сollectionFilters = (field: "genres" | "platforms" | "publishers" | "categories", values: string[] ) => {
             return {
                 OR: values.map(value => ({
@@ -186,10 +179,10 @@ gameRouter.get('/games',  async(req, res) => {
         }
         const games = await prisma.game.findMany({
             where,
-            take: parse.data.take,
-            skip: parse.data.lastId ? 1 : 0,
-            cursor: parse.data.lastId ? {
-                id: parse.data.lastId,
+            take: queryParams.take,
+            skip: queryParams.lastId ? 1 : 0,
+            cursor: queryParams.lastId ? {
+                id: queryParams.lastId,
             } : undefined,
             include:{
                 genres: true, 
@@ -197,29 +190,19 @@ gameRouter.get('/games',  async(req, res) => {
             },
             orderBy
         });
-        const formatedGames = games.map(game => ({
+        return games.map((game:any) => ({
             ...game,
-            genres: game.genres.map(g => g.name),
-            platforms: game.platforms.map(p => p.name)
+            genres: game.genres.map((g:any) => g.name),
+            platforms: game.platforms.map((p:any) => p.name)
         }))
-        res.json(formatedGames)
-    } catch (error) {
-        console.log('Error to get the data:', error)
-        res.status(500).json()
-    }
-});
-gameRouter.get('/metadata', async(req, res) => {
-    try {
+    };
+    public async getGamesMetadata() {
         const [genres, platforms, publishers, categories] = await Promise.all([
             prisma.genre.findMany({orderBy: {name: 'asc'}}),
             prisma.platform.findMany({orderBy: {name: 'asc'}}),
             prisma.publisher.findMany({orderBy: {name: 'asc'}}),
             prisma.category.findMany({orderBy: {name: 'asc'}}),
         ]);
-        res.json({genres, platforms, publishers, categories})
-    } catch(error) {
-        res.status(500).json({error: 'Failed to load metaDate'})
+        return { genres, platforms, publishers, categories };
     }
-});
-
-export default gameRouter
+}
