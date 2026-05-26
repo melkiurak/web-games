@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import gameRouter from './routes/game.routes.js';
+import { globalErrorHandler } from "./middlewares/errorMiddleware.js";
 
 const app = express();
 
@@ -9,7 +10,6 @@ app.use('/api', gameRouter);
 app.listen(3000, () => {
     console.log("Server started");
 });
-
 const server = require('http').createServer((req:any,res:any) => {
     const {method, url} = req
     if(method === 'GET' && url === '/hello') {
@@ -20,3 +20,4 @@ const server = require('http').createServer((req:any,res:any) => {
         res.end('Not Found');
     }
 })
+app.use(globalErrorHandler)

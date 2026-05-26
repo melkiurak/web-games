@@ -1,14 +1,15 @@
-import axios, { all, get } from "axios";
+import axios, { all, } from "axios";
 import "dotenv/config";
-import { prisma } from "../database/client";
+import { prisma } from "../database/client.js";
+import config from "../config/env.js";
 
 
 const getToken = async() => {
     try{
         const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
             params:{
-                client_id: process.env.TWITCH_CLIENT_ID,
-                client_secret:  process.env.TWITCH_CLIENT_SECRET,
+                client_id: config.TWITCH_CLIENT_ID,
+                client_secret: config.TWITCH_CLIENT_SECRET,
                 grant_type: 'client_credentials'
             }
         })
