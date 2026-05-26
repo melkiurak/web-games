@@ -1,10 +1,11 @@
+import { NextFunction, Request, Response } from "express";
 
-export const globalErrorHandler = ({err, req, res, next} : any) => {
+export const globalErrorHandler = (err:Error, req:Request, res:Response, next:NextFunction) => {
     console.error(err.stack);
     
     if(process.env.NODE_ENV === 'production') {
-        res.json({
-            success: 'false',
+        res.status(500).json({
+            success: false,
             message: 'Internal Server Error',
         })
         return
@@ -14,4 +15,4 @@ export const globalErrorHandler = ({err, req, res, next} : any) => {
         message: 'Internal Server Error',
         devInfo: err.message,
     })
-}
+} 
